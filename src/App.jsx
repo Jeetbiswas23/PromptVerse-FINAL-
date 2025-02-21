@@ -567,10 +567,27 @@ const App = () => {
               <PromptScreen />
             </m.div>
 
+            {/* What we offer Section - updated margin-top */}
+            <m.div 
+              {...scrollAnimationConfig}
+              className="text-center mb-16 mt-16" // Changed from mt-32 to mt-16
+            >
+              <m.h2 
+                className="text-6xl font-bold mb-6 bg-gradient-to-r from-violet-200 via-fuchsia-200 to-violet-200 bg-clip-text text-transparent"
+                whileHover={{ scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                What we offer?
+              </m.h2>
+
+              <m.p className="text-violet-300/70 text-lg max-w-2xl mx-auto">
+                Discover the tools and features that make PromptVerse your ultimate AI prompt engineering platform
+              </m.p>
+            </m.div>
+
             {/* Animated Features Grid */}
             <m.div
               variants={{
-                hidden: { opacity: 0 },
                 show: {
                   opacity: 1,
                   transition: {
