@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Command, Share2, GitBranch, Star, DollarSign, Trophy, Beaker, MessageSquare } from 'lucide-react';
+import { Command, Share2, GitBranch, Star, DollarSign, Trophy, Beaker, MessageSquare, Terminal, Copy, Check, ChevronRight, Code, Wand2, PenTool, Brain } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const Stars = () => {
@@ -25,21 +25,41 @@ const Stars = () => {
 
 const PromptScreen = () => {
   const [currentPrompt, setCurrentPrompt] = useState(0);
+  const [copied, setCopied] = useState(false);
+  const [selectedEngine, setSelectedEngine] = useState('GPT-4');
+
   const prompts = [
     {
       title: "AI Art Generation",
       prompt: "Create a surreal landscape with floating islands, bioluminescent plants, and crystalline structures under a double moon sky",
-      category: "Art & Design"
+      category: "Art & Design",
+      icon: <Wand2 className="w-4 h-4" />,
+      tags: ["Midjourney", "Stable Diffusion", "DALL-E"],
+      engine: "DALL-E 3"
     },
     {
       title: "Story Writing",
       prompt: "Write a cyberpunk short story about a hacker who discovers an AI consciousness hidden in an abandoned virtual reality game",
-      category: "Creative Writing"
+      category: "Creative Writing",
+      icon: <PenTool className="w-4 h-4" />,
+      tags: ["Fiction", "Sci-Fi", "Narrative"],
+      engine: "GPT-4"
     },
     {
       title: "Code Generation",
       prompt: "Generate a React component for a futuristic dashboard with animated data visualizations and real-time updates",
-      category: "Programming"
+      category: "Programming",
+      icon: <Code className="w-4 h-4" />,
+      tags: ["React", "TypeScript", "Animation"],
+      engine: "CodeLlama"
+    },
+    {
+      title: "AI Assistant",
+      prompt: "Create a complex problem-solving algorithm that combines machine learning with traditional optimization methods",
+      category: "AI Development",
+      icon: <Brain className="w-4 h-4" />,
+      tags: ["ML", "Optimization", "Algorithm"],
+      engine: "Claude 2"
     }
   ];
 
@@ -50,62 +70,123 @@ const PromptScreen = () => {
     return () => clearInterval(interval);
   }, []);
 
+  const handleCopy = () => {
+    navigator.clipboard.writeText(prompts[currentPrompt].prompt);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       className="w-full max-w-4xl mx-auto my-16 relative"
     >
+      {/* Background effects */}
       <div className="absolute inset-0 bg-gradient-to-r from-violet-500/10 via-fuchsia-500/10 to-violet-500/10 blur-3xl" />
       <motion.div 
         className="relative backdrop-blur-xl bg-black/20 rounded-2xl border border-violet-500/20 p-8 overflow-hidden"
+        whileHover={{ boxShadow: "0 0 40px rgba(139, 92, 246, 0.1)" }}
       >
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-violet-500 to-transparent opacity-30" />
-        <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-violet-500 to-transparent opacity-30" />
-        
-        <motion.div
-          key={currentPrompt}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ type: "spring", duration: 0.5 }}
-          className="space-y-4"
-        >
-          <div className="flex justify-between items-center">
-            <motion.span 
-              className="text-violet-300 text-sm px-3 py-1 rounded-full border border-violet-500/20"
-              whileHover={{ scale: 1.05 }}
+        {/* Terminal header */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center space-x-2">
+            <Terminal className="w-5 h-5 text-violet-400" />
+            <span className="text-violet-300 font-mono">prompt_verse ~/prompts</span>
+          </div>
+          <div className="flex items-center space-x-3">
+            <select 
+              className="bg-violet-950/50 border border-violet-500/20 rounded-lg px-3 py-1 text-violet-300 text-sm"
+              value={selectedEngine}
+              onChange={(e) => setSelectedEngine(e.target.value)}
             >
-              {prompts[currentPrompt].category}
-            </motion.span>
+              <option>GPT-4</option>
+              <option>DALL-E 3</option>
+              <option>Claude 2</option>
+              <option>CodeLlama</option>
+            </select>
             <motion.div 
               className="flex space-x-1"
               animate={{ scale: [1, 1.2, 1] }}
               transition={{ duration: 2, repeat: Infinity }}
             >
-              {[...Array(3)].map((_, i) => (
-                <div 
+              {prompts.map((_, i) => (
+                <motion.div 
                   key={i} 
-                  className={`w-2 h-2 rounded-full ${i === currentPrompt ? 'bg-violet-400' : 'bg-violet-800'}`}
+                  className={`w-2 h-2 rounded-full cursor-pointer ${i === currentPrompt ? 'bg-violet-400' : 'bg-violet-800'}`}
+                  whileHover={{ scale: 1.2 }}
+                  onClick={() => setCurrentPrompt(i)}
                 />
               ))}
             </motion.div>
           </div>
+        </div>
+
+        <motion.div
+          key={currentPrompt}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -20 }}
+          transition={{ type: "spring", duration: 0.5 }}
+          className="space-y-4"
+        >
+          {/* Category and title */}
+          <div className="flex justify-between items-center">
+            <motion.div 
+              className="flex items-center space-x-2 text-violet-300 text-sm px-3 py-1 rounded-full border border-violet-500/20"
+              whileHover={{ scale: 1.05 }}
+            >
+              {prompts[currentPrompt].icon}
+              <span>{prompts[currentPrompt].category}</span>
+            </motion.div>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleCopy}
+              className="flex items-center space-x-2 text-violet-400 text-sm"
+            >
+              {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+              <span>{copied ? "Copied!" : "Copy prompt"}</span>
+            </motion.button>
+          </div>
           
-          <h3 className="text-xl font-bold text-violet-200">{prompts[currentPrompt].title}</h3>
+          <h3 className="text-xl font-bold text-violet-200 flex items-center space-x-2">
+            <ChevronRight className="w-5 h-5 text-violet-400" />
+            <span>{prompts[currentPrompt].title}</span>
+          </h3>
           
+          {/* Prompt display */}
           <div className="relative">
             <motion.div
-              className="bg-violet-950/50 rounded-lg p-4 font-mono text-sm text-violet-300"
+              className="bg-violet-950/50 rounded-lg p-6 font-mono text-sm text-violet-300"
               whileHover={{ scale: 1.01 }}
             >
-              <span className="text-violet-400">►</span> {prompts[currentPrompt].prompt}
+              <div className="flex items-start space-x-3">
+                <span className="text-violet-400 select-none">►</span>
+                <span>{prompts[currentPrompt].prompt}</span>
+              </div>
               <motion.div 
                 className="absolute bottom-2 right-2 w-2 h-4 bg-violet-400"
                 animate={{ opacity: [1, 0] }}
                 transition={{ duration: 0.8, repeat: Infinity }}
               />
             </motion.div>
+          </div>
+
+          {/* Tags */}
+          <div className="flex flex-wrap gap-2 mt-4">
+            {prompts[currentPrompt].tags.map((tag, index) => (
+              <motion.span
+                key={tag}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: index * 0.1 }}
+                className="px-2 py-1 text-xs rounded-md bg-violet-500/10 text-violet-300 border border-violet-500/20"
+                whileHover={{ scale: 1.05, backgroundColor: "rgba(139, 92, 246, 0.2)" }}
+              >
+                #{tag}
+              </motion.span>
+            ))}
           </div>
         </motion.div>
       </motion.div>
@@ -184,8 +265,8 @@ const App = () => {
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDIpIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-5" />
 
         {/* Vignette effect */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/20" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/20" />
+        <div class="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/20" />
+        <div class="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/20" />
       </div>
 
       {/* Navigation with lighter hover effects */}
@@ -256,10 +337,11 @@ const App = () => {
               </div>
             </motion.button>
 
+            {/* Update the motion.span component */}
             <motion.span
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
               className="text-violet-200/70 px-6 py-3 rounded-full border border-violet-500/10 hover:border-violet-500/20 transition-all duration-300"
             >
               Next Generation AI Platform
@@ -281,7 +363,6 @@ const App = () => {
                 key={index}
                 variants={item}
                 whileHover={{ y: -8, transition: { type: "spring", stiffness: 300 } }}
-                className="feature-card group p-6 bg-violet-900/10 rounded-xl border border-violet-500/10 hover:bg-violet-800/20 backdrop-blur-sm"
               >
                 <motion.span
                   whileHover={{ scale: 1.1 }}
