@@ -636,6 +636,15 @@ const App = () => {
             </m.div>
           </div>
         </div>
+
+        {/* Footer */}
+        <footer className="relative z-10 border-t border-violet-500/10 mt-32">
+          <div className="max-w-7xl mx-auto px-4 py-8">
+            <div className="text-center text-violet-300/50 text-sm">
+              © {new Date().getFullYear()} PromptVerse. All rights reserved.
+            </div>
+          </div>
+        </footer>
       </m.div>
     </LazyMotion>
   );
