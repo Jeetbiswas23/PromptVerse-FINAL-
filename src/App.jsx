@@ -1,5 +1,6 @@
 import React from 'react';
 import { Command, Share2, GitBranch, Star, DollarSign, Trophy, Beaker, MessageSquare } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const Stars = () => {
   return (
@@ -33,6 +34,21 @@ const App = () => {
     { icon: <DollarSign className="w-6 h-6" />, title: "Prompt Monetization", description: "Sell premium prompts or offer exclusive access" },
     { icon: <Trophy className="w-6 h-6" />, title: "Challenge Mode", description: "Compete to create the most effective prompts" }
   ];
+
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 }
+  };
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-white overflow-hidden">
@@ -75,13 +91,22 @@ const App = () => {
         </div>
       </nav>
 
-      {/* Hero Section with refined gradients */}
+      {/* Hero Section with Framer Motion */}
       <div className="relative z-10">
         <div className="max-w-7xl mx-auto px-4 py-32">
-          <div className="flex flex-col items-center text-center mb-16">
-            <h1 className="hero-text text-8xl font-bold mb-6 bg-gradient-to-r from-violet-200 via-fuchsia-200 to-violet-200 bg-clip-text text-transparent hover:scale-105 transition-transform duration-500 cursor-default animate-shine">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="flex flex-col items-center text-center mb-16"
+          >
+            <motion.h1
+              whileHover={{ scale: 1.05 }}
+              transition={{ type: "spring", stiffness: 300 }}
+              className="text-8xl font-bold mb-6 bg-gradient-to-r from-violet-200 via-fuchsia-200 to-violet-200 bg-clip-text text-transparent cursor-default animate-shine"
+            >
               PromptVerse
-            </h1>
+            </motion.h1>
             <h2 className="text-5xl font-bold mb-4 leading-tight">
               Create
               <span className="bg-gradient-to-r from-violet-200 to-purple-300 bg-clip-text text-transparent px-4">
@@ -93,8 +118,12 @@ const App = () => {
               </span>
             </h2>
 
-            {/* Futuristic Get Started Button */}
-            <button className="futuristic-button group relative my-8 px-14 py-4 overflow-hidden rounded-xl bg-violet-950/30 backdrop-blur-md">
+            {/* Animated Get Started Button */}
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="futuristic-button group relative my-8 px-14 py-4 overflow-hidden rounded-xl bg-violet-950/30 backdrop-blur-md"
+            >
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="w-1/2 h-[1px] bg-gradient-to-r from-transparent via-violet-400 to-transparent opacity-50" />
               </div>
@@ -111,33 +140,47 @@ const App = () => {
               <div className="absolute -inset-1/2 group-hover:opacity-100 opacity-0 transition-opacity duration-500">
                 <div className="absolute inset-0 blur-2xl bg-violet-600/20" />
               </div>
-            </button>
+            </motion.button>
 
-            <span className="text-violet-200/70 px-6 py-3 rounded-full border border-violet-500/10 hover:border-violet-500/20 transition-all duration-300">
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="text-violet-200/70 px-6 py-3 rounded-full border border-violet-500/10 hover:border-violet-500/20 transition-all duration-300"
+            >
               Next Generation AI Platform
-            </span>
-          </div>
+            </motion.span>
+          </motion.div>
 
-          {/* Features Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
+          {/* Animated Features Grid */}
+          <motion.div
+            variants={container}
+            initial="hidden"
+            animate="show"
+            className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mt-12"
+          >
             {features.map((feature, index) => (
-              <div
+              <motion.div
                 key={index}
-                className="feature-card group p-6 bg-violet-900/10 rounded-xl border border-violet-500/10 hover:bg-violet-800/20 transition-all duration-300 hover:-translate-y-2 backdrop-blur-sm"
-                style={{ '--delay': index }}
+                variants={item}
+                whileHover={{ y: -8, transition: { type: "spring", stiffness: 300 } }}
+                className="feature-card group p-6 bg-violet-900/10 rounded-xl border border-violet-500/10 hover:bg-violet-800/20 backdrop-blur-sm"
               >
-                <span className="text-violet-300 mb-4 block transition-transform duration-300 group-hover:scale-110">
+                <motion.span
+                  whileHover={{ scale: 1.1 }}
+                  className="text-violet-300 mb-4 block"
+                >
                   {feature.icon}
-                </span>
+                </motion.span>
                 <h3 className="text-lg font-semibold mb-2 text-violet-100">
                   {feature.title}
                 </h3>
                 <p className="text-violet-300/70 text-sm">
                   {feature.description}
                 </p>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>
