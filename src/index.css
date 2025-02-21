@@ -1,5 +1,6 @@
 @import "tailwindcss";
 
+/* Core styles */
 .stars-container {
   position: absolute;
   inset: 0;
@@ -30,12 +31,11 @@
   }
 }
 
-// Remove these animations as they're handled by Framer Motion now
+/* Component styles */
 .feature-card {
   backdrop-filter: blur(12px);
 }
 
-// Keep the button styles but remove animations
 .futuristic-button::before {
   content: '';
   position: absolute;

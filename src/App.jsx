@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Command, Share2, GitBranch, Star, DollarSign, Trophy, Beaker, MessageSquare } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -23,7 +23,101 @@ const Stars = () => {
   );
 };
 
+const PromptScreen = () => {
+  const [currentPrompt, setCurrentPrompt] = useState(0);
+  const prompts = [
+    {
+      title: "AI Art Generation",
+      prompt: "Create a surreal landscape with floating islands, bioluminescent plants, and crystalline structures under a double moon sky",
+      category: "Art & Design"
+    },
+    {
+      title: "Story Writing",
+      prompt: "Write a cyberpunk short story about a hacker who discovers an AI consciousness hidden in an abandoned virtual reality game",
+      category: "Creative Writing"
+    },
+    {
+      title: "Code Generation",
+      prompt: "Generate a React component for a futuristic dashboard with animated data visualizations and real-time updates",
+      category: "Programming"
+    }
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentPrompt((prev) => (prev + 1) % prompts.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="w-full max-w-4xl mx-auto my-16 relative"
+    >
+      <div className="absolute inset-0 bg-gradient-to-r from-violet-500/10 via-fuchsia-500/10 to-violet-500/10 blur-3xl" />
+      <motion.div 
+        className="relative backdrop-blur-xl bg-black/20 rounded-2xl border border-violet-500/20 p-8 overflow-hidden"
+      >
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-violet-500 to-transparent opacity-30" />
+        <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-violet-500 to-transparent opacity-30" />
+        
+        <motion.div
+          key={currentPrompt}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ type: "spring", duration: 0.5 }}
+          className="space-y-4"
+        >
+          <div className="flex justify-between items-center">
+            <motion.span 
+              className="text-violet-300 text-sm px-3 py-1 rounded-full border border-violet-500/20"
+              whileHover={{ scale: 1.05 }}
+            >
+              {prompts[currentPrompt].category}
+            </motion.span>
+            <motion.div 
+              className="flex space-x-1"
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              {[...Array(3)].map((_, i) => (
+                <div 
+                  key={i} 
+                  className={`w-2 h-2 rounded-full ${i === currentPrompt ? 'bg-violet-400' : 'bg-violet-800'}`}
+                />
+              ))}
+            </motion.div>
+          </div>
+          
+          <h3 className="text-xl font-bold text-violet-200">{prompts[currentPrompt].title}</h3>
+          
+          <div className="relative">
+            <motion.div
+              className="bg-violet-950/50 rounded-lg p-4 font-mono text-sm text-violet-300"
+              whileHover={{ scale: 1.01 }}
+            >
+              <span className="text-violet-400">►</span> {prompts[currentPrompt].prompt}
+              <motion.div 
+                className="absolute bottom-2 right-2 w-2 h-4 bg-violet-400"
+                animate={{ opacity: [1, 0] }}
+                transition={{ duration: 0.8, repeat: Infinity }}
+              />
+            </motion.div>
+          </div>
+        </motion.div>
+      </motion.div>
+    </motion.div>
+  );
+};
+
 const App = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const features = [
     { icon: <Share2 className="w-6 h-6" />, title: "Prompt Marketplace", description: "Share and discover high-quality AI prompts across multiple categories" },
     { icon: <Command className="w-6 h-6" />, title: "Live Prompt Testing", description: "Test prompts in real-time and optimize outputs directly on platform" },
@@ -36,22 +130,38 @@ const App = () => {
   ];
 
   const container = {
-    hidden: { opacity: 0 },
+    hidden: { opacity: 0, y: 0 },
     show: {
       opacity: 1,
+      y: 0,
       transition: {
+        type: "spring",
+        damping: 20,
+        stiffness: 100,
         staggerChildren: 0.1
       }
     }
   };
 
   const item = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0 }
+    hidden: { opacity: 0, y: 0 },
+    show: { 
+      opacity: 1, 
+      y: 0,
+      transition: {
+        type: "spring",
+        damping: 20,
+        stiffness: 100
+      }
+    }
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white overflow-hidden">
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="min-h-screen bg-[#0a0a0f] text-white overflow-hidden"
+    >
       {/* Enhanced animated background with multiple layers */}
       <div className="fixed inset-0 z-0">
         {/* Updated base gradient */}
@@ -95,9 +205,13 @@ const App = () => {
       <div className="relative z-10">
         <div className="max-w-7xl mx-auto px-4 py-32">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 0 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ 
+              type: "spring",
+              damping: 20,
+              stiffness: 100
+            }}
             className="flex flex-col items-center text-center mb-16"
           >
             <motion.h1
@@ -152,6 +266,9 @@ const App = () => {
             </motion.span>
           </motion.div>
 
+          {/* Add Prompt Screen */}
+          <PromptScreen />
+
           {/* Animated Features Grid */}
           <motion.div
             variants={container}
@@ -183,7 +300,7 @@ const App = () => {
           </motion.div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
