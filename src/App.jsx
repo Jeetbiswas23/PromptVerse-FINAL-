@@ -249,9 +249,9 @@ const PromptScreen = () => {
   };
 
   return (
-    <div className="relative w-full max-w-7xl mx-auto px-4 py-12">
-      {/* 3D Models Container */}
-      <div className="pointer-events-none">
+    <div className="relative w-full max-w-7xl mx-auto px-4 py-6 sm:py-12">
+      {/* Hide 3D models on mobile */}
+      <div className="hidden lg:block pointer-events-none">
         {/* Right side model */}
         <div className="absolute -right-20 top-0 w-[500px] h-[500px]">
           <Canvas legacy={true}>
@@ -285,21 +285,21 @@ const PromptScreen = () => {
         </div>
       </div>
 
-      {/* Prompt Display Container */}
+      {/* Prompt Display Container - adjusted for mobile */}
       <motion.div 
-        className="relative z-10 backdrop-blur-xl bg-black/30 rounded-2xl border border-violet-500/20 p-8 shadow-2xl mx-auto max-w-4xl"
+        className="relative z-10 backdrop-blur-xl bg-black/30 rounded-2xl border border-violet-500/20 p-4 sm:p-8 shadow-2xl mx-auto max-w-4xl"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={springConfig}
       >
-        {/* Terminal header */}
-        <div className="flex flex-col space-y-4 mb-8">
-          <div className="flex items-center justify-between">
+        {/* Terminal header - adjusted for mobile */}
+        <div className="flex flex-col space-y-4 mb-4 sm:mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
             <div className="flex items-center space-x-3">
-              <Terminal className="w-6 h-6 text-violet-400" />
-              <span className="text-violet-300 font-mono text-lg">prompt_verse ~/prompts</span>
+              <Terminal className="w-5 h-5 sm:w-6 sm:h-6 text-violet-400" />
+              <span className="text-violet-300 font-mono text-base sm:text-lg">prompt_verse ~/prompts</span>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -483,12 +483,78 @@ const Navigation = () => {
   };
 
   return (
-    <nav className="relative z-50 backdrop-blur-sm border-b border-white/5 sticky top-0"> {/* Increased z-index */}
-      <div className="max-w-7xl mx-auto flex justify-end items-center p-4">
-        <div className="flex space-x-6 items-center">
-          <button className="px-4 py-2 text-gray-300 hover:text-white transition-all duration-300">Blog</button>
-          <button className="px-4 py-2 text-gray-300 hover:text-white transition-all duration-300">Get in touch</button>
-          
+    <nav className="relative z-50 backdrop-blur-sm border-b border-white/5 sticky top-0">
+      <div className="max-w-7xl mx-auto flex justify-between items-center p-4">
+        {/* Logo - Left side */}
+        <div className="flex items-center">
+          <span className="text-xl font-bold bg-gradient-to-r from-violet-200 to-fuchsia-200 bg-clip-text text-transparent">
+            PromptVerse
+          </span>
+        </div>
+
+        {/* Navigation Links - Right side */}
+        <div className="flex items-center space-x-4">
+          {/* Desktop Menu */}
+          <div className="hidden md:flex items-center space-x-6">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate('/blog')}
+              className="px-4 py-2 text-violet-300 hover:text-violet-100 transition-colors"
+            >
+              Blog
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate('/contact')}
+              className="px-4 py-2 text-violet-300 hover:text-violet-100 transition-colors"
+            >
+              Get in touch
+            </motion.button>
+          </div>
+
+          {/* Mobile Menu Button */}
+          <div className="md:hidden">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="p-2 text-violet-300 hover:text-violet-100"
+            >
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
+              </svg>
+            </motion.button>
+
+            <AnimatePresence>
+              {isDropdownOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="absolute right-0 mt-2 w-48 bg-violet-950/90 backdrop-blur-sm rounded-lg border border-violet-500/20 shadow-xl"
+                >
+                  <div className="py-1">
+                    <button 
+                      className="w-full text-left px-4 py-2 text-sm text-violet-200 hover:bg-violet-800/50"
+                      onClick={() => handleNavigation('/blog')}
+                    >
+                      Blog
+                    </button>
+                    <button 
+                      className="w-full text-left px-4 py-2 text-sm text-violet-200 hover:bg-violet-800/50"
+                      onClick={() => handleNavigation('/contact')}
+                    >
+                      Get in touch
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* Sign In/User Menu */}
           {user ? (
             <div className="relative" ref={dropdownRef}>
               <motion.button
@@ -545,7 +611,7 @@ const Navigation = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => navigate('/signin')}
-              className="px-6 py-2 bg-white/5 rounded-lg hover:bg-white/10 transition-all duration-300 border border-white/10"
+              className="px-4 sm:px-6 py-2 bg-white/5 rounded-lg hover:bg-white/10 transition-all duration-300 border border-white/10"
             >
               Sign In
             </motion.button>
@@ -633,19 +699,19 @@ const MainContent = () => {
 
         {/* Hero Section with Framer Motion */}
         <div className="relative z-10">
-          <div className="max-w-7xl mx-auto px-4 py-32">
+          <div className="max-w-7xl mx-auto px-4 py-16 sm:py-32">
             <m.div
               {...scrollAnimationConfig}
-              className="flex flex-col items-center text-center mb-16"
+              className="flex flex-col items-center text-center mb-8 sm:mb-16"
             >
               <motion.h1
                 whileHover={{ scale: 1.05 }}
                 transition={{ type: "spring", stiffness: 300 }}
-                className="text-8xl font-bold mb-6 bg-gradient-to-r from-violet-200 via-fuchsia-200 to-violet-200 bg-clip-text text-transparent cursor-default animate-shine"
+                className="text-5xl sm:text-8xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-violet-200 via-fuchsia-200 to-violet-200 bg-clip-text text-transparent cursor-default animate-shine"
               >
                 PromptVerse
               </motion.h1>
-              <h2 className="text-5xl font-bold mb-4 leading-tight">
+              <h2 className="text-3xl sm:text-5xl font-bold mb-4 leading-tight">
                 Create
                 <span className="bg-gradient-to-r from-violet-200 to-purple-300 bg-clip-text text-transparent px-4">
                   powerful
@@ -725,7 +791,7 @@ const MainContent = () => {
               initial="hidden"
               whileInView="show"
               viewport={{ once: true, margin: "-100px" }}
-              className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mt-12"
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mt-8 sm:mt-12"
             >
               {features.map((feature, index) => (
                 <m.div
