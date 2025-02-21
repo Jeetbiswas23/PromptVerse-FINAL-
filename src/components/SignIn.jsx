@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { User, Lock, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../App';
+import { googleConfig } from '../config/googleAuth';
 
 // Export as memoized component
 export const Stars = React.memo(() => {
@@ -140,6 +141,49 @@ const SignIn = () => {
     autoFillCredentials();
   }, []);
 
+  const handleGoogleSignIn = async () => {
+    try {
+      const gapi = window.gapi;
+      await gapi.load('auth2');
+      const auth2 = await gapi.auth2.init({
+        client_id: googleConfig.clientId,
+        scope: googleConfig.scope
+      });
+
+      const googleUser = await auth2.signIn();
+      const profile = googleUser.getBasicProfile();
+      
+      const user = {
+        name: profile.getName(),
+        email: profile.getEmail(),
+        imageUrl: profile.getImageUrl()
+      };
+      
+      setUser(user);
+      localStorage.setItem('user', JSON.stringify(user));
+      navigate('/', { replace: true });
+    } catch (error) {
+      setError('Failed to sign in with Google');
+      console.error('Google Sign In Error:', error);
+    }
+  };
+
+  const handleGithubSignIn = async () => {
+    try {
+      // Simulate GitHub sign in
+      const mockGithubUser = {
+        name: 'GitHub User',
+        email: 'github.user@example.com'
+      };
+      
+      setUser(mockGithubUser);
+      localStorage.setItem('user', JSON.stringify(mockGithubUser));
+      navigate('/', { replace: true });
+    } catch (error) {
+      setError('Failed to sign in with GitHub');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center relative overflow-hidden">
       {/* Background effects */}
@@ -273,6 +317,7 @@ const SignIn = () => {
               <motion.button
                 whileHover={{ scale: 1.02, y: -2 }}
                 whileTap={{ scale: 0.98 }}
+                onClick={handleGoogleSignIn}
                 className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-violet-950/50 rounded-lg border border-violet-500/30 text-violet-200 hover:bg-violet-900/50 transition-colors"
               >
                 <GoogleIcon />
@@ -281,6 +326,7 @@ const SignIn = () => {
               <motion.button
                 whileHover={{ scale: 1.02, y: -2 }}
                 whileTap={{ scale: 0.98 }}
+                onClick={handleGithubSignIn}
                 className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-violet-950/50 rounded-lg border border-violet-500/30 text-violet-200 hover:bg-violet-900/50 transition-colors"
               >
                 <GithubIcon />

@@ -4,6 +4,7 @@ import { User, Lock, ArrowLeft, Mail } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Stars, GoogleIcon, GithubIcon } from './SignIn';
 import { AuthContext } from '../App';
+import { googleConfig } from '../config/googleAuth';
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -84,6 +85,49 @@ const SignUp = () => {
   // Back button should now go to signin
   const handleBack = () => {
     navigate('/signin');
+  };
+
+  const handleGoogleSignUp = async () => {
+    try {
+      const gapi = window.gapi;
+      await gapi.load('auth2');
+      const auth2 = await gapi.auth2.init({
+        client_id: googleConfig.clientId,
+        scope: googleConfig.scope
+      });
+
+      const googleUser = await auth2.signIn();
+      const profile = googleUser.getBasicProfile();
+      
+      const user = {
+        name: profile.getName(),
+        email: profile.getEmail(),
+        imageUrl: profile.getImageUrl()
+      };
+      
+      setUser(user);
+      localStorage.setItem('user', JSON.stringify(user));
+      navigate('/', { replace: true });
+    } catch (error) {
+      setErrors({ socialAuth: 'Failed to sign up with Google' });
+      console.error('Google Sign Up Error:', error);
+    }
+  };
+
+  const handleGithubSignUp = async () => {
+    try {
+      // Simulate GitHub sign up
+      const mockGithubUser = {
+        name: 'GitHub User',
+        email: 'github.user@example.com'
+      };
+      
+      setUser(mockGithubUser);
+      localStorage.setItem('user', JSON.stringify(mockGithubUser));
+      navigate('/', { replace: true });
+    } catch (error) {
+      setErrors({ socialAuth: 'Failed to sign up with GitHub' });
+    }
   };
 
   return (
@@ -241,6 +285,8 @@ const SignUp = () => {
               <motion.button
                 whileHover={{ scale: 1.02, y: -2 }}
                 whileTap={{ scale: 0.98 }}
+                onClick={handleGoogleSignUp}
+                type="button"
                 className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-violet-950/50 rounded-lg border border-violet-500/30 text-violet-200 hover:bg-violet-900/50 transition-colors"
               >
                 <GoogleIcon />
@@ -249,6 +295,8 @@ const SignUp = () => {
               <motion.button
                 whileHover={{ scale: 1.02, y: -2 }}
                 whileTap={{ scale: 0.98 }}
+                onClick={handleGithubSignUp}
+                type="button"
                 className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-violet-950/50 rounded-lg border border-violet-500/30 text-violet-200 hover:bg-violet-900/50 transition-colors"
               >
                 <GithubIcon />
