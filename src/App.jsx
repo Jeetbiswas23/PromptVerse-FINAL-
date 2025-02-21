@@ -661,6 +661,24 @@ const MainContent = () => {
     }
   };
 
+  const useCases = [
+    {
+      title: "AI Developers",
+      description: "Perfect for ML engineers and AI developers who need to create, test, and optimize prompts at scale.",
+      icon: <Brain className="w-8 h-8" />
+    },
+    {
+      title: "Content Creators",
+      description: "Ideal for writers, artists, and creators looking to enhance their workflow with AI-powered tools.",
+      icon: <PenTool className="w-8 h-8" />
+    },
+    {
+      title: "Businesses",
+      description: "Help teams standardize and improve their AI interactions across various departments.",
+      icon: <Command className="w-8 h-8" />
+    }
+  ];
+
   return (
     <LazyMotion features={domAnimation}>
       <m.div 
@@ -757,6 +775,52 @@ const MainContent = () => {
             {/* Add Prompt Screen */}
             <m.div {...scrollAnimationConfig}>
               <PromptScreen />
+            </m.div>
+
+            {/* New Use Cases Section */}
+            <m.div 
+              {...scrollAnimationConfig}
+              className="text-center mb-16 mt-32"
+            >
+              <m.h2 
+                className="text-6xl font-bold mb-6 bg-gradient-to-r from-violet-200 via-fuchsia-200 to-violet-200 bg-clip-text text-transparent"
+                whileHover={{ scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                Who's this for?
+              </m.h2>
+              <m.p className="text-violet-300/70 text-lg max-w-2xl mx-auto mb-12">
+                PromptVerse is designed for everyone who works with AI, from beginners to experts
+              </m.p>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {useCases.map((useCase, index) => (
+                  <m.div
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ 
+                      opacity: 1, 
+                      y: 0,
+                      transition: { delay: index * 0.2 }
+                    }}
+                    viewport={{ once: true }}
+                    className="bg-violet-900/10 backdrop-blur-sm rounded-xl p-8 border border-violet-500/10"
+                  >
+                    <motion.div
+                      whileHover={{ scale: 1.1 }}
+                      className="text-violet-400 mb-6 flex justify-center"
+                    >
+                      {useCase.icon}
+                    </motion.div>
+                    <h3 className="text-xl font-semibold text-violet-200 mb-4">
+                      {useCase.title}
+                    </h3>
+                    <p className="text-violet-300/70">
+                      {useCase.description}
+                    </p>
+                  </m.div>
+                ))}
+              </div>
             </m.div>
 
             {/* What we offer Section - updated margin-top */}
