@@ -449,9 +449,16 @@ const PromptScreen = () => {
 // Update Navigation component
 const Navigation = () => {
   const navigate = useNavigate();
-  const { user } = useContext(AuthContext);
+  const { user, setUser } = useContext(AuthContext);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+
+  const handleSignOut = () => {
+    setUser(null); // Clear user context first
+    setIsDropdownOpen(false); // Close dropdown
+    localStorage.clear(); // Clear all localStorage
+    navigate('/signin', { replace: true }); // Navigate to sign in
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -460,14 +467,23 @@ const Navigation = () => {
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    // Add event listener only when dropdown is open
+    if (isDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, []);
-  
+  }, [isDropdownOpen]); // Add isDropdownOpen as dependency
+
+  const handleNavigation = (path) => {
+    setIsDropdownOpen(false);
+    navigate(path);
+  };
+
   return (
-    <nav className="relative z-10 backdrop-blur-sm border-b border-white/5 sticky top-0">
+    <nav className="relative z-50 backdrop-blur-sm border-b border-white/5 sticky top-0"> {/* Increased z-index */}
       <div className="max-w-7xl mx-auto flex justify-end items-center p-4">
         <div className="flex space-x-6 items-center">
           <button className="px-4 py-2 text-gray-300 hover:text-white transition-all duration-300">Blog</button>
@@ -502,23 +518,20 @@ const Navigation = () => {
                     <div className="py-1">
                       <button 
                         className="w-full text-left px-4 py-2 text-sm text-violet-200 hover:bg-violet-800/50"
-                        onClick={() => navigate('/profile')}
+                        onClick={() => handleNavigation('/profile')}
                       >
                         Profile
                       </button>
                       <button 
                         className="w-full text-left px-4 py-2 text-sm text-violet-200 hover:bg-violet-800/50"
-                        onClick={() => navigate('/settings')}
+                        onClick={() => handleNavigation('/settings')}
                       >
                         Settings
                       </button>
                       <div className="border-t border-violet-500/20"></div>
                       <button 
                         className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-violet-800/50"
-                        onClick={() => {
-                          setUser(null);
-                          navigate('/signin');
-                        }}
+                        onClick={handleSignOut}
                       >
                         Sign Out
                       </button>
