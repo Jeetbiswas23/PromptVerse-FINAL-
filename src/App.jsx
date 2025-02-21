@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Command, Share2, GitBranch, Star, DollarSign, Trophy, Beaker, MessageSquare, Terminal, Copy, Check, ChevronRight, Code, Wand2, PenTool, Brain } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls, Float, MeshDistortMaterial, Environment, PerspectiveCamera } from '@react-three/drei';
 
 const Stars = () => {
   return (
@@ -23,10 +25,120 @@ const Stars = () => {
   );
 };
 
+const AnimatedSphere = () => {
+  return (
+    <Float
+      speed={2}
+      rotationIntensity={2}
+      floatIntensity={3}
+    >
+      <mesh scale={2}>
+        <sphereGeometry args={[1, 32, 32]} />
+        <MeshDistortMaterial
+          color="#8b5cf6"
+          emissive="#8b5cf6"
+          emissiveIntensity={0.8}
+          attach="material"
+          distort={0.6}
+          speed={3}
+          roughness={0}
+          metalness={1}
+        />
+      </mesh>
+    </Float>
+  );
+};
+
+// Update the HexagonRing component
+const HexagonRing = () => {
+  return (
+    <Float
+      speed={1.2}
+      rotationIntensity={2}
+      floatIntensity={2}
+    >
+      <mesh rotation={[Math.PI / 4, 0, 0]} scale={0.8}>
+        <torusGeometry args={[2.5, 0.4, 16, 6]} />
+        <MeshDistortMaterial
+          color="#4c1d95"
+          emissive="#4c1d95"
+          emissiveIntensity={0.5}
+          attach="material"
+          distort={0.5}
+          speed={2}
+          roughness={0}
+          metalness={1}
+        />
+      </mesh>
+    </Float>
+  );
+};
+
+const FloatingCube = () => {
+  return (
+    <Float
+      speed={2.5}
+      rotationIntensity={4}
+      floatIntensity={3}
+    >
+      <mesh scale={2} rotation={[Math.PI / 4, Math.PI / 4, 0]}>
+        <boxGeometry args={[1, 1, 1]} />
+        <MeshDistortMaterial
+          color="#7c3aed"
+          emissive="#7c3aed"
+          emissiveIntensity={1}
+          attach="material"
+          distort={0.8}
+          speed={2}
+          roughness={0}
+          metalness={1}
+        />
+      </mesh>
+    </Float>
+  );
+};
+
+const PromptModel = () => {
+  return (
+    <Float
+      speed={2}
+      rotationIntensity={2}
+      floatIntensity={1.5}
+    >
+      <mesh>
+        <torusGeometry args={[1, 0.3, 16, 32]} />
+        <MeshDistortMaterial
+          color="#a855f7"
+          attach="material"
+          distort={0.4}
+          speed={3}
+          roughness={0.2}
+          metalness={0.8}
+        />
+      </mesh>
+    </Float>
+  );
+};
+
 const PromptScreen = () => {
   const [currentPrompt, setCurrentPrompt] = useState(0);
   const [copied, setCopied] = useState(false);
   const [selectedEngine, setSelectedEngine] = useState('GPT-4');
+  const [temperature, setTemperature] = useState(0.7);
+  const [maxTokens, setMaxTokens] = useState(2048);
+  const [showSettings, setShowSettings] = useState(false);
+
+  // Add more engine options
+  const engines = [
+    { name: 'GPT-4', maxTokens: 8192 },
+    { name: 'GPT-3.5 Turbo', maxTokens: 4096 },
+    { name: 'DALL-E 3', maxTokens: 4096 },
+    { name: 'Claude 2', maxTokens: 8192 },
+    { name: 'CodeLlama', maxTokens: 4096 },
+    { name: 'Stable Diffusion XL', maxTokens: 2048 },
+    { name: 'PaLM 2', maxTokens: 8192 },
+    { name: 'Llama 2', maxTokens: 4096 }
+  ];
 
   const prompts = [
     {
@@ -77,49 +189,123 @@ const PromptScreen = () => {
   };
 
   return (
-    <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="w-full max-w-4xl mx-auto my-16 relative"
-    >
-      {/* Background effects */}
-      <div className="absolute inset-0 bg-gradient-to-r from-violet-500/10 via-fuchsia-500/10 to-violet-500/10 blur-3xl" />
+    <div className="relative w-full max-w-7xl mx-auto px-4 py-12">
+      {/* 3D Models Container */}
+      <div className="pointer-events-none">
+        {/* Right side model */}
+        <div className="absolute -right-20 top-0 w-[500px] h-[500px]">
+          <Canvas legacy={true}>
+            <PerspectiveCamera makeDefault position={[0, 0, 8]} fov={50} />
+            <ambientLight intensity={3} />
+            <pointLight position={[10, 10, 10]} intensity={4} color="#8b5cf6" />
+            <AnimatedSphere />
+            <OrbitControls 
+              enableZoom={false} 
+              autoRotate 
+              autoRotateSpeed={2}
+            />
+          </Canvas>
+          <div className="absolute inset-0 bg-gradient-radial from-violet-600/20 via-violet-600/10 to-transparent blur-2xl" />
+        </div>
+
+        {/* Left side model */}
+        <div className="absolute -left-20 top-40 w-[500px] h-[500px]">
+          <Canvas legacy={true}>
+            <PerspectiveCamera makeDefault position={[0, 0, 8]} fov={50} />
+            <ambientLight intensity={3} />
+            <pointLight position={[10, 10, 10]} intensity={4} color="#7c3aed" />
+            <FloatingCube />
+            <OrbitControls 
+              enableZoom={false} 
+              autoRotate 
+              autoRotateSpeed={-2}
+            />
+          </Canvas>
+          <div className="absolute inset-0 bg-gradient-radial from-purple-600/20 via-purple-600/10 to-transparent blur-2xl" />
+        </div>
+      </div>
+
+      {/* Prompt Display Container */}
       <motion.div 
-        className="relative backdrop-blur-xl bg-black/20 rounded-2xl border border-violet-500/20 p-8 overflow-hidden"
-        whileHover={{ boxShadow: "0 0 40px rgba(139, 92, 246, 0.1)" }}
+        className="relative z-10 backdrop-blur-xl bg-black/30 rounded-2xl border border-violet-500/20 p-8 shadow-2xl mx-auto max-w-4xl"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
       >
         {/* Terminal header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-2">
-            <Terminal className="w-5 h-5 text-violet-400" />
-            <span className="text-violet-300 font-mono">prompt_verse ~/prompts</span>
+        <div className="flex flex-col space-y-4 mb-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <Terminal className="w-6 h-6 text-violet-400" />
+              <span className="text-violet-300 font-mono text-lg">prompt_verse ~/prompts</span>
+            </div>
+            <div className="flex items-center space-x-4">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setShowSettings(!showSettings)}
+                className="px-4 py-2 bg-violet-500/10 rounded-lg border border-violet-500/20 text-violet-300 text-sm hover:bg-violet-500/20"
+              >
+                Model Settings
+              </motion.button>
+              <select 
+                className="bg-violet-950/50 border border-violet-500/20 rounded-lg px-4 py-2 text-violet-300 text-sm min-w-[180px]"
+                value={selectedEngine}
+                onChange={(e) => setSelectedEngine(e.target.value)}
+              >
+                {engines.map(engine => (
+                  <option key={engine.name}>{engine.name}</option>
+                ))}
+              </select>
+            </div>
           </div>
-          <div className="flex items-center space-x-3">
-            <select 
-              className="bg-violet-950/50 border border-violet-500/20 rounded-lg px-3 py-1 text-violet-300 text-sm"
-              value={selectedEngine}
-              onChange={(e) => setSelectedEngine(e.target.value)}
-            >
-              <option>GPT-4</option>
-              <option>DALL-E 3</option>
-              <option>Claude 2</option>
-              <option>CodeLlama</option>
-            </select>
-            <motion.div 
-              className="flex space-x-1"
-              animate={{ scale: [1, 1.2, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
-              {prompts.map((_, i) => (
-                <motion.div 
-                  key={i} 
-                  className={`w-2 h-2 rounded-full cursor-pointer ${i === currentPrompt ? 'bg-violet-400' : 'bg-violet-800'}`}
-                  whileHover={{ scale: 1.2 }}
-                  onClick={() => setCurrentPrompt(i)}
+
+          {/* Settings Panel with smoother animation */}
+          <motion.div
+            initial={false}
+            animate={{ 
+              height: showSettings ? 'auto' : 0,
+              opacity: showSettings ? 1 : 0
+            }}
+            transition={{ 
+              height: { duration: 0.4 },
+              opacity: { duration: 0.3 }
+            }}
+            style={{ overflow: 'hidden' }}
+          >
+            <div className="bg-violet-950/30 rounded-lg p-4 space-y-4">
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <label className="text-violet-300 text-sm">Temperature: {temperature}</label>
+                  <span className="text-violet-400 text-xs">{temperature < 0.3 ? 'Focused' : temperature > 0.7 ? 'Creative' : 'Balanced'}</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.1"
+                  value={temperature}
+                  onChange={(e) => setTemperature(parseFloat(e.target.value))}
+                  className="w-full accent-violet-500"
                 />
-              ))}
-            </motion.div>
-          </div>
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <label className="text-violet-300 text-sm">Max Tokens: {maxTokens}</label>
+                  <span className="text-violet-400 text-xs">{maxTokens / 1024}k tokens</span>
+                </div>
+                <input
+                  type="range"
+                  min="256"
+                  max="8192"
+                  step="256"
+                  value={maxTokens}
+                  onChange={(e) => setMaxTokens(parseInt(e.target.value))}
+                  className="w-full accent-violet-500"
+                />
+              </div>
+            </div>
+          </motion.div>
         </div>
 
         <motion.div
@@ -128,12 +314,12 @@ const PromptScreen = () => {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -20 }}
           transition={{ type: "spring", duration: 0.5 }}
-          className="space-y-4"
+          className="space-y-6" // Increased spacing
         >
           {/* Category and title */}
           <div className="flex justify-between items-center">
             <motion.div 
-              className="flex items-center space-x-2 text-violet-300 text-sm px-3 py-1 rounded-full border border-violet-500/20"
+              className="flex items-center space-x-3 text-violet-300 text-base px-4 py-2 rounded-full border border-violet-500/20"
               whileHover={{ scale: 1.05 }}
             >
               {prompts[currentPrompt].icon}
@@ -150,15 +336,15 @@ const PromptScreen = () => {
             </motion.button>
           </div>
           
-          <h3 className="text-xl font-bold text-violet-200 flex items-center space-x-2">
-            <ChevronRight className="w-5 h-5 text-violet-400" />
+          <h3 className="text-2xl font-bold text-violet-200 flex items-center space-x-3">
+            <ChevronRight className="w-6 h-6 text-violet-400" />
             <span>{prompts[currentPrompt].title}</span>
           </h3>
           
           {/* Prompt display */}
           <div className="relative">
             <motion.div
-              className="bg-violet-950/50 rounded-lg p-6 font-mono text-sm text-violet-300"
+              className="bg-violet-950/50 rounded-lg p-8 font-mono text-base text-violet-300"
               whileHover={{ scale: 1.01 }}
             >
               <div className="flex items-start space-x-3">
@@ -174,14 +360,14 @@ const PromptScreen = () => {
           </div>
 
           {/* Tags */}
-          <div className="flex flex-wrap gap-2 mt-4">
+          <div className="flex flex-wrap gap-3 mt-6">
             {prompts[currentPrompt].tags.map((tag, index) => (
               <motion.span
                 key={tag}
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: index * 0.1 }}
-                className="px-2 py-1 text-xs rounded-md bg-violet-500/10 text-violet-300 border border-violet-500/20"
+                className="px-4 py-2 text-sm rounded-md bg-violet-500/10 text-violet-300 border border-violet-500/20"
                 whileHover={{ scale: 1.05, backgroundColor: "rgba(139, 92, 246, 0.2)" }}
               >
                 #{tag}
@@ -190,7 +376,7 @@ const PromptScreen = () => {
           </div>
         </motion.div>
       </motion.div>
-    </motion.div>
+    </div>
   );
 };
 
@@ -265,8 +451,8 @@ const App = () => {
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDIpIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-5" />
 
         {/* Vignette effect */}
-        <div class="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/20" />
-        <div class="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/20" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/20" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/20" />
       </div>
 
       {/* Navigation with lighter hover effects */}
@@ -363,6 +549,7 @@ const App = () => {
                 key={index}
                 variants={item}
                 whileHover={{ y: -8, transition: { type: "spring", stiffness: 300 } }}
+                className="feature-card group p-6 bg-violet-900/10 rounded-xl border border-violet-500/10 hover:bg-violet-800/20 backdrop-blur-sm"
               >
                 <motion.span
                   whileHover={{ scale: 1.1 }}

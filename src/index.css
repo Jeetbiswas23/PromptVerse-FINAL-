@@ -15,13 +15,13 @@
   background-color: white;
   border-radius: 50%;
   animation: twinkle 5s infinite;
-  box-shadow: 0 0 3px #fff,
-              0 0 5px #fff;
+  box-shadow: 0 0 3px #fff, 0 0 5px #fff;
   pointer-events: none;
 }
 
 @keyframes twinkle {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     opacity: 1;
   }
@@ -37,7 +37,7 @@
 }
 
 .futuristic-button::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: -2px;
   background: linear-gradient(45deg, #7c3aed, #a855f7, #7c3aed);
@@ -48,4 +48,44 @@
 
 .futuristic-button:hover::before {
   opacity: 1;
+}
+
+input[type="range"] {
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(139, 92, 246, 0.2);
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgb(139, 92, 246);
+  cursor: pointer;
+  -webkit-appearance: none;
+  margin-top: -6px;
+}
+
+/* 3D Model styles */
+canvas {
+  opacity: 0.9 !important;
+  mix-blend-mode: screen;
+  touch-action: none;
+}
+
+.canvas-container {
+  position: relative;
+  isolation: isolate;
+}
+
+.canvas-container::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at center,
+    transparent 30%,
+    rgba(0, 0, 0, 0.5)
+  );
+  pointer-events: none;
 }
