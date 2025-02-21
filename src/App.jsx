@@ -3,7 +3,7 @@ import { Command, Share2, GitBranch, Star, DollarSign, Trophy, Beaker, MessageSq
 import { motion, LazyMotion, domAnimation, m, AnimatePresence } from 'framer-motion';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Float, MeshDistortMaterial, Environment, PerspectiveCamera } from '@react-three/drei';
-import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import SignInPage from './components/SignIn'; // Update import name for clarity
 import SignUp from './components/SignUp'; // Update import name
 import ForgotPassword from './components/ForgotPassword';
@@ -784,28 +784,32 @@ const SignIn = () => {
   );
 };
 
+// Add ScrollToTop component
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+};
+
 // Update App component
 const App = () => {
-  // Add this useEffect for scroll management
   useEffect(() => {
-    // Scroll to top on route change
-    const handleRouteChange = () => {
-      window.scrollTo({
-        top: 0,
-        left: 0,
-        behavior: 'instant' // Use 'instant' instead of 'smooth' to prevent visible scrolling
-      });
-    };
+    // Prevent default scroll restoration
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
 
-    // Call immediately on mount
-    handleRouteChange();
+    // Scroll to top on page load
+    window.scrollTo(0, 0);
 
-    // Add event listener for route changes
-    window.addEventListener('popstate', handleRouteChange);
-
-    // Cleanup
     return () => {
-      window.removeEventListener('popstate', handleRouteChange);
+      if ('scrollRestoration' in window.history) {
+        window.history.scrollRestoration = 'auto';
+      }
     };
   }, []);
 
@@ -813,11 +817,12 @@ const App = () => {
     <BrowserRouter>
       <AuthProvider>
         <LazyMotion features={domAnimation}>
-          <div className="overflow-x-hidden"> {/* Add this wrapper */}
+          <ScrollToTop />
+          <div className="overflow-x-hidden">
             <Routes>
               <Route path="/" element={<MainContent />} />
               <Route path="/signin" element={<SignInPage />} />
-              <Route path="/signup" element={<SignUp />} /> {/* Update component name */}
+              <Route path="/signup" element={<SignUp />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
             </Routes>
           </div>
