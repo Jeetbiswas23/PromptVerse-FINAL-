@@ -665,17 +665,26 @@ const MainContent = () => {
     {
       title: "AI Developers",
       description: "Perfect for ML engineers and AI developers who need to create, test, and optimize prompts at scale.",
-      icon: <Brain className="w-8 h-8" />
+      icon: <Brain className="w-8 h-8" />,
+      models: ["GPT-4", "Claude 2", "LLaMA", "PaLM"]
     },
     {
       title: "Content Creators",
       description: "Ideal for writers, artists, and creators looking to enhance their workflow with AI-powered tools.",
-      icon: <PenTool className="w-8 h-8" />
+      icon: <PenTool className="w-8 h-8" />,
+      models: ["Midjourney", "DALL-E 3", "Stable Diffusion", "ChatGPT"]
     },
     {
       title: "Businesses",
       description: "Help teams standardize and improve their AI interactions across various departments.",
-      icon: <Command className="w-8 h-8" />
+      icon: <Command className="w-8 h-8" />,
+      models: ["Azure OpenAI", "AWS Bedrock", "Anthropic", "Cohere"]
+    },
+    {
+      title: "Researchers",
+      description: "Advanced tools for academic and industry researchers exploring AI capabilities.",
+      icon: <Beaker className="w-8 h-8" />,
+      models: ["AutoGPT", "LangChain", "HuggingFace", "CodeLLaMA"]
     }
   ];
 
@@ -793,7 +802,7 @@ const MainContent = () => {
                 PromptVerse is designed for everyone who works with AI, from beginners to experts
               </m.p>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                 {useCases.map((useCase, index) => (
                   <m.div
                     key={index}
@@ -804,20 +813,33 @@ const MainContent = () => {
                       transition: { delay: index * 0.2 }
                     }}
                     viewport={{ once: true }}
-                    className="bg-violet-900/10 backdrop-blur-sm rounded-xl p-8 border border-violet-500/10"
+                    className="bg-violet-900/10 backdrop-blur-sm rounded-xl p-8 border border-violet-500/10 hover:bg-violet-800/20 transition-all duration-300"
                   >
-                    <motion.div
+                    <m.div
                       whileHover={{ scale: 1.1 }}
                       className="text-violet-400 mb-6 flex justify-center"
                     >
                       {useCase.icon}
-                    </motion.div>
+                    </m.div>
                     <h3 className="text-xl font-semibold text-violet-200 mb-4">
                       {useCase.title}
                     </h3>
-                    <p className="text-violet-300/70">
+                    <p className="text-violet-300/70 mb-6">
                       {useCase.description}
                     </p>
+                    <div className="flex flex-wrap gap-2 justify-center">
+                      {useCase.models.map((model, idx) => (
+                        <m.span
+                          key={idx}
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: index * 0.1 + idx * 0.1 }}
+                          className="px-3 py-1 text-xs rounded-full bg-violet-500/10 text-violet-300 border border-violet-500/20"
+                        >
+                          {model}
+                        </m.span>
+                      ))}
+                    </div>
                   </m.div>
                 ))}
               </div>
