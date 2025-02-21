@@ -1,6 +1,6 @@
-import React, { useEffect, useState, createContext, useContext } from 'react';
+import React, { useEffect, useState, createContext, useContext, useRef } from 'react';
 import { Command, Share2, GitBranch, Star, DollarSign, Trophy, Beaker, MessageSquare, Terminal, Copy, Check, ChevronRight, Code, Wand2, PenTool, Brain } from 'lucide-react';
-import { motion, LazyMotion, domAnimation, m } from 'framer-motion';
+import { motion, LazyMotion, domAnimation, m, AnimatePresence } from 'framer-motion';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Float, MeshDistortMaterial, Environment, PerspectiveCamera } from '@react-three/drei';
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
@@ -451,6 +451,20 @@ const Navigation = () => {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
   
   return (
     <nav className="relative z-10 backdrop-blur-sm border-b border-white/5 sticky top-0">
@@ -460,7 +474,7 @@ const Navigation = () => {
           <button className="px-4 py-2 text-gray-300 hover:text-white transition-all duration-300">Get in touch</button>
           
           {user ? (
-            <div className="relative">
+            <div className="relative" ref={dropdownRef}>
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -475,40 +489,43 @@ const Navigation = () => {
                 </motion.div>
               </motion.button>
 
-              {/* Dropdown Menu */}
-              {isDropdownOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="absolute right-0 mt-2 w-48 bg-violet-950/90 backdrop-blur-sm rounded-lg border border-violet-500/20 shadow-xl"
-                >
-                  <div className="py-1">
-                    <button 
-                      className="w-full text-left px-4 py-2 text-sm text-violet-200 hover:bg-violet-800/50"
-                      onClick={() => navigate('/profile')}
-                    >
-                      Profile
-                    </button>
-                    <button 
-                      className="w-full text-left px-4 py-2 text-sm text-violet-200 hover:bg-violet-800/50"
-                      onClick={() => navigate('/settings')}
-                    >
-                      Settings
-                    </button>
-                    <div className="border-t border-violet-500/20"></div>
-                    <button 
-                      className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-violet-800/50"
-                      onClick={() => {
-                        setUser(null);
-                        navigate('/signin');
-                      }}
-                    >
-                      Sign Out
-                    </button>
-                  </div>
-                </motion.div>
-              )}
+              {/* Dropdown Menu with AnimatePresence */}
+              <AnimatePresence>
+                {isDropdownOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute right-0 mt-2 w-48 bg-violet-950/90 backdrop-blur-sm rounded-lg border border-violet-500/20 shadow-xl"
+                  >
+                    <div className="py-1">
+                      <button 
+                        className="w-full text-left px-4 py-2 text-sm text-violet-200 hover:bg-violet-800/50"
+                        onClick={() => navigate('/profile')}
+                      >
+                        Profile
+                      </button>
+                      <button 
+                        className="w-full text-left px-4 py-2 text-sm text-violet-200 hover:bg-violet-800/50"
+                        onClick={() => navigate('/settings')}
+                      >
+                        Settings
+                      </button>
+                      <div className="border-t border-violet-500/20"></div>
+                      <button 
+                        className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-violet-800/50"
+                        onClick={() => {
+                          setUser(null);
+                          navigate('/signin');
+                        }}
+                      >
+                        Sign Out
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           ) : (
             <motion.button
@@ -644,9 +661,6 @@ const MainContent = () => {
                   <svg className="w-4 h-4 text-violet-300 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
-                </div>
-                <div className="absolute -inset-1/2 group-hover:opacity-100 opacity-0 transition-opacity duration-500">
-                  <div className="absolute inset-0 blur-2xl bg-violet-600/20" />
                 </div>
               </motion.button>
 
