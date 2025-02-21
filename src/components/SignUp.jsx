@@ -14,25 +14,46 @@ const SignUp = () => {
     password: '',
     confirmPassword: ''
   });
+  const [errors, setErrors] = useState({});
+
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!formData.name.trim()) {
+      newErrors.name = 'Name is required';
+    }
+    
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Email is invalid';
+    }
+    
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
+    }
+    
+    if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    // Simple validation
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords don't match!");
-      return;
+    
+    if (validateForm()) {
+      localStorage.setItem('tempUser', JSON.stringify({
+        name: formData.name,
+        email: formData.email,
+        password: formData.password
+      }));
+      navigate('/signin');
     }
-
-    // Store user data in localStorage
-    localStorage.setItem('tempUser', JSON.stringify({
-      name: formData.name,
-      email: formData.email,
-      password: formData.password // In a real app, never store passwords in localStorage
-    }));
-
-    // Redirect to sign in
-    navigate('/signin');
   };
 
   // Back button should now go to signin
@@ -84,10 +105,17 @@ const SignUp = () => {
               <input
                 type="text"
                 placeholder="Full name"
-                className="w-full pl-10 pr-4 py-3 bg-violet-950/50 border border-violet-500/30 rounded-lg focus:outline-none focus:ring-2 ring-violet-500/50 text-violet-100 placeholder-violet-400"
+                className={`w-full pl-10 pr-4 py-3 bg-violet-950/50 border ${
+                  errors.name ? 'border-red-500/50' : 'border-violet-500/30'
+                } rounded-lg focus:outline-none focus:ring-2 ${
+                  errors.name ? 'ring-red-500/50' : 'ring-violet-500/50'
+                } text-violet-100 placeholder-violet-400`}
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               />
+              {errors.name && (
+                <p className="text-sm text-red-400 mt-1">{errors.name}</p>
+              )}
             </div>
 
             {/* Email field */}
@@ -98,10 +126,17 @@ const SignUp = () => {
               <input
                 type="email"
                 placeholder="Email address"
-                className="w-full pl-10 pr-4 py-3 bg-violet-950/50 border border-violet-500/30 rounded-lg focus:outline-none focus:ring-2 ring-violet-500/50 text-violet-100 placeholder-violet-400"
+                className={`w-full pl-10 pr-4 py-3 bg-violet-950/50 border ${
+                  errors.email ? 'border-red-500/50' : 'border-violet-500/30'
+                } rounded-lg focus:outline-none focus:ring-2 ${
+                  errors.email ? 'ring-red-500/50' : 'ring-violet-500/50'
+                } text-violet-100 placeholder-violet-400`}
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               />
+              {errors.email && (
+                <p className="text-sm text-red-400 mt-1">{errors.email}</p>
+              )}
             </div>
 
             {/* Password fields */}
@@ -113,10 +148,17 @@ const SignUp = () => {
                 <input
                   type="password"
                   placeholder="Password"
-                  className="w-full pl-10 pr-4 py-3 bg-violet-950/50 border border-violet-500/30 rounded-lg focus:outline-none focus:ring-2 ring-violet-500/50 text-violet-100 placeholder-violet-400"
+                  className={`w-full pl-10 pr-4 py-3 bg-violet-950/50 border ${
+                    errors.password ? 'border-red-500/50' : 'border-violet-500/30'
+                  } rounded-lg focus:outline-none focus:ring-2 ${
+                    errors.password ? 'ring-red-500/50' : 'ring-violet-500/50'
+                  } text-violet-100 placeholder-violet-400`}
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 />
+                {errors.password && (
+                  <p className="text-sm text-red-400 mt-1">{errors.password}</p>
+                )}
               </div>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -125,10 +167,17 @@ const SignUp = () => {
                 <input
                   type="password"
                   placeholder="Confirm password"
-                  className="w-full pl-10 pr-4 py-3 bg-violet-950/50 border border-violet-500/30 rounded-lg focus:outline-none focus:ring-2 ring-violet-500/50 text-violet-100 placeholder-violet-400"
+                  className={`w-full pl-10 pr-4 py-3 bg-violet-950/50 border ${
+                    errors.confirmPassword ? 'border-red-500/50' : 'border-violet-500/30'
+                  } rounded-lg focus:outline-none focus:ring-2 ${
+                    errors.confirmPassword ? 'ring-red-500/50' : 'ring-violet-500/50'
+                  } text-violet-100 placeholder-violet-400`}
                   value={formData.confirmPassword}
                   onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                 />
+                {errors.confirmPassword && (
+                  <p className="text-sm text-red-400 mt-1">{errors.confirmPassword}</p>
+                )}
               </div>
             </div>
 

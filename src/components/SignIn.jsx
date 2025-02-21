@@ -59,6 +59,7 @@ const SignIn = () => {
     email: '',
     password: ''
   });
+  const [error, setError] = useState('');
 
   useEffect(() => {
     // Check for temporary user data from signup
@@ -74,6 +75,7 @@ const SignIn = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setError(''); // Clear previous errors
 
     // Get temporary user data
     const tempUser = localStorage.getItem('tempUser');
@@ -94,10 +96,10 @@ const SignIn = () => {
         // Redirect to home
         navigate('/', { replace: true });
       } else {
-        alert('Invalid credentials');
+        setError('Invalid email or password');
       }
     } else {
-      alert('No account found. Please sign up.');
+      setError('No account found. Please sign up.');
     }
   };
 
@@ -138,6 +140,11 @@ const SignIn = () => {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <div className="p-3 text-sm text-red-400 bg-red-500/10 border border-red-500/30 rounded-lg">
+                {error}
+              </div>
+            )}
             <div className="space-y-4">
               {/* Email field */}
               <div className="relative group">
