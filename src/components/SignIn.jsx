@@ -61,10 +61,10 @@ const SignIn = () => {
   });
 
   useEffect(() => {
-    // Check for saved user data
-    const savedUser = localStorage.getItem('savedUser');
-    if (savedUser) {
-      const userData = JSON.parse(savedUser);
+    // Check for temporary user data from signup
+    const tempUser = localStorage.getItem('tempUser');
+    if (tempUser) {
+      const userData = JSON.parse(tempUser);
       setFormData(prev => ({
         ...prev,
         email: userData.email
@@ -74,16 +74,30 @@ const SignIn = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
-    // Get saved user data
-    const savedUser = localStorage.getItem('savedUser');
-    if (savedUser) {
-      const userData = JSON.parse(savedUser);
-      setUser({
-        name: userData.name,
-        email: formData.email
-      });
-      navigate('/', { replace: true });
+
+    // Get temporary user data
+    const tempUser = localStorage.getItem('tempUser');
+    if (tempUser) {
+      const userData = JSON.parse(tempUser);
+      
+      // Simple validation (in real app, use proper authentication)
+      if (userData.email === formData.email && userData.password === formData.password) {
+        // Set authenticated user
+        setUser({
+          name: userData.name,
+          email: userData.email
+        });
+        
+        // Clear temporary data
+        localStorage.removeItem('tempUser');
+        
+        // Redirect to home
+        navigate('/', { replace: true });
+      } else {
+        alert('Invalid credentials');
+      }
+    } else {
+      alert('No account found. Please sign up.');
     }
   };
 

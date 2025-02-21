@@ -10,10 +10,21 @@ const ForgotPassword = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle password reset logic here
     
-    // After sending reset link, redirect to signin
-    navigate('/signin');
+    // Check if user exists in localStorage
+    const tempUser = localStorage.getItem('tempUser');
+    if (tempUser) {
+      const userData = JSON.parse(tempUser);
+      if (userData.email === email) {
+        // In a real app, send reset email
+        alert('Password reset link sent to your email!');
+        navigate('/signin');
+      } else {
+        alert('Email not found');
+      }
+    } else {
+      alert('No account found with this email');
+    }
   };
 
   // Back button should go to signin

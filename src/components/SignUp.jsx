@@ -17,11 +17,21 @@ const SignUp = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Store user data and redirect to signin
-    localStorage.setItem('savedUser', JSON.stringify({
+
+    // Simple validation
+    if (formData.password !== formData.confirmPassword) {
+      alert("Passwords don't match!");
+      return;
+    }
+
+    // Store user data in localStorage
+    localStorage.setItem('tempUser', JSON.stringify({
       name: formData.name,
-      email: formData.email
+      email: formData.email,
+      password: formData.password // In a real app, never store passwords in localStorage
     }));
+
+    // Redirect to sign in
     navigate('/signin');
   };
 
