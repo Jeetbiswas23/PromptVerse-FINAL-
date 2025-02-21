@@ -3,6 +3,7 @@ import { Command, Share2, GitBranch, Star, DollarSign, Trophy, Beaker, MessageSq
 import { motion, LazyMotion, domAnimation, m } from 'framer-motion';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Float, MeshDistortMaterial, Environment, PerspectiveCamera } from '@react-three/drei';
+import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 
 const springConfig = {
   type: "spring",
@@ -417,7 +418,30 @@ const PromptScreen = () => {
   );
 };
 
-const App = () => {
+const Navigation = () => {
+  const navigate = useNavigate();
+  
+  return (
+    <nav className="relative z-10 backdrop-blur-sm border-b border-white/5 sticky top-0">
+      <div className="max-w-7xl mx-auto flex justify-end items-center p-4">
+        <div className="flex space-x-6">
+          <button className="px-4 py-2 text-gray-300 hover:text-white transition-all duration-300">Blog</button>
+          <button className="px-4 py-2 text-gray-300 hover:text-white transition-all duration-300">Get in touch</button>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => navigate('/signin')}
+            className="px-6 py-2 bg-white/5 rounded-lg hover:bg-white/10 transition-all duration-300 border border-white/10"
+          >
+            Sign IN
+          </motion.button>
+        </div>
+      </div>
+    </nav>
+  );
+};
+
+const MainContent = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -490,17 +514,7 @@ const App = () => {
         </div>
 
         {/* Navigation with lighter hover effects */}
-        <nav className="relative z-10 backdrop-blur-sm border-b border-white/5 sticky top-0">
-          <div className="max-w-7xl mx-auto flex justify-end items-center p-4">
-            <div className="flex space-x-6">
-              <button className="px-4 py-2 text-gray-300 hover:text-white transition-all duration-300">Blog</button>
-              <button className="px-4 py-2 text-gray-300 hover:text-white transition-all duration-300">Get in touch</button>
-              <button className="px-6 py-2 bg-white/5 rounded-lg hover:bg-white/10 transition-all duration-300 border border-white/10">
-                Book a call
-              </button>
-            </div>
-          </div>
-        </nav>
+        <Navigation />
 
         {/* Hero Section with Framer Motion */}
         <div className="relative z-10">
@@ -647,6 +661,52 @@ const App = () => {
         </footer>
       </m.div>
     </LazyMotion>
+  );
+};
+
+const SignIn = () => {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-[#0a0a0f] text-white">
+      <h1 className="text-4xl">Sign In Page</h1>
+    </div>
+  );
+};
+
+const App = () => {
+  // Add this useEffect for scroll management
+  useEffect(() => {
+    // Scroll to top on route change
+    const handleRouteChange = () => {
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: 'instant' // Use 'instant' instead of 'smooth' to prevent visible scrolling
+      });
+    };
+
+    // Call immediately on mount
+    handleRouteChange();
+
+    // Add event listener for route changes
+    window.addEventListener('popstate', handleRouteChange);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('popstate', handleRouteChange);
+    };
+  }, []);
+
+  return (
+    <BrowserRouter>
+      <LazyMotion features={domAnimation}>
+        <div className="overflow-x-hidden"> {/* Add this wrapper */}
+          <Routes>
+            <Route path="/" element={<MainContent />} />
+            <Route path="/signin" element={<SignIn />} />
+          </Routes>
+        </div>
+      </LazyMotion>
+    </BrowserRouter>
   );
 };
 
