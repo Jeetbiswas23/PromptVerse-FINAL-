@@ -663,10 +663,10 @@ const MainContent = () => {
 
   const useCases = [
     {
-      title: "AI Developers",
-      description: "Perfect for ML engineers and AI developers who need to create, test, and optimize prompts at scale.",
-      icon: <Brain className="w-8 h-8" />,
-      models: ["GPT-4", "Claude 2", "LLaMA", "PaLM"]
+      title: "Programmers",
+      description: "Perfect for developers and software engineers who want to accelerate their workflow with AI-assisted coding.",
+      icon: <Code className="w-8 h-8" />,
+      models: ["GitHub Copilot", "CodeLLaMA", "Claude", "GPT-4"]
     },
     {
       title: "Content Creators",
