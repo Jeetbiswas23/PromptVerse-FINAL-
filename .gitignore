@@ -32,3 +32,14 @@ src/config/
 .env.development
 .env.production
 .env.example
+
+# Sensitive files
+.env*
+.env.*
+!.env.example
+src/config/
+
+# Environment files
+.env
+.env.*
+!.env.example
