@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { User, Lock, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../App';
-import { googleConfig } from '../config/googleAuth';
+
 
 // Export as memoized component
 export const Stars = React.memo(() => {
@@ -141,31 +141,16 @@ const SignIn = () => {
     autoFillCredentials();
   }, []);
 
-  const handleGoogleSignIn = async () => {
-    try {
-      const gapi = window.gapi;
-      await gapi.load('auth2');
-      const auth2 = await gapi.auth2.init({
-        client_id: googleConfig.clientId,
-        scope: googleConfig.scope
-      });
-
-      const googleUser = await auth2.signIn();
-      const profile = googleUser.getBasicProfile();
-      
-      const user = {
-        name: profile.getName(),
-        email: profile.getEmail(),
-        imageUrl: profile.getImageUrl()
-      };
-      
-      setUser(user);
-      localStorage.setItem('user', JSON.stringify(user));
-      navigate('/', { replace: true });
-    } catch (error) {
-      setError('Failed to sign in with Google');
-      console.error('Google Sign In Error:', error);
-    }
+  const handleGoogleSignIn = () => {
+    const mockUser = {
+      name: 'Demo User',
+      email: 'demo.user@example.com',
+      imageUrl: 'https://via.placeholder.com/150'
+    };
+    
+    setUser(mockUser);
+    localStorage.setItem('user', JSON.stringify(mockUser));
+    navigate('/', { replace: true });
   };
 
   const handleGithubSignIn = async () => {

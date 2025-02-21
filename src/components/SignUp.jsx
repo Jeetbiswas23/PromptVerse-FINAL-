@@ -4,7 +4,7 @@ import { User, Lock, ArrowLeft, Mail } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Stars, GoogleIcon, GithubIcon } from './SignIn';
 import { AuthContext } from '../App';
-import { googleConfig } from '../config/googleAuth';
+
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -87,31 +87,16 @@ const SignUp = () => {
     navigate('/signin');
   };
 
-  const handleGoogleSignUp = async () => {
-    try {
-      const gapi = window.gapi;
-      await gapi.load('auth2');
-      const auth2 = await gapi.auth2.init({
-        client_id: googleConfig.clientId,
-        scope: googleConfig.scope
-      });
-
-      const googleUser = await auth2.signIn();
-      const profile = googleUser.getBasicProfile();
-      
-      const user = {
-        name: profile.getName(),
-        email: profile.getEmail(),
-        imageUrl: profile.getImageUrl()
-      };
-      
-      setUser(user);
-      localStorage.setItem('user', JSON.stringify(user));
-      navigate('/', { replace: true });
-    } catch (error) {
-      setErrors({ socialAuth: 'Failed to sign up with Google' });
-      console.error('Google Sign Up Error:', error);
-    }
+  const handleGoogleSignUp = () => {
+    const mockUser = {
+      name: 'Demo User',
+      email: 'demo.user@example.com',
+      imageUrl: 'https://via.placeholder.com/150'
+    };
+    
+    setUser(mockUser);
+    localStorage.setItem('user', JSON.stringify(mockUser));
+    navigate('/', { replace: true });
   };
 
   const handleGithubSignUp = async () => {
