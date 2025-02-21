@@ -5,6 +5,7 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Float, MeshDistortMaterial, Environment, PerspectiveCamera } from '@react-three/drei';
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import SignInPage from './components/SignIn'; // Update import name for clarity
+import SignUp from './components/SignUp'; // Update import name
 
 const springConfig = {
   type: "spring",
@@ -704,6 +705,7 @@ const App = () => {
           <Routes>
             <Route path="/" element={<MainContent />} />
             <Route path="/signin" element={<SignInPage />} />
+            <Route path="/signup" element={<SignUp />} /> {/* Update component name */}
           </Routes>
         </div>
       </LazyMotion>
