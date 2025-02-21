@@ -3,7 +3,7 @@ import { Command, Share2, GitBranch, Star, DollarSign, Trophy, Beaker, MessageSq
 
 const Stars = () => {
   return (
-    <div className="stars-container">
+    <div className="stars-container animate-float">
       {[...Array(100)].map((_, i) => (
         <div
           key={i}
@@ -24,6 +24,8 @@ const Stars = () => {
 
 const App = () => {
   const features = [
+    { icon: <Share2 className="w-6 h-6" />, title: "Prompt Marketplace", description: "Share and discover high-quality AI prompts across multiple categories" },
+    { icon: <Command className="w-6 h-6" />, title: "Live Prompt Testing", description: "Test prompts in real-time and optimize outputs directly on platform" },
     { icon: <Beaker className="w-6 h-6" />, title: "Prompt Optimization Lab", description: "AI-powered suggestions & analytics to enhance effectiveness" },
     { icon: <Star className="w-6 h-6" />, title: "Community Reviews", description: "Rate, review, and comment on prompts to highlight the best ones" },
     { icon: <GitBranch className="w-6 h-6" />, title: "Version Control", description: "Iterate on prompts with a Git-like versioning system" },
@@ -77,7 +79,7 @@ const App = () => {
       <div className="relative z-10">
         <div className="max-w-7xl mx-auto px-4 py-32">
           <div className="flex flex-col items-center text-center mb-16">
-            <h1 className="text-8xl font-bold mb-6 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent hover:scale-105 transition-transform duration-500 cursor-default">
+            <h1 className="hero-text text-8xl font-bold mb-6 bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent hover:scale-105 transition-transform duration-500 cursor-default animate-shine">
               PromptVerse
             </h1>
             <h2 className="text-5xl font-bold mb-4 leading-tight">
