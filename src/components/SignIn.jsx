@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useContext } from 'react';
+import React, { useState, useMemo, useContext, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { User, Lock, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -60,16 +60,31 @@ const SignIn = () => {
     password: ''
   });
 
+  useEffect(() => {
+    // Check for saved user data
+    const savedUser = localStorage.getItem('savedUser');
+    if (savedUser) {
+      const userData = JSON.parse(savedUser);
+      setFormData(prev => ({
+        ...prev,
+        email: userData.email
+      }));
+    }
+  }, []);
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Add your authentication logic here
     
-    // After successful login, set user and redirect
-    setUser({
-      name: "John Doe", // This would come from your auth response
-      email: formData.email
-    });
-    navigate('/', { replace: true });
+    // Get saved user data
+    const savedUser = localStorage.getItem('savedUser');
+    if (savedUser) {
+      const userData = JSON.parse(savedUser);
+      setUser({
+        name: userData.name,
+        email: formData.email
+      });
+      navigate('/', { replace: true });
+    }
   };
 
   return (

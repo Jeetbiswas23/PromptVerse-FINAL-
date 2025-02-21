@@ -17,14 +17,12 @@ const SignUp = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Add your signup logic here
-    
-    // After successful signup, set user and redirect
-    setUser({
+    // Store user data and redirect to signin
+    localStorage.setItem('savedUser', JSON.stringify({
       name: formData.name,
       email: formData.email
-    });
-    navigate('/');
+    }));
+    navigate('/signin');
   };
 
   // Back button should now go to signin
