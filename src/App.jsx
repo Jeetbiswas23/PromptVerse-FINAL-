@@ -38,8 +38,8 @@ const App = () => {
     <div className="min-h-screen bg-[#0a0a0f] text-white overflow-hidden">
       {/* Enhanced animated background with multiple layers */}
       <div className="fixed inset-0 z-0">
-        {/* Base gradient */}
-        <div className="absolute inset-0 bg-gradient-to-tr from-black via-[#0a0a1a] to-[#0f1625] opacity-90" />
+        {/* Updated base gradient */}
+        <div className="absolute inset-0 bg-gradient-to-tr from-black via-violet-900/20 to-[#0f1625] opacity-90" />
         
         {/* Add Stars component */}
         <Stars />
@@ -47,11 +47,11 @@ const App = () => {
         {/* Noise texture */}
         <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.02] mix-blend-overlay" />
         
-        {/* Animated gradient orbs */}
+        {/* Updated gradient orbs */}
         <div className="absolute inset-0">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-1/4 right-1/3 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
-          <div className="absolute top-1/3 right-1/4 w-72 h-72 bg-violet-500/10 rounded-full blur-3xl animate-pulse delay-2000" />
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-violet-500/10 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-1/4 right-1/3 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
+          <div className="absolute top-1/3 right-1/4 w-72 h-72 bg-fuchsia-500/10 rounded-full blur-3xl animate-pulse delay-2000" />
         </div>
 
         {/* Grid pattern */}
@@ -102,9 +102,10 @@ const App = () => {
             {features.map((feature, index) => (
               <div
                 key={index}
-                className="group p-6 bg-[#0f1625]/30 rounded-xl border border-white/5 hover:bg-[#0f1625]/50 transition-all duration-300"
+                className="feature-card group p-6 bg-[#0f1625]/30 rounded-xl border border-white/5 hover:bg-[#0f1625]/50 transition-all duration-300 hover:-translate-y-2"
+                style={{ '--delay': index }}
               >
-                <div className="text-gray-300 mb-4 transition-transform duration-300">
+                <div className="text-gray-300 mb-4 transition-transform duration-300 group-hover:scale-110">
                   {feature.icon}
                 </div>
                 <h3 className="text-lg font-semibold mb-2 text-gray-200">
