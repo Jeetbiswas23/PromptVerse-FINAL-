@@ -1,29 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { User, Lock, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-// Export these components so they can be shared
-export const Stars = () => {
+// Export as memoized component
+export const Stars = React.memo(() => {
+  // Generate stars data once
+  const starsData = useMemo(() => 
+    [...Array(100)].map(() => ({
+      left: `${Math.random() * 100}%`,
+      top: `${Math.random() * 100}%`,
+      delay: `${Math.random() * 8}s`,
+      size: `${Math.random() * 3 + 1}px`,
+      opacity: Math.random() * 0.7 + 0.3,
+    })), []
+  );
+
   return (
     <div className="stars-container animate-float">
-      {[...Array(100)].map((_, i) => (
+      {starsData.map((star, i) => (
         <div
           key={i}
           className="star"
           style={{
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-            animationDelay: `${Math.random() * 8}s`,
-            width: `${Math.random() * 3 + 1}px`,
-            height: `${Math.random() * 3 + 1}px`,
-            opacity: Math.random() * 0.7 + 0.3,
+            left: star.left,
+            top: star.top,
+            animationDelay: star.delay,
+            width: star.size,
+            height: star.size,
+            opacity: star.opacity,
           }}
         />
       ))}
     </div>
   );
-};
+});
 
 export const GoogleIcon = () => (
   <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
