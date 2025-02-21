@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { motion } from 'framer-motion';
 import { User, Lock, ArrowLeft, Mail } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Stars, GoogleIcon, GithubIcon } from './SignIn';
+import { AuthContext } from '../App';
 
 const SignUp = () => {
   const navigate = useNavigate();
+  const { setUser } = useContext(AuthContext);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -17,8 +19,12 @@ const SignUp = () => {
     e.preventDefault();
     // Add your signup logic here
     
-    // After successful signup, redirect to signin
-    navigate('/signin');
+    // After successful signup, set user and redirect
+    setUser({
+      name: formData.name,
+      email: formData.email
+    });
+    navigate('/');
   };
 
   // Back button should now go to signin

@@ -1,7 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useContext } from 'react';
 import { motion } from 'framer-motion';
 import { User, Lock, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../App';
 
 // Export as memoized component
 export const Stars = React.memo(() => {
@@ -53,6 +54,7 @@ export const GithubIcon = () => (
 
 const SignIn = () => {
   const navigate = useNavigate();
+  const { setUser } = useContext(AuthContext);
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -62,8 +64,12 @@ const SignIn = () => {
     e.preventDefault();
     // Add your authentication logic here
     
-    // After successful login, redirect to main app
-    navigate('/', { replace: true }); // Using replace to prevent going back to login
+    // After successful login, set user and redirect
+    setUser({
+      name: "John Doe", // This would come from your auth response
+      email: formData.email
+    });
+    navigate('/', { replace: true });
   };
 
   return (
