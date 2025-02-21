@@ -1,10 +1,29 @@
 import React from 'react';
 import { Command, Share2, GitBranch, Star, DollarSign, Trophy, Beaker, MessageSquare } from 'lucide-react';
 
+const Stars = () => {
+  return (
+    <div className="stars-container">
+      {[...Array(100)].map((_, i) => (
+        <div
+          key={i}
+          className="star"
+          style={{
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+            animationDelay: `${Math.random() * 8}s`,
+            width: `${Math.random() * 3 + 1}px`,
+            height: `${Math.random() * 3 + 1}px`,
+            opacity: Math.random() * 0.7 + 0.3,
+          }}
+        />
+      ))}
+    </div>
+  );
+};
+
 const App = () => {
   const features = [
-    { icon: <Share2 className="w-6 h-6" />, title: "Prompt Marketplace", description: "Share and discover high-quality AI prompts across multiple categories" },
-    { icon: <Command className="w-6 h-6" />, title: "Live Prompt Testing", description: "Test prompts in real-time and optimize outputs directly on platform" },
     { icon: <Beaker className="w-6 h-6" />, title: "Prompt Optimization Lab", description: "AI-powered suggestions & analytics to enhance effectiveness" },
     { icon: <Star className="w-6 h-6" />, title: "Community Reviews", description: "Rate, review, and comment on prompts to highlight the best ones" },
     { icon: <GitBranch className="w-6 h-6" />, title: "Version Control", description: "Iterate on prompts with a Git-like versioning system" },
@@ -19,6 +38,9 @@ const App = () => {
       <div className="fixed inset-0 z-0">
         {/* Base gradient */}
         <div className="absolute inset-0 bg-gradient-to-tr from-black via-[#0a0a1a] to-[#0f1625] opacity-90" />
+        
+        {/* Add Stars component */}
+        <Stars />
         
         {/* Noise texture */}
         <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.02] mix-blend-overlay" />
