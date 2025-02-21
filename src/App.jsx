@@ -4,6 +4,7 @@ import { motion, LazyMotion, domAnimation, m } from 'framer-motion';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Float, MeshDistortMaterial, Environment, PerspectiveCamera } from '@react-three/drei';
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
+import SignInPage from './components/SignIn'; // Update import name for clarity
 
 const springConfig = {
   type: "spring",
@@ -433,7 +434,7 @@ const Navigation = () => {
             onClick={() => navigate('/signin')}
             className="px-6 py-2 bg-white/5 rounded-lg hover:bg-white/10 transition-all duration-300 border border-white/10"
           >
-            Sign IN
+            Sign In
           </motion.button>
         </div>
       </div>
@@ -702,7 +703,7 @@ const App = () => {
         <div className="overflow-x-hidden"> {/* Add this wrapper */}
           <Routes>
             <Route path="/" element={<MainContent />} />
-            <Route path="/signin" element={<SignIn />} />
+            <Route path="/signin" element={<SignInPage />} />
           </Routes>
         </div>
       </LazyMotion>
