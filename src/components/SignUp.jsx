@@ -43,16 +43,41 @@ const SignUp = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (validateForm()) {
-      localStorage.setItem('tempUser', JSON.stringify({
-        name: formData.name,
-        email: formData.email,
-        password: formData.password
-      }));
-      navigate('/signin');
+      try {
+        // Create the credentials object
+        const credentials = new PasswordCredential({
+          id: formData.email,
+          password: formData.password,
+          name: formData.name
+        });
+
+        // Store credentials if supported
+        if (navigator.credentials) {
+          await navigator.credentials.store(credentials);
+        }
+
+        // Store user data
+        localStorage.setItem('tempUser', JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password
+        }));
+
+        navigate('/signin');
+      } catch (error) {
+        console.error('Error storing credentials:', error);
+        // Continue with normal flow even if credential storage fails
+        localStorage.setItem('tempUser', JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password
+        }));
+        navigate('/signin');
+      }
     }
   };
 
@@ -112,6 +137,8 @@ const SignUp = () => {
                 } text-violet-100 placeholder-violet-400`}
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                name="name"
+                autoComplete="name"
               />
               {errors.name && (
                 <p className="text-sm text-red-400 mt-1">{errors.name}</p>
@@ -133,6 +160,8 @@ const SignUp = () => {
                 } text-violet-100 placeholder-violet-400`}
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                name="username"
+                autoComplete="username"
               />
               {errors.email && (
                 <p className="text-sm text-red-400 mt-1">{errors.email}</p>
@@ -155,6 +184,8 @@ const SignUp = () => {
                   } text-violet-100 placeholder-violet-400`}
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  name="new-password"
+                  autoComplete="new-password"
                 />
                 {errors.password && (
                   <p className="text-sm text-red-400 mt-1">{errors.password}</p>
@@ -174,6 +205,8 @@ const SignUp = () => {
                   } text-violet-100 placeholder-violet-400`}
                   value={formData.confirmPassword}
                   onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                  name="confirm-password"
+                  autoComplete="new-password"
                 />
                 {errors.confirmPassword && (
                   <p className="text-sm text-red-400 mt-1">{errors.confirmPassword}</p>

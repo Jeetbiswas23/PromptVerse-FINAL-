@@ -73,35 +73,72 @@ const SignIn = () => {
     }
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(''); // Clear previous errors
+    setError('');
 
-    // Get temporary user data
-    const tempUser = localStorage.getItem('tempUser');
-    if (tempUser) {
-      const userData = JSON.parse(tempUser);
-      
-      // Simple validation (in real app, use proper authentication)
-      if (userData.email === formData.email && userData.password === formData.password) {
-        // Set authenticated user
-        setUser({
-          name: userData.name,
-          email: userData.email
-        });
+    try {
+      const tempUser = localStorage.getItem('tempUser');
+      if (tempUser) {
+        const userData = JSON.parse(tempUser);
         
-        // Clear temporary data
-        localStorage.removeItem('tempUser');
-        
-        // Redirect to home
-        navigate('/', { replace: true });
+        if (userData.email === formData.email && userData.password === formData.password) {
+          // Create credentials object for browser's password manager
+          const credentials = new PasswordCredential({
+            id: formData.email,
+            password: formData.password,
+            name: userData.name
+          });
+
+          // Store credentials if supported
+          if (navigator.credentials) {
+            await navigator.credentials.store(credentials);
+          }
+
+          // Set authenticated user
+          setUser({
+            name: userData.name,
+            email: userData.email
+          });
+          
+          localStorage.removeItem('tempUser');
+          navigate('/', { replace: true });
+        } else {
+          setError('Invalid email or password');
+        }
       } else {
-        setError('Invalid email or password');
+        setError('No account found. Please sign up.');
       }
-    } else {
-      setError('No account found. Please sign up.');
+    } catch (error) {
+      console.error('Authentication error:', error);
+      setError('An error occurred during sign in');
     }
   };
+
+  // Try to auto-fill credentials
+  useEffect(() => {
+    const autoFillCredentials = async () => {
+      if (navigator.credentials) {
+        try {
+          const creds = await navigator.credentials.get({
+            password: true,
+            mediation: 'optional'
+          });
+
+          if (creds && creds.type === 'password') {
+            setFormData({
+              email: creds.id,
+              password: creds.password
+            });
+          }
+        } catch (error) {
+          console.error('Error accessing credentials:', error);
+        }
+      }
+    };
+
+    autoFillCredentials();
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center relative overflow-hidden">
@@ -153,6 +190,8 @@ const SignIn = () => {
                 </div>
                 <input
                   type="email"
+                  name="username" // Add name for password manager
+                  autoComplete="username" // Add autoComplete
                   placeholder="Email address"
                   className="w-full pl-10 pr-4 py-3 bg-violet-950/50 border border-violet-500/30 rounded-lg focus:outline-none focus:ring-2 ring-violet-500/50 text-violet-100 placeholder-violet-400"
                   value={formData.email}
@@ -168,6 +207,8 @@ const SignIn = () => {
                 </div>
                 <input
                   type="password"
+                  name="current-password" // Add name for password manager
+                  autoComplete="current-password" // Add autoComplete
                   placeholder="Password"
                   className="w-full pl-10 pr-4 py-3 bg-violet-950/50 border border-violet-500/30 rounded-lg focus:outline-none focus:ring-2 ring-violet-500/50 text-violet-100 placeholder-violet-400"
                   value={formData.password}
