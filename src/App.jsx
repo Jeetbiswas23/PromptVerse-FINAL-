@@ -79,39 +79,60 @@ const App = () => {
       <div className="relative z-10">
         <div className="max-w-7xl mx-auto px-4 py-32">
           <div className="flex flex-col items-center text-center mb-16">
-            <h1 className="hero-text text-8xl font-bold mb-6 bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent hover:scale-105 transition-transform duration-500 cursor-default animate-shine">
+            <h1 className="hero-text text-8xl font-bold mb-6 bg-gradient-to-r from-violet-200 via-fuchsia-200 to-violet-200 bg-clip-text text-transparent hover:scale-105 transition-transform duration-500 cursor-default animate-shine">
               PromptVerse
             </h1>
             <h2 className="text-5xl font-bold mb-4 leading-tight">
               Create
-              <span className="bg-gradient-to-r from-gray-100 to-gray-300 bg-clip-text text-transparent px-4">
+              <span className="bg-gradient-to-r from-violet-200 to-purple-300 bg-clip-text text-transparent px-4">
                 powerful
               </span>
               <br />
-              <span className="text-gray-200">
+              <span className="text-violet-100">
                 AI prompts
               </span>
             </h2>
-            <span className="text-sm text-gray-400 px-6 py-3 rounded-full border border-white/5 hover:border-white/10 transition-all duration-300">
+
+            {/* Futuristic Get Started Button */}
+            <button className="futuristic-button group relative my-8 px-14 py-4 overflow-hidden rounded-xl bg-violet-950/30 backdrop-blur-md">
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-1/2 h-[1px] bg-gradient-to-r from-transparent via-violet-400 to-transparent opacity-50" />
+              </div>
+              <div className="absolute inset-[1px] rounded-xl bg-gradient-to-b from-violet-950/50 to-violet-900/50 backdrop-blur-sm" />
+              <div className="absolute inset-0 rounded-xl border border-violet-500/20 group-hover:border-violet-400/40 transition-colors duration-500" />
+              <div className="relative flex items-center space-x-2">
+                <span className="font-bold text-lg bg-gradient-to-r from-violet-200 via-white to-violet-200 bg-clip-text text-transparent group-hover:text-white transition-all duration-300">
+                  Get Started
+                </span>
+                <svg className="w-4 h-4 text-violet-300 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </div>
+              <div className="absolute -inset-1/2 group-hover:opacity-100 opacity-0 transition-opacity duration-500">
+                <div className="absolute inset-0 blur-2xl bg-violet-600/20" />
+              </div>
+            </button>
+
+            <span className="text-violet-200/70 px-6 py-3 rounded-full border border-violet-500/10 hover:border-violet-500/20 transition-all duration-300">
               Next Generation AI Platform
             </span>
           </div>
 
-          {/* Features Grid with subtle effects */}
+          {/* Features Grid */}
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
             {features.map((feature, index) => (
               <div
                 key={index}
-                className="feature-card group p-6 bg-[#0f1625]/30 rounded-xl border border-white/5 hover:bg-[#0f1625]/50 transition-all duration-300 hover:-translate-y-2"
+                className="feature-card group p-6 bg-violet-900/10 rounded-xl border border-violet-500/10 hover:bg-violet-800/20 transition-all duration-300 hover:-translate-y-2 backdrop-blur-sm"
                 style={{ '--delay': index }}
               >
-                <div className="text-gray-300 mb-4 transition-transform duration-300 group-hover:scale-110">
+                <span className="text-violet-300 mb-4 block transition-transform duration-300 group-hover:scale-110">
                   {feature.icon}
-                </div>
-                <h3 className="text-lg font-semibold mb-2 text-gray-200">
+                </span>
+                <h3 className="text-lg font-semibold mb-2 text-violet-100">
                   {feature.title}
                 </h3>
-                <p className="text-gray-500 text-sm">
+                <p className="text-violet-300/70 text-sm">
                   {feature.description}
                 </p>
               </div>

@@ -45,6 +45,17 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes borderGlow {
+  0%, 100% { border-color: rgba(139, 92, 246, 0.3); }
+  50% { border-color: rgba(167, 139, 250, 0.6); }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.05); opacity: 0.3; }
+  100% { transform: scale(1); opacity: 0.5; }
+}
+
 .animate-float {
   animation: float 6s ease-in-out infinite;
 }
@@ -64,4 +75,19 @@
 
 .hero-text {
   animation: fadeIn 1s ease-out;
+}
+
+.futuristic-button::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(45deg, #7c3aed, #a855f7, #7c3aed);
+  filter: blur(10px);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.futuristic-button:hover::before {
+  opacity: 1;
+  animation: pulse 2s infinite;
 }
