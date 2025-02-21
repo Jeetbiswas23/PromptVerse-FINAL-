@@ -6,6 +6,7 @@ import { OrbitControls, Float, MeshDistortMaterial, Environment, PerspectiveCame
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import SignInPage from './components/SignIn'; // Update import name for clarity
 import SignUp from './components/SignUp'; // Update import name
+import ForgotPassword from './components/ForgotPassword';
 
 const springConfig = {
   type: "spring",
@@ -706,6 +707,7 @@ const App = () => {
             <Route path="/" element={<MainContent />} />
             <Route path="/signin" element={<SignInPage />} />
             <Route path="/signup" element={<SignUp />} /> {/* Update component name */}
+            <Route path="/forgot-password" element={<ForgotPassword />} />
           </Routes>
         </div>
       </LazyMotion>

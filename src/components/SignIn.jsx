@@ -126,7 +126,12 @@ const SignIn = () => {
                 <input type="checkbox" className="w-4 h-4 rounded border-violet-500/30 text-violet-500 focus:ring-violet-500/50 bg-violet-950/50" />
                 <span className="ml-2 text-violet-300">Remember me</span>
               </label>
-              <button className="text-violet-400 hover:text-violet-300">Forgot password?</button>
+              <button 
+                onClick={() => navigate('/forgot-password')}
+                className="text-violet-400 hover:text-violet-300"
+              >
+                Forgot password?
+              </button>
             </div>
 
             {/* Sign In button */}
