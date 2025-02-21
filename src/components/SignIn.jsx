@@ -60,6 +60,10 @@ const SignIn = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    // Add your authentication logic here
+    
+    // After successful login, redirect to main app
+    navigate('/', { replace: true }); // Using replace to prevent going back to login
   };
 
   return (
@@ -138,6 +142,7 @@ const SignIn = () => {
                 <span className="ml-2 text-violet-300">Remember me</span>
               </label>
               <button 
+                type="button"
                 onClick={() => navigate('/forgot-password')}
                 className="text-violet-400 hover:text-violet-300"
               >
@@ -162,6 +167,7 @@ const SignIn = () => {
             <p className="text-center text-sm text-violet-300">
               Don't have an account?{' '}
               <button 
+                type="button"
                 onClick={() => navigate('/signup')}
                 className="text-violet-400 hover:text-violet-300 font-medium"
               >

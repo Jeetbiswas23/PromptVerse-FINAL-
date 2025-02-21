@@ -15,6 +15,15 @@ const SignUp = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    // Add your signup logic here
+    
+    // After successful signup, redirect to signin
+    navigate('/signin');
+  };
+
+  // Back button should now go to signin
+  const handleBack = () => {
+    navigate('/signin');
   };
 
   return (
@@ -31,7 +40,7 @@ const SignUp = () => {
         {/* Back button */}
         <motion.button
           whileHover={{ x: -5 }}
-          onClick={() => navigate('/signin')}
+          onClick={handleBack}
           className="flex items-center space-x-2 text-violet-300 mb-8 hover:text-violet-100 transition-colors"
         >
           <ArrowLeft size={20} />
