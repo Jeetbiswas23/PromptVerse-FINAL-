@@ -1,4 +1,4 @@
-import React, { useEffect, useState, createContext, useContext, useRef } from 'react';
+import React, { useEffect, useState, createContext, useContext, useRef, lazy, Suspense } from 'react';
 import { Command, Share2, GitBranch, Star, DollarSign, Trophy, Beaker, MessageSquare, Terminal, Copy, Check, ChevronRight, Code, Wand2, PenTool, Brain } from 'lucide-react';
 import { motion, LazyMotion, domAnimation, m, AnimatePresence } from 'framer-motion';
 import { Canvas } from '@react-three/fiber';
@@ -955,6 +955,15 @@ const ScrollToTop = () => {
 };
 
 // Update App component
+const LoadingScreen = () => (
+  <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
+    <div className="relative">
+      <div className="w-16 h-16 border-4 border-violet-500/20 border-t-violet-500 rounded-full animate-spin" />
+      <div className="absolute inset-0 bg-gradient-to-r from-violet-500/20 to-fuchsia-500/20 blur-xl" />
+    </div>
+  </div>
+);
+
 const App = () => {
   useEffect(() => {
     // Prevent default scroll restoration
@@ -977,15 +986,15 @@ const App = () => {
       <AuthProvider>
         <LazyMotion features={domAnimation}>
           <ScrollToTop />
-          <div className="overflow-x-hidden">
+          <Suspense fallback={<LoadingScreen />}>
             <Routes>
               <Route path="/" element={<MainContent />} />
               <Route path="/signin" element={<SignInPage />} />
               <Route path="/signup" element={<SignUp />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/profile" element={<Profile />} /> {/* Add this line */}
+              <Route path="/profile" element={<Profile />} />
             </Routes>
-          </div>
+          </Suspense>
         </LazyMotion>
       </AuthProvider>
     </BrowserRouter>

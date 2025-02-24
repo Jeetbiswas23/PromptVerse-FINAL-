@@ -27,6 +27,22 @@ const FloatingOrb = ({ color, position, scale }) => (
   </Float>
 );
 
+// Optimize 3D background
+const ThreeBackground = React.memo(() => (
+  <div className="fixed inset-0 z-0">
+    <Canvas
+      camera={{ position: [0, 0, 10] }}
+      dpr={[1, 2]} // Optimize for different screen densities
+      performance={{ min: 0.5 }} // Lower performance threshold
+    >
+      <ambientLight intensity={0.5} />
+      <FloatingOrb color="#4c1d95" position={[-5, 2, -5]} scale={2} />
+      <FloatingOrb color="#7c3aed" position={[5, -2, -5]} scale={1.5} />
+      <FloatingOrb color="#8b5cf6" position={[0, 3, -8]} scale={3} />
+    </Canvas>
+  </div>
+));
+
 const Profile = () => {
   const { user, setUser } = useContext(AuthContext);
   const [editing, setEditing] = useState(false);
@@ -390,24 +406,22 @@ const Profile = () => {
     </motion.div>
   );
 
+  // Add exit animation
+  const pageTransition = {
+    initial: { opacity: 0 },
+    animate: { opacity: 1 },
+    exit: { opacity: 0 },
+    transition: { duration: 0.3 }
+  };
+
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white">
-      {/* Cyberpunk Grid Background */}
-      <div className="fixed inset-0 z-0">
-        <div className="absolute inset-0 bg-gradient-to-b from-violet-900/10 via-black to-black" />
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA2MCAwIEwgMCAwIDAgNjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgxMDIsIDkwLCAyNDksIDAuMDUpIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-40" />
-      </div>
-
-      {/* 3D Background Elements */}
-      <div className="fixed inset-0 z-0">
-        <Canvas camera={{ position: [0, 0, 10] }}>
-          <ambientLight intensity={0.5} />
-          <FloatingOrb color="#4c1d95" position={[-5, 2, -5]} scale={2} />
-          <FloatingOrb color="#7c3aed" position={[5, -2, -5]} scale={1.5} />
-          <FloatingOrb color="#8b5cf6" position={[0, 3, -8]} scale={3} />
-        </Canvas>
-      </div>
-
+    <motion.div 
+      {...pageTransition}
+      className="min-h-screen bg-[#0a0a0f] text-white"
+    >
+      {/* Background */}
+      <ThreeBackground />
+      
       <div className="relative z-10 max-w-7xl mx-auto px-4 py-12">
         {/* Profile Header - Cyberpunk Style */}
         <motion.div 
@@ -677,8 +691,8 @@ const Profile = () => {
           {editing && renderEditModal()}
         </AnimatePresence>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
-export default Profile;
+export default React.memo(Profile); // Memoize the entire component
