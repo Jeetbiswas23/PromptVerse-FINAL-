@@ -749,6 +749,7 @@ const MainContent = () => {
                 </span>
               </h2>
 
+              
               {/* Animated Get Started Button */}
               <motion.button
                 whileHover={{ scale: 1.02 }}
