@@ -1,7 +1,12 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { AuthContext } from '../App';
-import { Settings, User, Mail, Calendar, Edit3, Camera, Github, Twitter, Linkedin, Activity, Shield, Globe, Zap } from 'lucide-react';
+import { 
+  Settings, User, Mail, Calendar, Edit3, Camera, Github, 
+  Twitter, Linkedin, Activity, Shield, Globe, Zap, Store, 
+  Book, GitBranch, Award, Coins, Users, Sparkles, 
+  TrendingUp, BarChart, Trophy, Heart, Star 
+} from 'lucide-react';
 import { Navigate } from 'react-router-dom';
 import { Canvas } from '@react-three/fiber';
 import { Float, MeshDistortMaterial } from '@react-three/drei';
@@ -35,6 +40,49 @@ const Profile = () => {
     linkedin: "linkedin.com/in/promptverse"
   });
 
+  const [activeTab, setActiveTab] = useState('marketplace');
+  const [promptStats, setPromptStats] = useState({
+    totalEarnings: "$1,234",
+    promptsSold: 156,
+    averageRating: 4.8,
+    totalPrompts: 23
+  });
+
+  const userTabs = [
+    { id: 'marketplace', label: 'Marketplace', icon: <Store className="w-4 h-4" /> },
+    { id: 'prompts', label: 'My Prompts', icon: <Book className="w-4 h-4" /> },
+    { id: 'versions', label: 'Versions', icon: <GitBranch className="w-4 h-4" /> }, // Changed from Git to GitBranch
+    { id: 'challenges', label: 'Challenges', icon: <Trophy className="w-4 h-4" /> },
+    { id: 'collaborations', label: 'Collaborations', icon: <Users className="w-4 h-4" /> },
+    { id: 'earnings', label: 'Earnings', icon: <Coins className="w-4 h-4" /> },
+  ];
+
+  const userPrompts = [
+    {
+      id: 1,
+      title: "Advanced Code Generation Assistant",
+      category: "Development",
+      price: "$9.99",
+      rating: 4.9,
+      sales: 234,
+      versions: 5,
+      collaborative: true
+    },
+    // ... more prompts
+  ];
+
+  const activeChallenges = [
+    {
+      id: 1,
+      title: "Weekly Prompt Battle",
+      deadline: "2 days left",
+      prize: "$100",
+      participants: 156,
+      category: "Creative Writing"
+    },
+    // ... more challenges
+  ];
+
   if (!user) {
     return <Navigate to="/signin" />;
   }
@@ -52,6 +100,197 @@ const Profile = () => {
     { icon: <Activity className="w-5 h-5" />, title: "Streak", value: "47 days" },
     { icon: <Globe className="w-5 h-5" />, title: "Global Rank", value: "#142" },
   ];
+
+  // Add new state for form data
+  const [formData, setFormData] = useState({
+    name: user?.name || '',
+    username: user?.username || '',
+    bio: profileData.bio,
+    location: profileData.location,
+    email: user?.email || '',
+    github: profileData.github,
+    twitter: profileData.twitter,
+    linkedin: profileData.linkedin
+  });
+
+  // Handle form input changes
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Handle form submission
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Update user context and profile data
+    setUser(prev => ({
+      ...prev,
+      name: formData.name,
+      username: formData.username,
+      email: formData.email
+    }));
+    setProfileData(prev => ({
+      ...prev,
+      bio: formData.bio,
+      location: formData.location,
+      github: formData.github,
+      twitter: formData.twitter,
+      linkedin: formData.linkedin
+    }));
+    setEditing(false);
+  };
+
+  // Update the Edit Profile Modal
+  const renderEditModal = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto"
+    >
+      <motion.div
+        initial={{ scale: 0.95 }}
+        animate={{ scale: 1 }}
+        exit={{ scale: 0.95 }}
+        className="bg-violet-950/90 rounded-xl p-6 max-w-2xl w-full border border-violet-500/20 my-8"
+      >
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-semibold bg-gradient-to-r from-violet-200 to-fuchsia-200 bg-clip-text text-transparent">
+            Edit Profile
+          </h2>
+          <button
+            onClick={() => setEditing(false)}
+            className="text-violet-300 hover:text-violet-100"
+          >
+            ✕
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Basic Information */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium text-violet-200">Basic Information</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm text-violet-300">Name</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  className="w-full bg-violet-900/20 rounded-lg p-2 mt-1 text-violet-100 border border-violet-500/20"
+                />
+              </div>
+              <div>
+                <label className="text-sm text-violet-300">Username</label>
+                <input
+                  type="text"
+                  name="username"
+                  value={formData.username}
+                  onChange={handleInputChange}
+                  className="w-full bg-violet-900/20 rounded-lg p-2 mt-1 text-violet-100 border border-violet-500/20"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="text-sm text-violet-300">Bio</label>
+              <textarea
+                name="bio"
+                value={formData.bio}
+                onChange={handleInputChange}
+                rows={3}
+                className="w-full bg-violet-900/20 rounded-lg p-2 mt-1 text-violet-100 border border-violet-500/20"
+              />
+            </div>
+            <div>
+              <label className="text-sm text-violet-300">Email</label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                className="w-full bg-violet-900/20 rounded-lg p-2 mt-1 text-violet-100 border border-violet-500/20"
+              />
+            </div>
+            <div>
+              <label className="text-sm text-violet-300">Location</label>
+              <input
+                type="text"
+                name="location"
+                value={formData.location}
+                onChange={handleInputChange}
+                className="w-full bg-violet-900/20 rounded-lg p-2 mt-1 text-violet-100 border border-violet-500/20"
+              />
+            </div>
+          </div>
+
+          {/* Social Links */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium text-violet-200">Social Links</h3>
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <Github className="w-4 h-4 text-violet-400" />
+                <input
+                  type="text"
+                  name="github"
+                  value={formData.github}
+                  onChange={handleInputChange}
+                  placeholder="GitHub profile"
+                  className="flex-1 bg-violet-900/20 rounded-lg p-2 text-violet-100 border border-violet-500/20"
+                />
+              </div>
+              <div className="flex items-center space-x-2">
+                <Twitter className="w-4 h-4 text-violet-400" />
+                <input
+                  type="text"
+                  name="twitter"
+                  value={formData.twitter}
+                  onChange={handleInputChange}
+                  placeholder="Twitter profile"
+                  className="flex-1 bg-violet-900/20 rounded-lg p-2 text-violet-100 border border-violet-500/20"
+                />
+              </div>
+              <div className="flex items-center space-x-2">
+                <Linkedin className="w-4 h-4 text-violet-400" />
+                <input
+                  type="text"
+                  name="linkedin"
+                  value={formData.linkedin}
+                  onChange={handleInputChange}
+                  placeholder="LinkedIn profile"
+                  className="flex-1 bg-violet-900/20 rounded-lg p-2 text-violet-100 border border-violet-500/20"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex justify-end space-x-3 pt-6 border-t border-violet-500/20">
+            <motion.button
+              type="button"
+              onClick={() => setEditing(false)}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="px-4 py-2 rounded-lg bg-violet-900/50 text-violet-300"
+            >
+              Cancel
+            </motion.button>
+            <motion.button
+              type="submit"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="px-4 py-2 rounded-lg bg-violet-600 text-white"
+            >
+              Save Changes
+            </motion.button>
+          </div>
+        </form>
+      </motion.div>
+    </motion.div>
+  );
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-white">
@@ -214,58 +453,125 @@ const Profile = () => {
           </motion.div>
         </div>
 
-        {/* Edit Profile Modal */}
-        {editing && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-          >
+        {/* New Sections */}
+        <div className="mt-8">
+          {/* Tab Navigation */}
+          <div className="flex overflow-x-auto space-x-2 pb-4 mb-6">
+            {userTabs.map((tab) => (
+              <motion.button
+                key={tab.id}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center space-x-2 px-4 py-2 rounded-lg ${
+                  activeTab === tab.id 
+                    ? 'bg-violet-600/20 border border-violet-500/20' 
+                    : 'bg-black/20 hover:bg-violet-600/10'
+                }`}
+              >
+                {tab.icon}
+                <span>{tab.label}</span>
+              </motion.button>
+            ))}
+          </div>
+
+          {/* Marketplace Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            {[
+              { label: "Total Earnings", value: promptStats.totalEarnings, icon: <Coins /> },
+              { label: "Prompts Sold", value: promptStats.promptsSold, icon: <TrendingUp /> },
+              { label: "Average Rating", value: promptStats.averageRating, icon: <Star /> },
+              { label: "Total Prompts", value: promptStats.totalPrompts, icon: <Book /> }
+            ].map((stat, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="relative group"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-fuchsia-600/20 rounded-xl blur-sm" />
+                <div className="relative p-4 backdrop-blur-xl bg-black/40 rounded-xl border border-violet-500/20">
+                  <div className="text-violet-400 mb-2">{stat.icon}</div>
+                  <div className="text-2xl font-bold text-violet-300">{stat.value}</div>
+                  <div className="text-sm text-violet-400/70">{stat.label}</div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Content Based on Active Tab */}
+          <AnimatePresence mode="wait">
             <motion.div
-              initial={{ scale: 0.95 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.95 }}
-              className="bg-violet-950/90 rounded-xl p-6 max-w-md w-full border border-violet-500/20"
+              key={activeTab}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.2 }}
             >
-              <h2 className="text-xl font-semibold mb-4">Edit Profile</h2>
-              <form className="space-y-4">
-                <div>
-                  <label className="text-sm text-violet-300">Bio</label>
-                  <textarea
-                    className="w-full bg-violet-900/20 rounded-lg p-2 mt-1 text-violet-100"
-                    value={profileData.bio}
-                    onChange={(e) => setProfileData({ ...profileData, bio: e.target.value })}
-                  />
+              {activeTab === 'marketplace' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {userPrompts.map((prompt) => (
+                    <motion.div
+                      key={prompt.id}
+                      whileHover={{ scale: 1.02 }}
+                      className="relative group"
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-r from-violet-600/10 to-fuchsia-600/10 rounded-xl blur-sm" />
+                      <div className="relative backdrop-blur-xl bg-black/40 rounded-xl border border-violet-500/20 p-6">
+                        <div className="flex justify-between items-start mb-4">
+                          <h3 className="text-lg font-semibold text-violet-200">{prompt.title}</h3>
+                          <span className="text-violet-400 font-bold">{prompt.price}</span>
+                        </div>
+                        <div className="flex items-center space-x-4 text-sm text-violet-300/70">
+                          <span className="flex items-center">
+                            <Star className="w-4 h-4 mr-1" />
+                            {prompt.rating}
+                          </span>
+                          <span className="flex items-center">
+                            <TrendingUp className="w-4 h-4 mr-1" />
+                            {prompt.sales} sales
+                          </span>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
                 </div>
-                <div>
-                  <label className="text-sm text-violet-300">Location</label>
-                  <input
-                    type="text"
-                    className="w-full bg-violet-900/20 rounded-lg p-2 mt-1 text-violet-100"
-                    value={profileData.location}
-                    onChange={(e) => setProfileData({ ...profileData, location: e.target.value })}
-                  />
+              )}
+
+              {activeTab === 'challenges' && (
+                <div className="space-y-6">
+                  {activeChallenges.map((challenge) => (
+                    <motion.div
+                      key={challenge.id}
+                      whileHover={{ scale: 1.01 }}
+                      className="relative group"
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-r from-violet-600/10 to-fuchsia-600/10 rounded-xl blur-sm" />
+                      <div className="relative backdrop-blur-xl bg-black/40 rounded-xl border border-violet-500/20 p-6">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="text-lg font-semibold text-violet-200">{challenge.title}</h3>
+                            <p className="text-violet-300/70">{challenge.category}</p>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-violet-400 font-bold">{challenge.prize}</div>
+                            <div className="text-sm text-violet-300/70">{challenge.deadline}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
                 </div>
-                <div className="flex justify-end space-x-3">
-                  <button
-                    type="button"
-                    onClick={() => setEditing(false)}
-                    className="px-4 py-2 rounded-lg bg-violet-900/50 text-violet-300"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 rounded-lg bg-violet-600 text-white"
-                  >
-                    Save Changes
-                  </button>
-                </div>
-              </form>
+              )}
+
+              {/* Add more tab content as needed */}
             </motion.div>
-          </motion.div>
-        )}
+          </AnimatePresence>
+        </div>
+
+        {/* Edit Profile Modal */}
+        {editing && renderEditModal()}
       </div>
     </div>
   );
