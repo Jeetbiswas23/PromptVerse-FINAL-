@@ -1,8 +1,26 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { AuthContext } from '../App';
-import { Settings, User, Mail, Calendar, Edit3, Camera, Github, Twitter, Linkedin } from 'lucide-react';
+import { Settings, User, Mail, Calendar, Edit3, Camera, Github, Twitter, Linkedin, Activity, Shield, Globe, Zap } from 'lucide-react';
 import { Navigate } from 'react-router-dom';
+import { Canvas } from '@react-three/fiber';
+import { Float, MeshDistortMaterial } from '@react-three/drei';
+
+const FloatingOrb = ({ color, position, scale }) => (
+  <Float speed={2} rotationIntensity={2} floatIntensity={3}>
+    <mesh position={position} scale={scale}>
+      <sphereGeometry args={[1, 32, 32]} />
+      <MeshDistortMaterial
+        color={color}
+        attach="material"
+        distort={0.4}
+        speed={2}
+        roughness={0}
+        metalness={1}
+      />
+    </mesh>
+  </Float>
+);
 
 const Profile = () => {
   const { user } = useContext(AuthContext);
@@ -28,84 +46,111 @@ const Profile = () => {
     { label: "Followers", value: "789" }
   ];
 
+  const achievements = [
+    { icon: <Zap className="w-5 h-5" />, title: "Power User", value: "Level 32" },
+    { icon: <Shield className="w-5 h-5" />, title: "Contributor", value: "Elite" },
+    { icon: <Activity className="w-5 h-5" />, title: "Streak", value: "47 days" },
+    { icon: <Globe className="w-5 h-5" />, title: "Global Rank", value: "#142" },
+  ];
+
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white p-4">
-      {/* Background Effects */}
+    <div className="min-h-screen bg-[#0a0a0f] text-white">
+      {/* Cyberpunk Grid Background */}
       <div className="fixed inset-0 z-0">
-        <div className="absolute inset-0 bg-gradient-to-tr from-violet-900/20 via-black to-blue-900/20" />
-        <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.02] mix-blend-overlay" />
+        <div className="absolute inset-0 bg-gradient-to-b from-violet-900/10 via-black to-black" />
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA2MCAwIEwgMCAwIDAgNjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgxMDIsIDkwLCAyNDksIDAuMDUpIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-40" />
       </div>
 
-      <div className="relative z-10 max-w-6xl mx-auto">
-        {/* Profile Header */}
+      {/* 3D Background Elements */}
+      <div className="fixed inset-0 z-0">
+        <Canvas camera={{ position: [0, 0, 10] }}>
+          <ambientLight intensity={0.5} />
+          <FloatingOrb color="#4c1d95" position={[-5, 2, -5]} scale={2} />
+          <FloatingOrb color="#7c3aed" position={[5, -2, -5]} scale={1.5} />
+          <FloatingOrb color="#8b5cf6" position={[0, 3, -8]} scale={3} />
+        </Canvas>
+      </div>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-4 py-12">
+        {/* Profile Header - Cyberpunk Style */}
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="backdrop-blur-xl bg-white/5 rounded-2xl p-8 border border-white/10 shadow-2xl"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="relative mb-8"
         >
-          <div className="flex flex-col md:flex-row items-start gap-8">
-            {/* Profile Image */}
-            <motion.div 
-              whileHover={{ scale: 1.05 }}
-              className="relative group"
-            >
-              <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-violet-500/20">
-                <img 
-                  src={user.photoURL || `https://api.dicebear.com/6.x/avataaars/svg?seed=${user.name}`} 
-                  alt="Profile" 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <button className="absolute bottom-0 right-0 p-2 rounded-full bg-violet-600 text-white opacity-0 group-hover:opacity-100 transition-opacity">
-                <Camera className="w-4 h-4" />
-              </button>
-            </motion.div>
-
-            {/* Profile Info */}
-            <div className="flex-1">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h1 className="text-3xl font-bold bg-gradient-to-r from-violet-200 to-purple-200 bg-clip-text text-transparent">
-                    {user.name}
-                  </h1>
-                  <p className="text-violet-300/70">@{user.username || user.name.toLowerCase().replace(' ', '')}</p>
+          <div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-fuchsia-600/20 blur-3xl" />
+          <div className="relative backdrop-blur-2xl bg-black/40 border border-violet-500/20 rounded-2xl p-8">
+            <div className="flex flex-col md:flex-row gap-8 items-center md:items-start">
+              {/* Profile Image with Cyberpunk Frame */}
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                className="relative group"
+              >
+                <div className="absolute -inset-1 bg-gradient-to-r from-violet-600 to-fuchsia-600 rounded-full blur opacity-40 group-hover:opacity-75 transition duration-1000" />
+                <div className="relative w-40 h-40 rounded-full border-4 border-violet-500/20 overflow-hidden">
+                  <img 
+                    src={user.photoURL || `https://api.dicebear.com/6.x/avataaars/svg?seed=${user.name}`}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                 </div>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setEditing(!editing)}
-                  className="px-4 py-2 rounded-lg bg-violet-600/20 hover:bg-violet-600/30 border border-violet-500/20 flex items-center gap-2"
-                >
-                  <Edit3 className="w-4 h-4" />
-                  <span>Edit Profile</span>
-                </motion.button>
-              </div>
+              </motion.div>
 
-              {/* Bio */}
-              <p className="mt-4 text-violet-200/90">{profileData.bio}</p>
+              {/* User Info with Glowing Elements */}
+              <div className="flex-1 text-center md:text-left">
+                <h1 className="text-4xl font-bold mb-2">
+                  <span className="bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">
+                    {user.name}
+                  </span>
+                </h1>
+                <p className="text-violet-300/70 mb-6">@{user.username || user.name.toLowerCase().replace(' ', '')}</p>
+                
+                {/* Achievement Cards */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                  {achievements.map((achievement, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="relative group"
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-fuchsia-600/20 rounded-xl blur-sm" />
+                      <div className="relative p-4 backdrop-blur-xl bg-black/40 rounded-xl border border-violet-500/20">
+                        <div className="text-violet-400 mb-2">{achievement.icon}</div>
+                        <div className="text-sm text-violet-200">{achievement.title}</div>
+                        <div className="text-lg font-bold text-violet-300">{achievement.value}</div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
 
-              {/* User Stats */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
-                {statsData.map((stat, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="text-center p-3 rounded-lg bg-white/5 border border-white/10"
+                {/* Action Buttons */}
+                <div className="flex flex-wrap gap-4 justify-center md:justify-start">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="px-6 py-3 bg-violet-600/20 hover:bg-violet-600/30 rounded-xl border border-violet-500/20 backdrop-blur-xl"
                   >
-                    <div className="text-2xl font-bold text-violet-300">{stat.value}</div>
-                    <div className="text-sm text-violet-400/70">{stat.label}</div>
-                  </motion.div>
-                ))}
+                    Edit Profile
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="px-6 py-3 bg-fuchsia-600/20 hover:bg-fuchsia-600/30 rounded-xl border border-fuchsia-500/20 backdrop-blur-xl"
+                  >
+                    View Analytics
+                  </motion.button>
+                </div>
               </div>
             </div>
           </div>
         </motion.div>
 
-        {/* Additional Info Cards */}
-        <div className="grid md:grid-cols-2 gap-6 mt-6">
-          {/* Personal Info */}
+        {/* Stats and Activity Section */}
+        <div className="grid md:grid-cols-2 gap-6">
+          {/* Rest of your components with updated styling */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
