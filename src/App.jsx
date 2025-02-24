@@ -1169,4 +1169,20 @@ const FAQ = () => {
   );
 };
 
+const FloatingElement = ({ position, color, scale }) => (
+  <Float speed={2} rotationIntensity={2} floatIntensity={2}>
+    <mesh position={position} scale={scale}>
+      <torusGeometry args={[1, 0.3, 16, 32]} />
+      <meshDistortMaterial
+        color={color}
+        attach="material"
+        distort={0.4}
+        speed={2}
+        roughness={0.2}
+        metalness={0.8}
+      />
+    </mesh>
+  </Float>
+);
+
 export default App;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Filter, Star, Copy, Heart, Share2, MessageSquare, Tags, Command } from 'lucide-react';
+import { Search, Filter, Star, Copy, Heart, Share2, MessageSquare, Tags, Command, Code } from 'lucide-react';
 import { Navigation } from '../App';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Float, MeshDistortMaterial, Stars } from '@react-three/drei';
@@ -28,6 +28,7 @@ const Prompts = () => {
   const [selectedSort, setSelectedSort] = useState('popular');
   const [prompts, setPrompts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedType, setSelectedType] = useState('chat');
 
   const categories = [
     'all',
@@ -39,49 +40,65 @@ const Prompts = () => {
     'creative'
   ];
 
+  const promptTypes = [
+    {
+      id: 'chat',
+      title: 'Chat Prompts',
+      icon: <MessageSquare className="w-5 h-5" />,
+      color: 'from-violet-500 to-fuchsia-500',
+      description: 'Conversational AI prompts for natural dialogue'
+    },
+    {
+      id: 'image',
+      title: 'Image Prompts',
+      icon: <Command className="w-5 h-5" />,
+      color: 'from-cyan-500 to-blue-500',
+      description: 'Visual generation prompts for AI art creation'
+    },
+    {
+      id: 'code',
+      title: 'Code Prompts',
+      icon: <Code className="w-5 h-5" />,
+      color: 'from-emerald-500 to-green-500',
+      description: 'Programming prompts for software development'
+    }
+  ];
+
   // Expanded mock prompts data
   const mockPrompts = [
     {
       id: 1,
-      title: "AI Art Masterpiece Generator",
-      description: "Create stunning digital art with precise style control",
-      prompt: "Create a hyperrealistic digital painting of a cyberpunk city at sunset...",
+      title: "Neural Dream Architect",
+      description: "Generate surreal dreamscapes with neural network manipulation",
+      prompt: "Architect a dreamscape where quantum particles form conscious structures...",
       category: "art",
-      author: "ArtisticAI",
-      likes: 1250,
-      comments: 45,
-      shares: 89,
-      rating: 4.8,
-      tags: ["digital-art", "cyberpunk", "realistic"],
-      image: "https://source.unsplash.com/random/800x600/?cyberpunk"
+      author: "NeuralNomad",
+      likes: 3427,
+      comments: 892,
+      shares: 1204,
+      rating: 4.9,
+      tags: ["neural-art", "quantum", "consciousness"],
+      image: "https://source.unsplash.com/random/800x600/?quantum",
+      difficulty: "Advanced",
+      tokenCount: 2048,
+      lastUsed: "2 hours ago"
     },
     {
       id: 2,
-      title: "Code Refactoring Assistant",
-      description: "Transform legacy code into modern, clean architecture",
-      prompt: "Refactor this code following SOLID principles and modern patterns...",
+      title: "Quantum Code Synthesizer",
+      description: "Transform thoughts into quantum-optimized algorithms",
+      prompt: "Synthesize a quantum algorithm that solves...",
       category: "coding",
-      author: "TechOptimizer",
-      likes: 892,
-      comments: 67,
-      shares: 123,
-      rating: 4.9,
-      tags: ["refactoring", "clean-code", "optimization"],
-      image: "https://source.unsplash.com/random/800x600/?programming"
-    },
-    {
-      id: 3,
-      title: "Story Plot Generator",
-      description: "Generate unique and engaging story plots",
-      prompt: "Create a compelling story plot with unique twists...",
-      category: "writing",
-      author: "StoryForge",
-      likes: 756,
-      comments: 34,
-      shares: 67,
-      rating: 4.7,
-      tags: ["creative-writing", "storytelling", "plot"],
-      image: "https://source.unsplash.com/random/800x600/?story"
+      author: "QuantumCoder",
+      likes: 2891,
+      comments: 567,
+      shares: 892,
+      rating: 4.95,
+      tags: ["quantum-computing", "ai-synthesis", "neural-code"],
+      image: "https://source.unsplash.com/random/800x600/?quantum-computer",
+      difficulty: "Expert",
+      tokenCount: 4096,
+      lastUsed: "5 mins ago"
     }
   ];
 
@@ -166,6 +183,71 @@ const Prompts = () => {
               </div>
             </motion.div>
 
+            {/* New Prompt Type Selector */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-12"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
+                {promptTypes.map((type) => (
+                  <motion.button
+                    key={type.id}
+                    onClick={() => setSelectedType(type.id)}
+                    className={`relative group ${
+                      selectedType === type.id ? 'scale-105' : ''
+                    }`}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    {/* Animated Background */}
+                    <div className={`absolute inset-0 bg-gradient-to-r ${type.color} opacity-10 group-hover:opacity-20 rounded-xl blur-xl transition-all duration-300`} />
+                    
+                    {/* Card Content */}
+                    <div className={`relative p-6 rounded-xl border ${
+                      selectedType === type.id 
+                        ? 'border-violet-500/50 bg-violet-900/30' 
+                        : 'border-violet-500/20 bg-black/30'
+                    } backdrop-blur-xl transition-all duration-300`}>
+                      <div className="flex items-center space-x-3 mb-2">
+                        <div className={`p-2 rounded-lg bg-gradient-to-r ${type.color}`}>
+                          {type.icon}
+                        </div>
+                        <span className="font-bold text-lg">{type.title}</span>
+                      </div>
+                      <p className="text-sm text-violet-300/70">{type.description}</p>
+                      
+                      {/* Selection Indicator */}
+                      {selectedType === type.id && (
+                        <motion.div
+                          layoutId="activeTab"
+                          className="absolute inset-0 border-2 border-violet-500 rounded-xl"
+                          initial={false}
+                          transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                        />
+                      )}
+                    </div>
+                  </motion.button>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Filter chips row */}
+            <div className="flex flex-wrap justify-center gap-4 mb-8">
+              <div className="flex items-center space-x-2 px-4 py-2 rounded-full bg-violet-900/30 border border-violet-500/20 backdrop-blur-sm">
+                <Filter className="w-4 h-4 text-violet-400" />
+                <select 
+                  className="bg-transparent text-violet-300 text-sm focus:outline-none"
+                  value={selectedSort}
+                  onChange={(e) => setSelectedSort(e.target.value)}
+                >
+                  <option value="popular">Most Popular</option>
+                  <option value="recent">Most Recent</option>
+                  <option value="rating">Highest Rated</option>
+                </select>
+              </div>
+            </div>
+
             {/* Prompt Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {prompts.filter(filterPrompts).map((prompt, index) => (
@@ -174,68 +256,85 @@ const Prompts = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  whileHover={{ y: -5 }}
+                  whileHover={{ y: -5, scale: 1.02 }}
                   className="group relative"
                 >
-                  {/* Card Background Effects */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-violet-600/10 via-fuchsia-600/10 to-violet-600/10 rounded-xl blur-xl group-hover:blur-2xl transition-all duration-300" />
+                  {/* Animated Background Gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 via-fuchsia-600/20 to-cyan-600/20 rounded-xl blur-xl group-hover:blur-2xl transition-all duration-300 animate-pulse" />
                   
-                  <div className="relative backdrop-blur-xl bg-black/30 rounded-xl border border-violet-500/20 overflow-hidden">
-                    {/* Prompt Image */}
-                    <div className="aspect-video relative overflow-hidden">
+                  <div className="relative backdrop-blur-xl bg-black/40 rounded-xl border border-violet-500/30 overflow-hidden">
+                    {/* Hexagonal Pattern Overlay */}
+                    <div className="absolute inset-0 opacity-10 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4NCIgaGVpZ2h0PSI4NCI+CiAgPHBhdGggZD0iTTAgMGg4NHY4NEgweiIgZmlsbD0ibm9uZSIvPgogIDxwYXRoIGQ9Ik00MiA0TDQgNDJsMzggMzggMzgtMzh6IiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMiIgZmlsbD0ibm9uZSIvPgo8L3N2Zz4=')]" />
+
+                    {/* Custom Image Container */}
+                    <div className="aspect-[16/9] relative overflow-hidden">
+                      <div className="absolute inset-0 bg-gradient-to-br from-violet-600/30 to-fuchsia-600/30 mix-blend-overlay" />
                       <img
                         src={prompt.image}
                         alt={prompt.title}
-                        className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300"
+                        className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
                       
-                      {/* Floating Stats */}
-                      <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center">
-                        <div className="flex items-center space-x-4">
-                          <span className="flex items-center space-x-1 text-violet-200 bg-black/50 px-3 py-1 rounded-full backdrop-blur-md">
-                            <Heart className="w-4 h-4" />
-                            <span>{prompt.likes}</span>
-                          </span>
-                          <span className="flex items-center space-x-1 text-violet-200 bg-black/50 px-3 py-1 rounded-full backdrop-blur-md">
-                            <Star className="w-4 h-4 text-yellow-500" />
-                            <span>{prompt.rating}</span>
-                          </span>
-                        </div>
+                      {/* Floating Stats with Glowing Effect */}
+                      <div className="absolute top-4 right-4 flex items-center space-x-3">
+                        <motion.div
+                          whileHover={{ scale: 1.1 }}
+                          className="flex items-center space-x-1 px-3 py-1 rounded-full bg-black/60 border border-violet-500/30 backdrop-blur-md"
+                        >
+                          <span className="text-violet-300 text-xs">{prompt.tokenCount}</span>
+                          <Command className="w-3 h-3 text-violet-400" />
+                        </motion.div>
+                        <motion.div
+                          whileHover={{ scale: 1.1 }}
+                          className="flex items-center space-x-1 px-3 py-1 rounded-full bg-black/60 border border-violet-500/30 backdrop-blur-md"
+                        >
+                          <span className="text-violet-300 text-xs">{prompt.difficulty}</span>
+                          <Star className="w-3 h-3 text-yellow-500" />
+                        </motion.div>
                       </div>
                     </div>
 
-                    {/* Content */}
-                    <div className="p-6">
-                      <h3 className="text-xl font-semibold text-violet-100 mb-2">
+                    {/* Content with Glassmorphism */}
+                    <div className="p-6 relative backdrop-blur-sm">
+                      <h3 className="text-2xl font-bold bg-gradient-to-r from-violet-200 via-fuchsia-200 to-cyan-200 bg-clip-text text-transparent">
                         {prompt.title}
                       </h3>
-                      <p className="text-violet-300/70 text-sm mb-4">
+                      <p className="text-violet-300/70 text-sm mt-2 line-clamp-2">
                         {prompt.description}
                       </p>
 
-                      {/* Tags */}
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        {prompt.tags.map((tag) => (
-                          <span
-                            key={tag}
-                            className="px-3 py-1 text-xs rounded-full bg-violet-500/10 text-violet-300 border border-violet-500/20"
+                      {/* Interactive Stats Bar */}
+                      <div className="flex items-center justify-between mt-4 py-2">
+                        <div className="flex items-center space-x-4">
+                          <motion.button
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            className="flex items-center space-x-1 text-violet-300"
                           >
-                            #{tag}
-                          </span>
-                        ))}
+                            <Heart className="w-4 h-4" />
+                            <span className="text-sm">{prompt.likes}</span>
+                          </motion.button>
+                          <motion.button
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            className="flex items-center space-x-1 text-violet-300"
+                          >
+                            <MessageSquare className="w-4 h-4" />
+                            <span className="text-sm">{prompt.comments}</span>
+                          </motion.button>
+                        </div>
+                        <span className="text-xs text-violet-400">{prompt.lastUsed}</span>
                       </div>
                     </div>
 
-                    {/* Hover Actions */}
-                    <div className="absolute inset-0 bg-black/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-6">
-                      {/* Action buttons with glow effect */}
+                    {/* Action Overlay */}
+                    <div className="absolute inset-0 bg-black/90 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center space-x-6">
                       <motion.button
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
-                        className="p-4 bg-violet-500/20 rounded-full backdrop-blur-xl border border-violet-500/40 relative"
+                        className="p-4 bg-violet-500/20 rounded-full backdrop-blur-xl border border-violet-500/40 relative group/button"
                       >
-                        <div className="absolute inset-0 bg-violet-500/20 rounded-full blur-xl" />
+                        <div className="absolute inset-0 bg-violet-500/20 rounded-full blur-xl group-hover/button:blur-2xl transition-all duration-300" />
                         <Copy className="w-6 h-6 text-violet-200 relative z-10" />
                       </motion.button>
                       {/* Add more action buttons with similar effects */}
