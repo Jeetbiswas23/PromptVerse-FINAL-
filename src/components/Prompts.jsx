@@ -23,6 +23,7 @@ const FloatingElement = ({ position, color, scale }) => (
   </Float>
 );
 
+
 // Add new component for dynamic background pattern
 const DynamicPattern = ({ type }) => {
   const patterns = {
