@@ -2,13 +2,12 @@ import React, { useEffect, useState, createContext, useContext, useRef, lazy, Su
 import { Command, Share2, GitBranch, Star, DollarSign, Trophy, Beaker, MessageSquare, Terminal, Copy, Check, ChevronRight, Code, Wand2, PenTool, Brain } from 'lucide-react';
 import { motion, LazyMotion, domAnimation, m, AnimatePresence } from 'framer-motion';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Float, MeshDistortMaterial, Environment, PerspectiveCamera } from '@react-three/drei';
+import { OrbitControls, Float, MeshDistortMaterial, Environment, PerspectiveCamera, Torus, AdaptiveDpr, BakeShadows, Preload } from '@react-three/drei';
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import SignInPage from './components/SignIn'; // Update import name for clarity
 import SignUp from './components/SignUp'; // Update import name
 import ForgotPassword from './components/ForgotPassword';
 import Profile from './components/Profile';
-import { Torus } from '@react-three/drei';
 
 // Create auth context
 export const AuthContext = createContext(null);
@@ -492,14 +491,14 @@ const Navigation = () => {
   return (
     <nav className="relative z-50 backdrop-blur-sm border-b border-white/5 sticky top-0">
       <div className="max-w-7xl mx-auto flex justify-between items-center p-4">
-        {/* Logo - Left side */}
+        {/* Logo */}
         <div className="flex items-center">
           <span className="text-xl font-bold bg-gradient-to-r from-violet-200 to-fuchsia-200 bg-clip-text text-transparent">
             PromptVerse
           </span>
         </div>
 
-        {/* Navigation Links - Right side */}
+        {/* Navigation Links */}
         <div className="flex items-center space-x-4">
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-6">
@@ -521,7 +520,7 @@ const Navigation = () => {
             </motion.button>
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu */}
           <div className="md:hidden">
             <motion.button
               whileHover={{ scale: 1.05 }}
@@ -542,6 +541,7 @@ const Navigation = () => {
                   exit={{ opacity: 0, y: -10 }}
                   className="absolute right-0 mt-2 w-48 bg-violet-950/90 backdrop-blur-sm rounded-lg border border-violet-500/20 shadow-xl"
                 >
+                  {/* Mobile menu items */}
                   <div className="py-1">
                     <button 
                       className="w-full text-left px-4 py-2 text-sm text-violet-200 hover:bg-violet-800/50"
@@ -561,7 +561,7 @@ const Navigation = () => {
             </AnimatePresence>
           </div>
 
-          {/* Sign In/User Menu */}
+          {/* User Menu */}
           {user ? (
             <div className="relative" ref={dropdownRef}>
               <motion.button
@@ -578,7 +578,6 @@ const Navigation = () => {
                 </motion.div>
               </motion.button>
 
-              {/* Dropdown Menu with AnimatePresence */}
               <AnimatePresence>
                 {isDropdownOpen && (
                   <motion.div
@@ -589,6 +588,7 @@ const Navigation = () => {
                     className="absolute right-0 mt-2 w-48 bg-violet-950/90 backdrop-blur-sm rounded-lg border border-violet-500/20 shadow-xl"
                   >
                     <div className="py-1">
+                      {/* Menu items */}
                       <button 
                         className="w-full text-left px-4 py-2 text-sm text-violet-200 hover:bg-violet-800/50"
                         onClick={() => handleNavigation('/profile')}
@@ -601,7 +601,7 @@ const Navigation = () => {
                       >
                         Settings
                       </button>
-                      <div className="border-t border-violet-500/20"></div>
+                      <div className="border-t border-violet-500/20" />
                       <button 
                         className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-violet-800/50"
                         onClick={handleSignOut}
@@ -1005,28 +1005,7 @@ const App = () => {
   );
 };
 
-const FAQDonut = () => (
-  <Float
-    speed={2}
-    rotationIntensity={2}
-    floatIntensity={1}
-  >
-    <Torus args={[3, 1, 32, 100]}>
-      <MeshDistortMaterial
-        color="#4c1d95"
-        emissive="#4c1d95"
-        emissiveIntensity={0.4}
-        attach="material"
-        distort={0.4}
-        speed={2}
-        roughness={0.2}
-        metalness={0.8}
-      />
-    </Torus>
-  </Float>
-);
-
-// Add FAQ data
+// Add FAQ data before the FAQ component
 const faqData = [
   {
     question: "How does the Prompt Marketplace work?",
@@ -1050,18 +1029,59 @@ const faqData = [
   }
 ];
 
-// Add this component
+const FAQDonut = () => (
+  <group>
+    <Float
+      speed={1.5}
+      rotationIntensity={1.5}
+      floatIntensity={0.8}
+    >
+      <Torus args={[2, 0.3, 32, 100]} position={[0, 0, 0]}>
+        <meshPhysicalMaterial
+          color="#4c1d95"
+          emissive="#6d28d9"
+          emissiveIntensity={0.5}
+          roughness={0.2}
+          metalness={0.8}
+          transparent
+          opacity={0.9}
+          clearcoat={1}
+          clearcoatRoughness={0.1}
+        />
+      </Torus>
+    </Float>
+  </group>
+);
+
 const FAQ = () => {
   const [openIndex, setOpenIndex] = useState(null);
 
   return (
     <section className="relative py-20 overflow-hidden">
       {/* 3D Background */}
-      <div className="absolute inset-0 z-0">
-        <Canvas camera={{ position: [0, 0, 10] }}>
+      <div className="absolute inset-0 z-0 opacity-60">
+        <Canvas dpr={[1, 2]} camera={{ position: [0, 0, 10], fov: 45 }}>
+          <color attach="background" args={['#0a0a0f']} />
+          
+          {/* Lighting setup */}
           <ambientLight intensity={0.5} />
-          <pointLight position={[10, 10, 10]} intensity={0.8} />
+          <directionalLight position={[5, 5, 5]} intensity={1} color="#8b5cf6" />
+          <pointLight position={[-5, -5, -5]} intensity={0.5} color="#6d28d9" />
+          
+          {/* 3D Objects */}
           <FAQDonut />
+          
+          {/* Controls */}
+          <OrbitControls
+            enableZoom={false}
+            enablePan={false}
+            enableRotate={true}
+            autoRotate
+            autoRotateSpeed={0.5}
+          />
+          
+          {/* Performance optimizations */}
+          <Preload all />
         </Canvas>
       </div>
 
