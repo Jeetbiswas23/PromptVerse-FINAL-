@@ -9,6 +9,7 @@ import SignUp from './components/SignUp'; // Update import name
 import ForgotPassword from './components/ForgotPassword';
 import Profile from './components/Profile';
 import Settings from './components/Settings';
+import { ThemeProvider } from './contexts/ThemeContext';
 
 // Create auth context
 export const AuthContext = createContext(null);
@@ -989,19 +990,21 @@ const App = () => {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <LazyMotion features={domAnimation}>
-          <ScrollToTop />
-          <Suspense fallback={<LoadingScreen />}>
-            <Routes>
-              <Route path="/" element={<MainContent />} />
-              <Route path="/signin" element={<SignInPage />} />
-              <Route path="/signup" element={<SignUp />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/settings" element={<Settings />} />
-            </Routes>
-          </Suspense>
-        </LazyMotion>
+        <ThemeProvider>
+          <LazyMotion features={domAnimation}>
+            <ScrollToTop />
+            <Suspense fallback={<LoadingScreen />}>
+              <Routes>
+                <Route path="/" element={<MainContent />} />
+                <Route path="/signin" element={<SignInPage />} />
+                <Route path="/signup" element={<SignUp />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/settings" element={<Settings />} />
+              </Routes>
+            </Suspense>
+          </LazyMotion>
+        </ThemeProvider>
       </AuthProvider>
     </BrowserRouter>
   );
