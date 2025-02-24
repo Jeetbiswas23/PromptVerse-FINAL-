@@ -8,6 +8,7 @@ import SignInPage from './components/SignIn'; // Update import name for clarity
 import SignUp from './components/SignUp'; // Update import name
 import ForgotPassword from './components/ForgotPassword';
 import Profile from './components/Profile';
+import Settings from './components/Settings';
 
 // Create auth context
 export const AuthContext = createContext(null);
@@ -997,6 +998,7 @@ const App = () => {
               <Route path="/signup" element={<SignUp />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/settings" element={<Settings />} />
             </Routes>
           </Suspense>
         </LazyMotion>
@@ -1057,7 +1059,7 @@ const FAQ = () => {
   const [openIndex, setOpenIndex] = useState(null);
 
   return (
-    <section className="relative py-20 overflow-hidden">
+    <section className="relative py-12 overflow-hidden"> {/* Reduced padding */}
       {/* 3D Background */}
       <div className="absolute inset-0 z-0 opacity-60">
         <Canvas dpr={[1, 2]} camera={{ position: [0, 0, 10], fov: 45 }}>
@@ -1091,9 +1093,9 @@ const FAQ = () => {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="text-center mb-8" // Reduced margin
         >
-          <h2 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-violet-200 via-fuchsia-200 to-violet-200 bg-clip-text text-transparent mb-6">
+          <h2 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-violet-200 via-fuchsia-200 to-violet-200 bg-clip-text text-transparent mb-4"> {/* Reduced margin */}
             FAQ's
           </h2>
           <p className="text-violet-300/70 text-lg max-w-2xl mx-auto">
