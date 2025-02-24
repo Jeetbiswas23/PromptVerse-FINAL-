@@ -143,6 +143,21 @@ const Profile = () => {
     setEditing(false);
   };
 
+  // Update the Edit Profile button click handler
+  const handleEditClick = () => {
+    setFormData({
+      name: user?.name || '',
+      username: user?.username || '',
+      bio: profileData.bio,
+      location: profileData.location,
+      email: user?.email || '',
+      github: profileData.github,
+      twitter: profileData.twitter,
+      linkedin: profileData.linkedin
+    });
+    setEditing(true);
+  };
+
   // Update the Edit Profile Modal
   const renderEditModal = () => (
     <motion.div
@@ -370,9 +385,13 @@ const Profile = () => {
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
+                    onClick={handleEditClick}
                     className="px-6 py-3 bg-violet-600/20 hover:bg-violet-600/30 rounded-xl border border-violet-500/20 backdrop-blur-xl"
                   >
-                    Edit Profile
+                    <div className="flex items-center space-x-2">
+                      <Edit3 className="w-4 h-4" />
+                      <span>Edit Profile</span>
+                    </div>
                   </motion.button>
                   <motion.button
                     whileHover={{ scale: 1.05 }}
@@ -571,7 +590,9 @@ const Profile = () => {
         </div>
 
         {/* Edit Profile Modal */}
-        {editing && renderEditModal()}
+        <AnimatePresence>
+          {editing && renderEditModal()}
+        </AnimatePresence>
       </div>
     </div>
   );
