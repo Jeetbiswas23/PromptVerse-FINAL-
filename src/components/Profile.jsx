@@ -5,7 +5,7 @@ import {
   Settings, User, Mail, Calendar, Edit3, Camera, Github, 
   Twitter, Linkedin, Activity, Shield, Globe, Zap, Store, 
   Book, GitBranch, Award, Coins, Users, Sparkles, 
-  TrendingUp, BarChart, Trophy, Heart, Star 
+  TrendingUp, BarChart, Trophy, Heart, Star, X, AtSign, MapPin, FileText, Link
 } from 'lucide-react';
 import { Navigate } from 'react-router-dom';
 import { Canvas } from '@react-three/fiber';
@@ -28,7 +28,7 @@ const FloatingOrb = ({ color, position, scale }) => (
 );
 
 const Profile = () => {
-  const { user } = useContext(AuthContext);
+  const { user, setUser } = useContext(AuthContext);
   const [editing, setEditing] = useState(false);
   const [profileData, setProfileData] = useState({
     bio: "AI Enthusiast | Prompt Engineer",
@@ -164,145 +164,228 @@ const Profile = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto"
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto"
     >
       <motion.div
-        initial={{ scale: 0.95 }}
-        animate={{ scale: 1 }}
-        exit={{ scale: 0.95 }}
-        className="bg-violet-950/90 rounded-xl p-6 max-w-2xl w-full border border-violet-500/20 my-8"
+        initial={{ scale: 0.95, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.95, opacity: 0 }}
+        className="relative w-full max-w-2xl overflow-hidden"
       >
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-semibold bg-gradient-to-r from-violet-200 to-fuchsia-200 bg-clip-text text-transparent">
-            Edit Profile
-          </h2>
-          <button
-            onClick={() => setEditing(false)}
-            className="text-violet-300 hover:text-violet-100"
-          >
-            ✕
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Basic Information */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium text-violet-200">Basic Information</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm text-violet-300">Name</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  className="w-full bg-violet-900/20 rounded-lg p-2 mt-1 text-violet-100 border border-violet-500/20"
-                />
-              </div>
-              <div>
-                <label className="text-sm text-violet-300">Username</label>
-                <input
-                  type="text"
-                  name="username"
-                  value={formData.username}
-                  onChange={handleInputChange}
-                  className="w-full bg-violet-900/20 rounded-lg p-2 mt-1 text-violet-100 border border-violet-500/20"
-                />
-              </div>
-            </div>
-            <div>
-              <label className="text-sm text-violet-300">Bio</label>
-              <textarea
-                name="bio"
-                value={formData.bio}
-                onChange={handleInputChange}
-                rows={3}
-                className="w-full bg-violet-900/20 rounded-lg p-2 mt-1 text-violet-100 border border-violet-500/20"
-              />
-            </div>
-            <div>
-              <label className="text-sm text-violet-300">Email</label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                className="w-full bg-violet-900/20 rounded-lg p-2 mt-1 text-violet-100 border border-violet-500/20"
-              />
-            </div>
-            <div>
-              <label className="text-sm text-violet-300">Location</label>
-              <input
-                type="text"
-                name="location"
-                value={formData.location}
-                onChange={handleInputChange}
-                className="w-full bg-violet-900/20 rounded-lg p-2 mt-1 text-violet-100 border border-violet-500/20"
-              />
+        {/* Gradient border effect */}
+        <div className="absolute inset-0 bg-gradient-to-r from-violet-600 via-fuchsia-600 to-violet-600 rounded-2xl animate-border-flow" />
+        
+        {/* Main content */}
+        <div className="relative m-[1px] bg-black/90 backdrop-blur-xl rounded-2xl">
+          {/* Header */}
+          <div className="relative p-6 pb-0">
+            <div className="absolute inset-0 bg-gradient-to-b from-violet-600/20 to-transparent" />
+            <div className="relative flex justify-between items-center">
+              <h2 className="text-3xl font-bold bg-gradient-to-r from-violet-200 via-fuchsia-200 to-violet-200 bg-clip-text text-transparent">
+                Edit Profile
+              </h2>
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setEditing(false)}
+                className="text-violet-300 hover:text-violet-100 p-2"
+              >
+                <X className="w-5 h-5" />
+              </motion.button>
             </div>
           </div>
 
-          {/* Social Links */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium text-violet-200">Social Links</h3>
+          <form onSubmit={handleSubmit} className="p-6 space-y-8">
+            {/* Profile Image Section */}
+            <div className="flex justify-center">
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                className="relative group"
+              >
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-violet-600 to-fuchsia-600 rounded-full opacity-75 group-hover:opacity-100 blur transition duration-1000" />
+                <div className="relative w-24 h-24 rounded-full border-2 border-violet-500/20 overflow-hidden">
+                  <img
+                    src={user.photoURL || `https://api.dicebear.com/6.x/avataaars/svg?seed=${user.name}`}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  <button className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Camera className="w-6 h-6 text-white" />
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+
+            {/* Form Sections */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Left Column */}
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <label className="text-sm text-violet-300 flex items-center gap-2">
+                    <User className="w-4 h-4" />
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    className="w-full bg-violet-950/40 rounded-xl p-3 text-violet-100 border border-violet-500/20 focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all duration-300"
+                    placeholder="Enter your full name"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm text-violet-300 flex items-center gap-2">
+                    <AtSign className="w-4 h-4" />
+                    Username
+                  </label>
+                  <input
+                    type="text"
+                    name="username"
+                    value={formData.username}
+                    onChange={handleInputChange}
+                    className="w-full bg-violet-950/40 rounded-xl p-3 text-violet-100 border border-violet-500/20 focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all duration-300"
+                    placeholder="Enter username"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm text-violet-300 flex items-center gap-2">
+                    <Mail className="w-4 h-4" />
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    className="w-full bg-violet-950/40 rounded-xl p-3 text-violet-100 border border-violet-500/20 focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all duration-300"
+                    placeholder="Enter your email"
+                  />
+                </div>
+              </div>
+
+              {/* Right Column */}
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <label className="text-sm text-violet-300 flex items-center gap-2">
+                    <MapPin className="w-4 h-4" />
+                    Location
+                  </label>
+                  <input
+                    type="text"
+                    name="location"
+                    value={formData.location}
+                    onChange={handleInputChange}
+                    className="w-full bg-violet-950/40 rounded-xl p-3 text-violet-100 border border-violet-500/20 focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all duration-300"
+                    placeholder="Enter your location"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm text-violet-300 flex items-center gap-2">
+                    <FileText className="w-4 h-4" />
+                    Bio
+                  </label>
+                  <textarea
+                    name="bio"
+                    value={formData.bio}
+                    onChange={handleInputChange}
+                    rows={4}
+                    className="w-full bg-violet-950/40 rounded-xl p-3 text-violet-100 border border-violet-500/20 focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all duration-300 resize-none"
+                    placeholder="Tell us about yourself"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Social Links */}
             <div className="space-y-4">
-              <div className="flex items-center space-x-2">
-                <Github className="w-4 h-4 text-violet-400" />
-                <input
-                  type="text"
-                  name="github"
-                  value={formData.github}
-                  onChange={handleInputChange}
-                  placeholder="GitHub profile"
-                  className="flex-1 bg-violet-900/20 rounded-lg p-2 text-violet-100 border border-violet-500/20"
-                />
-              </div>
-              <div className="flex items-center space-x-2">
-                <Twitter className="w-4 h-4 text-violet-400" />
-                <input
-                  type="text"
-                  name="twitter"
-                  value={formData.twitter}
-                  onChange={handleInputChange}
-                  placeholder="Twitter profile"
-                  className="flex-1 bg-violet-900/20 rounded-lg p-2 text-violet-100 border border-violet-500/20"
-                />
-              </div>
-              <div className="flex items-center space-x-2">
-                <Linkedin className="w-4 h-4 text-violet-400" />
-                <input
-                  type="text"
-                  name="linkedin"
-                  value={formData.linkedin}
-                  onChange={handleInputChange}
-                  placeholder="LinkedIn profile"
-                  className="flex-1 bg-violet-900/20 rounded-lg p-2 text-violet-100 border border-violet-500/20"
-                />
+              <h3 className="text-lg font-medium text-violet-200 flex items-center gap-2">
+                <Link className="w-4 h-4" />
+                Social Links
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  className="group relative"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-fuchsia-600/20 rounded-xl blur-sm" />
+                  <div className="relative flex items-center space-x-3 bg-violet-950/40 rounded-xl p-3 border border-violet-500/20">
+                    <Github className="w-5 h-5 text-violet-400" />
+                    <input
+                      type="text"
+                      name="github"
+                      value={formData.github}
+                      onChange={handleInputChange}
+                      placeholder="GitHub profile"
+                      className="flex-1 bg-transparent text-violet-100 placeholder-violet-400/50 focus:outline-none"
+                    />
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  className="group relative"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-fuchsia-600/20 rounded-xl blur-sm" />
+                  <div className="relative flex items-center space-x-3 bg-violet-950/40 rounded-xl p-3 border border-violet-500/20">
+                    <Twitter className="w-5 h-5 text-violet-400" />
+                    <input
+                      type="text"
+                      name="twitter"
+                      value={formData.twitter}
+                      onChange={handleInputChange}
+                      placeholder="Twitter profile"
+                      className="flex-1 bg-transparent text-violet-100 placeholder-violet-400/50 focus:outline-none"
+                    />
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  className="group relative md:col-span-2"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-fuchsia-600/20 rounded-xl blur-sm" />
+                  <div className="relative flex items-center space-x-3 bg-violet-950/40 rounded-xl p-3 border border-violet-500/20">
+                    <Linkedin className="w-5 h-5 text-violet-400" />
+                    <input
+                      type="text"
+                      name="linkedin"
+                      value={formData.linkedin}
+                      onChange={handleInputChange}
+                      placeholder="LinkedIn profile"
+                      className="flex-1 bg-transparent text-violet-100 placeholder-violet-400/50 focus:outline-none"
+                    />
+                  </div>
+                </motion.div>
               </div>
             </div>
-          </div>
 
-          {/* Action Buttons */}
-          <div className="flex justify-end space-x-3 pt-6 border-t border-violet-500/20">
-            <motion.button
-              type="button"
-              onClick={() => setEditing(false)}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="px-4 py-2 rounded-lg bg-violet-900/50 text-violet-300"
-            >
-              Cancel
-            </motion.button>
-            <motion.button
-              type="submit"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="px-4 py-2 rounded-lg bg-violet-600 text-white"
-            >
-              Save Changes
-            </motion.button>
-          </div>
-        </form>
+            {/* Action Buttons */}
+            <div className="flex justify-end space-x-3 pt-6 border-t border-violet-500/20">
+              <motion.button
+                type="button"
+                onClick={() => setEditing(false)}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="px-6 py-2 rounded-xl bg-violet-950/50 text-violet-300 hover:bg-violet-900/50 transition-colors duration-300"
+              >
+                Cancel
+              </motion.button>
+              <motion.button
+                type="submit"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="px-6 py-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white hover:from-violet-500 hover:to-fuchsia-500 transition-all duration-300"
+              >
+                Save Changes
+              </motion.button>
+            </div>
+          </form>
+        </div>
       </motion.div>
     </motion.div>
   );
