@@ -4,6 +4,7 @@ import { Search, Filter, Star, Copy, Heart, Share2, MessageSquare, Tags, Command
 import { Navigation } from '../App';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Float, MeshDistortMaterial, Stars } from '@react-three/drei';
+import { useNavigate } from 'react-router-dom';
 
 // Add FloatingElement component for background
 const FloatingElement = ({ position, color, scale }) => (
@@ -23,6 +24,7 @@ const FloatingElement = ({ position, color, scale }) => (
 );
 
 const Prompts = () => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedSort, setSelectedSort] = useState('popular');
@@ -120,7 +122,16 @@ const Prompts = () => {
   return (
     <div className="bg-[#0a0a0f] min-h-screen">
       <div className="sticky top-0 z-50 bg-[#0a0a0f]/80 backdrop-blur-lg border-b border-violet-500/20">
-        <Navigation />
+        <div className="max-w-7xl mx-auto flex justify-between items-center p-4">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => navigate('/')}
+            className="text-xl font-bold bg-gradient-to-r from-violet-200 to-fuchsia-200 bg-clip-text text-transparent"
+          >
+            PromptVerse
+          </motion.button>
+        </div>
       </div>
       <div className="relative text-white">
         {/* 3D Background */}
