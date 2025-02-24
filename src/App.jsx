@@ -9,6 +9,7 @@ import SignUp from './components/SignUp'; // Update import name
 import ForgotPassword from './components/ForgotPassword';
 import Profile from './components/Profile';
 import Settings from './components/Settings';
+import Prompts from './components/Prompts';
 import { ThemeProvider } from './contexts/ThemeContext';
 
 // Create auth context
@@ -455,7 +456,7 @@ const PromptScreen = () => {
 };
 
 // Update Navigation component
-const Navigation = () => {
+export const Navigation = () => {
   const navigate = useNavigate();
   const location = useLocation(); // Add this hook
   const { user, setUser } = useContext(AuthContext);
@@ -527,10 +528,10 @@ const Navigation = () => {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => navigate('/contact')}
+              onClick={() => navigate('/prompts')}
               className="px-4 py-2 text-violet-300 hover:text-violet-100 transition-colors"
             >
-              Get in touch
+              Prompts
             </motion.button>
           </div>
 
@@ -565,9 +566,9 @@ const Navigation = () => {
                     </button>
                     <button 
                       className="w-full text-left px-4 py-2 text-sm text-violet-200 hover:bg-violet-800/50"
-                      onClick={() => handleNavigation('/contact')}
+                      onClick={() => handleNavigation('/prompts')}
                     >
-                      Get in touch
+                      Prompts
                     </button>
                   </div>
                 </motion.div>
@@ -1008,6 +1009,7 @@ const App = () => {
             <Suspense fallback={<LoadingScreen />}>
               <Routes>
                 <Route path="/" element={<MainContent />} />
+                <Route path="/prompts" element={<Prompts />} />
                 <Route path="/signin" element={<SignInPage />} />
                 <Route path="/signup" element={<SignUp />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
