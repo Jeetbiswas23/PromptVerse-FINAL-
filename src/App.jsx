@@ -1,5 +1,5 @@
 import React, { useEffect, useState, createContext, useContext, useRef, lazy, Suspense } from 'react';
-import { Command, Share2, GitBranch, Star, DollarSign, Trophy, Beaker, MessageSquare, Terminal, Copy, Check, ChevronRight, Code, Wand2, PenTool, Brain } from 'lucide-react';
+import { Command, Share2, GitBranch, Star, DollarSign, Trophy, Beaker, MessageSquare, Terminal, Copy, Check, ChevronRight, Code, Wand2, PenTool, Brain, ArrowLeft } from 'lucide-react';
 import { motion, LazyMotion, domAnimation, m, AnimatePresence } from 'framer-motion';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Float, MeshDistortMaterial, Environment, PerspectiveCamera, Torus, AdaptiveDpr, BakeShadows, Preload } from '@react-three/drei';
@@ -457,6 +457,7 @@ const PromptScreen = () => {
 // Update Navigation component
 const Navigation = () => {
   const navigate = useNavigate();
+  const location = useLocation(); // Add this hook
   const { user, setUser } = useContext(AuthContext);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -493,8 +494,19 @@ const Navigation = () => {
   return (
     <nav className="relative z-50 backdrop-blur-sm border-b border-white/5 sticky top-0">
       <div className="max-w-7xl mx-auto flex justify-between items-center p-4">
-        {/* Logo */}
-        <div className="flex items-center">
+        {/* Logo and Back Button */}
+        <div className="flex items-center space-x-4">
+          {location.pathname !== '/' && (
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate('/')}
+              className="flex items-center space-x-2 text-violet-300 hover:text-violet-100 transition-colors"
+            >
+              <ArrowLeft className="w-6 h-6" />
+              <span>Back</span>
+            </motion.button>
+          )}
           <span className="text-xl font-bold bg-gradient-to-r from-violet-200 to-fuchsia-200 bg-clip-text text-transparent">
             PromptVerse
           </span>

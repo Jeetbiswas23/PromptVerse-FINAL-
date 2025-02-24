@@ -5,9 +5,9 @@ import {
   Settings, User, Mail, Calendar, Edit3, Camera, Github, 
   Twitter, Linkedin, Activity, Shield, Globe, Zap, Store, 
   Book, GitBranch, Award, Coins, Users, Sparkles, 
-  TrendingUp, BarChart, Trophy, Heart, Star, X, AtSign, MapPin, FileText, Link
+  TrendingUp, BarChart, Trophy, Heart, Star, X, AtSign, MapPin, FileText, Link, ArrowLeft
 } from 'lucide-react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { Canvas } from '@react-three/fiber';
 import { Float, MeshDistortMaterial } from '@react-three/drei';
 
@@ -414,6 +414,8 @@ const Profile = () => {
     transition: { duration: 0.3 }
   };
 
+  const navigate = useNavigate();
+
   return (
     <motion.div 
       {...pageTransition}
@@ -423,6 +425,17 @@ const Profile = () => {
       <ThreeBackground />
       
       <div className="relative z-10 max-w-7xl mx-auto px-4 py-12">
+        {/* Back Button */}
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => navigate('/')}
+          className="flex items-center space-x-2 text-violet-300 hover:text-violet-100 transition-colors mb-8"
+        >
+          <ArrowLeft className="w-6 h-6" />
+          <span>Back</span>
+        </motion.button>
+
         {/* Profile Header - Cyberpunk Style */}
         <motion.div 
           initial={{ opacity: 0 }}
