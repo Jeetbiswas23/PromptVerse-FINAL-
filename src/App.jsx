@@ -8,6 +8,7 @@ import SignInPage from './components/SignIn'; // Update import name for clarity
 import SignUp from './components/SignUp'; // Update import name
 import ForgotPassword from './components/ForgotPassword';
 import Profile from './components/Profile';
+import { Torus } from '@react-three/drei';
 
 // Create auth context
 export const AuthContext = createContext(null);
@@ -922,6 +923,9 @@ const MainContent = () => {
           </div>
         </div>
 
+        {/* Add FAQ section before footer */}
+        <FAQ />
+        
         {/* Footer */}
         <footer className="relative z-10 border-t border-violet-500/10 mt-32">
           <div className="max-w-7xl mx-auto px-4 py-8">
@@ -998,6 +1002,131 @@ const App = () => {
         </LazyMotion>
       </AuthProvider>
     </BrowserRouter>
+  );
+};
+
+const FAQDonut = () => (
+  <Float
+    speed={2}
+    rotationIntensity={2}
+    floatIntensity={1}
+  >
+    <Torus args={[3, 1, 32, 100]}>
+      <MeshDistortMaterial
+        color="#4c1d95"
+        emissive="#4c1d95"
+        emissiveIntensity={0.4}
+        attach="material"
+        distort={0.4}
+        speed={2}
+        roughness={0.2}
+        metalness={0.8}
+      />
+    </Torus>
+  </Float>
+);
+
+// Add FAQ data
+const faqData = [
+  {
+    question: "How does the Prompt Marketplace work?",
+    answer: "The Prompt Marketplace allows users to share and discover high-quality AI prompts across various categories including writing, coding, and design. Users can browse, purchase, and instantly use prompts that have been tested and rated by the community."
+  },
+  {
+    question: "What is Live Prompt Testing?",
+    answer: "Live Prompt Testing is an integrated feature that allows you to test prompts in real-time with various AI models. You can instantly see the outputs, make adjustments, and optimize your prompts for better results before sharing or using them."
+  },
+  {
+    question: "How can I monetize my prompts?",
+    answer: "You can monetize your prompts by selling them in the marketplace or offering exclusive access to premium prompts. Set your own pricing, track sales analytics, and build a following for your high-performing prompts."
+  },
+  {
+    question: "What is the Challenge Mode?",
+    answer: "Challenge Mode is a competitive feature where users compete to create the most effective prompts for specific scenarios. Participate in weekly challenges, win prizes, and showcase your prompt engineering skills to the community."
+  },
+  {
+    question: "How does Version Control work for prompts?",
+    answer: "Similar to Git, our version control system allows you to track changes, branch prompts, and collaborate with others. You can iterate on prompts, maintain different versions, and roll back to previous versions if needed."
+  }
+];
+
+// Add this component
+const FAQ = () => {
+  const [openIndex, setOpenIndex] = useState(null);
+
+  return (
+    <section className="relative py-20 overflow-hidden">
+      {/* 3D Background */}
+      <div className="absolute inset-0 z-0">
+        <Canvas camera={{ position: [0, 0, 10] }}>
+          <ambientLight intensity={0.5} />
+          <pointLight position={[10, 10, 10]} intensity={0.8} />
+          <FAQDonut />
+        </Canvas>
+      </div>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-4">
+        <m.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          viewport={{ once: true }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-violet-200 via-fuchsia-200 to-violet-200 bg-clip-text text-transparent mb-6">
+            FAQ's
+          </h2>
+          <p className="text-violet-300/70 text-lg max-w-2xl mx-auto">
+            Everything you need to know about PromptVerse and how it works
+          </p>
+        </m.div>
+
+        <div className="max-w-3xl mx-auto space-y-4">
+          {faqData.map((faq, index) => (
+            <m.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              viewport={{ once: true }}
+              className="relative group"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-fuchsia-600/20 rounded-xl blur-sm" />
+              <div className="relative backdrop-blur-xl bg-black/40 rounded-xl border border-violet-500/20">
+                <button
+                  onClick={() => setOpenIndex(openIndex === index ? null : index)}
+                  className="w-full text-left px-6 py-4 flex items-center justify-between"
+                >
+                  <span className="text-lg font-medium text-violet-200">{faq.question}</span>
+                  <motion.span
+                    animate={{ rotate: openIndex === index ? 180 : 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="text-violet-400"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </motion.span>
+                </button>
+                <AnimatePresence>
+                  {openIndex === index && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="px-6 pb-4 text-violet-300/70">
+                        {faq.answer}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </m.div>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 };
 
