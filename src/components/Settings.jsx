@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Bell, Moon, Sun, Key, Save, Settings as SettingsIcon } from 'lucide-react';
+import { Bell, Moon, Sun, Key, Save, Settings as SettingsIcon, ArrowLeft } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
+import { useNavigate } from 'react-router-dom';
 
 const Stars = () => {
   return (
@@ -25,6 +26,7 @@ const Stars = () => {
 };
 
 function Settings() {
+  const navigate = useNavigate();
   const [settings, setSettings] = useState({
     notifications: {
       promptUpdates: true,
@@ -89,17 +91,32 @@ function Settings() {
 
       {/* Main Content */}
       <div className="relative z-10 max-w-6xl mx-auto px-4 py-12">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center space-x-4 mb-12"
-        >
-          <SettingsIcon className="w-8 h-8 text-violet-400" />
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-violet-200 via-fuchsia-200 to-violet-200 bg-clip-text text-transparent">
-            Settings
-          </h1>
-        </motion.div>
+        {/* Header with Back Button */}
+        <div className="flex items-center justify-between mb-12">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => navigate('/')}
+            className="flex items-center space-x-2 text-violet-300 hover:text-violet-100 transition-colors"
+          >
+            <ArrowLeft className="w-6 h-6" />
+            <span>Back</span>
+          </motion.button>
+          
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center space-x-4"
+          >
+            <SettingsIcon className="w-8 h-8 text-violet-400" />
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-violet-200 via-fuchsia-200 to-violet-200 bg-clip-text text-transparent">
+              Settings
+            </h1>
+          </motion.div>
+          
+          {/* Empty div for flex spacing */}
+          <div className="w-24"></div>
+        </div>
 
         {/* Settings Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -255,6 +272,6 @@ function Settings() {
       </div>
     </div>
   );
-};
+}
 
 export default Settings;
