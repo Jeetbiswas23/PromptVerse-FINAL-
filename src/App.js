@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Filter, Star, Copy, Heart, Share2, MessageSquare, Tags, Command } from 'lucide-react';
@@ -177,78 +178,3 @@ const Prompts = () => {
                   whileHover={{ y: -5 }}
                   className="group relative"
                 >
-                  {/* Card Background Effects */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-violet-600/10 via-fuchsia-600/10 to-violet-600/10 rounded-xl blur-xl group-hover:blur-2xl transition-all duration-300" />
-                  
-                  <div className="relative backdrop-blur-xl bg-black/30 rounded-xl border border-violet-500/20 overflow-hidden">
-                    {/* Prompt Image */}
-                    <div className="aspect-video relative overflow-hidden">
-                      <img
-                        src={prompt.image}
-                        alt={prompt.title}
-                        className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
-                      
-                      {/* Floating Stats */}
-                      <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center">
-                        <div className="flex items-center space-x-4">
-                          <span className="flex items-center space-x-1 text-violet-200 bg-black/50 px-3 py-1 rounded-full backdrop-blur-md">
-                            <Heart className="w-4 h-4" />
-                            <span>{prompt.likes}</span>
-                          </span>
-                          <span className="flex items-center space-x-1 text-violet-200 bg-black/50 px-3 py-1 rounded-full backdrop-blur-md">
-                            <Star className="w-4 h-4 text-yellow-500" />
-                            <span>{prompt.rating}</span>
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Content */}
-                    <div className="p-6">
-                      <h3 className="text-xl font-semibold text-violet-100 mb-2">
-                        {prompt.title}
-                      </h3>
-                      <p className="text-violet-300/70 text-sm mb-4">
-                        {prompt.description}
-                      </p>
-
-                      {/* Tags */}
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        {prompt.tags.map((tag) => (
-                          <span
-                            key={tag}
-                            className="px-3 py-1 text-xs rounded-full bg-violet-500/10 text-violet-300 border border-violet-500/20"
-                          >
-                            #{tag}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Hover Actions */}
-                    <div className="absolute inset-0 bg-black/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-6">
-                      {/* Action buttons with glow effect */}
-                      <motion.button
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        className="p-4 bg-violet-500/20 rounded-full backdrop-blur-xl border border-violet-500/40 relative"
-                      >
-                        <div className="absolute inset-0 bg-violet-500/20 rounded-full blur-xl" />
-                        <Copy className="w-6 h-6 text-violet-200 relative z-10" />
-                      </motion.button>
-                      {/* Add more action buttons with similar effects */}
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default Prompts;
