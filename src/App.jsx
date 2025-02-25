@@ -2,7 +2,7 @@ import React, { useEffect, useState, createContext, useContext, useRef, lazy, Su
 import { Command, Share2, GitBranch, Star, DollarSign, Trophy, Beaker, MessageSquare, Terminal, Copy, Check, ChevronRight, Code, Wand2, PenTool, Brain, ArrowLeft } from 'lucide-react';
 import { motion, LazyMotion, domAnimation, m, AnimatePresence } from 'framer-motion';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Float, MeshDistortMaterial, Environment, PerspectiveCamera, Torus, AdaptiveDpr, BakeShadows, Preload, Points, PointMaterial } from '@react-three/drei';
+import { OrbitControls, Float, MeshDistortMaterial, Environment, PerspectiveCamera, Torus, AdaptiveDpr, BakeShadows, Preload, Points, PointMaterial, Stars } from '@react-three/drei';
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import SignInPage from './components/SignIn'; // Update import name for clarity
 import SignUp from './components/SignUp'; // Update import name
@@ -74,7 +74,8 @@ const scrollAnimationConfig = {
   }
 };
 
-const Stars = () => {
+// Rename Stars to StarField to avoid conflict with drei's Stars
+const StarField = () => {
   return (
     <div className="stars-container animate-float">
       {[...Array(100)].map((_, i) => (
@@ -720,38 +721,25 @@ const MainContent = () => {
         animate={{ opacity: 1 }}
         className="min-h-screen bg-[#0a0a0f] text-white overflow-hidden"
       >
-        {/* Enhanced animated background with multiple layers */}
+        {/* Background layers */}
         <div className="fixed inset-0 z-0">
-          {/* Updated base gradient */}
           <div className="absolute inset-0 bg-gradient-to-tr from-black via-violet-900/20 to-[#0f1625] opacity-90" />
-          
-          {/* Add Stars component */}
-          <Stars />
-          
-          {/* Noise texture */}
+          <StarField />
           <div className="absolute inset-0 opacity-[0.02] mix-blend-overlay">
             <div className="w-full h-full bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.1)_0%,transparent_2px)] bg-[length:24px_24px]" />
           </div>
-          
-          {/* Updated gradient orbs */}
           <div className="absolute inset-0">
             <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-violet-500/10 rounded-full blur-3xl animate-pulse" />
             <div className="absolute bottom-1/4 right-1/3 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
             <div className="absolute top-1/3 right-1/4 w-72 h-72 bg-fuchsia-500/10 rounded-full blur-3xl animate-pulse delay-2000" />
           </div>
-
-          {/* Grid pattern */}
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDIpIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-5" />
-
-          {/* Vignette effect */}
           <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/20" />
           <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/20" />
         </div>
 
-        {/* Navigation with lighter hover effects */}
+        {/* Content */}
         <Navigation />
-
-        {/* Hero Section with Framer Motion */}
         <div className="relative z-10">
           <div className="max-w-7xl mx-auto px-4 py-16 sm:py-32">
             <m.div
@@ -947,7 +935,6 @@ const MainContent = () => {
         {/* Add FAQ section before footer */}
         <FAQ />
         
-        {/* Footer */}
         <footer className="relative z-10 border-t border-violet-500/10 mt-16"> {/* Reduced margin-top */}
           <div className="max-w-7xl mx-auto px-4 py-8">
             <div className="text-center text-violet-300/50 text-sm">
@@ -1061,47 +1048,47 @@ const faqData = [
   }
 ];
 
+// Add this new component for stars background
+const StarsBackground = () => {
+  return (
+    <group>
+      <Stars
+        radius={100}
+        depth={50}
+        count={5000}
+        factor={4}
+        saturation={0}
+        fade
+        speed={1}
+      />
+    </group>
+  );
+};
+
 // Update the FAQ component
 const FAQ = () => {
   const [openIndex, setOpenIndex] = useState(null);
 
   return (
     <section className="relative py-16 overflow-hidden min-h-screen">
-      {/* Background remains the same */}
+      {/* Background */}
       <div className="absolute inset-0 z-0">
-        <Canvas
-          camera={{ position: [0, 0, 8], fov: 45 }}
-          dpr={[1, 2]}
-          gl={{ 
-            antialias: true,
-            alpha: true,
-            powerPreference: "high-performance"
-          }}
-        >
-          <color attach="background" args={['#0a0a0f']} />
-          <ambientLight intensity={0.2} />
-          <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} />
-          <pointLight position={[-10, -10, -10]} intensity={0.5} />
-          
-          <Suspense fallback={null}>
-            <Scene />
-            <OrbitControls 
-              enableZoom={false}
-              autoRotate
-              autoRotateSpeed={0.5}
-              maxPolarAngle={Math.PI / 2}
-              minPolarAngle={Math.PI / 2}
-            />
-          </Suspense>
-        </Canvas>
-        
-        <div className="absolute inset-0 bg-gradient-to-b from-violet-900/20 via-fuchsia-900/10 to-transparent opacity-50 mix-blend-overlay" />
-        <div className="absolute inset-0 bg-[conic-gradient(from_0deg_at_50%_50%,rgba(139,92,246,0.05)_0%,rgba(124,58,237,0.05)_50%,rgba(139,92,246,0.05)_100%)]" />
+        <div className="absolute inset-0 bg-gradient-to-tr from-black via-violet-900/20 to-[#0f1625] opacity-90" />
+        <StarField />
+        <div className="absolute inset-0 opacity-[0.02] mix-blend-overlay">
+          <div className="w-full h-full bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.1)_0%,transparent_2px)] bg-[length:24px_24px]" />
+        </div>
+        {/* Rest of background elements */}
+        <div className="absolute inset-0">
+          <div className="absolute bottom-1/4 right-1/3 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
+          <div className="absolute top-1/3 right-1/4 w-72 h-72 bg-fuchsia-500/10 rounded-full blur-3xl animate-pulse delay-2000" />
+        </div>
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDIpIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-5" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/20" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/20" />
       </div>
       
-      {/* Content section */}
       <div className="relative z-10 max-w-7xl mx-auto px-4">
-        {/* Header remains the same */}
         <m.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -1121,7 +1108,6 @@ const FAQ = () => {
           </p>
         </m.div>
 
-        {/* FAQ Items - Fixed structure */}
         <div className="max-w-3xl mx-auto space-y-4">
           {faqData.map((faq, index) => (
             <m.div
@@ -1133,8 +1119,7 @@ const FAQ = () => {
               className="relative group"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-fuchsia-600/20 rounded-xl blur-sm" />
-              <m.div
-                whileHover={{ scale: 1.01 }}
+              <div
                 className="relative backdrop-blur-xl bg-black/40 rounded-xl border border-violet-500/20 overflow-hidden"
               >
                 <button
@@ -1168,7 +1153,7 @@ const FAQ = () => {
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </m.div>
+              </div>
             </m.div>
           ))}
         </div>
@@ -1183,7 +1168,7 @@ const FloatingElement = ({ position, color, scale }) => (
   <Float speed={2} rotationIntensity={2} floatIntensity={2}>
     <mesh position={position} scale={scale}>
       <torusGeometry args={[1, 0.3, 16, 32]} />
-      <MeshDistortMaterial
+      <meshDistortMaterial
         color={color}
         attach="material"
         distort={0.4}
