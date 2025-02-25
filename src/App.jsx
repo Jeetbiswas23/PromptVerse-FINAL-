@@ -1,5 +1,5 @@
 import React, { useEffect, useState, createContext, useContext, useRef, lazy, Suspense, useCallback } from 'react';
-import { Command, Share2, GitBranch, Star, DollarSign, Trophy, Beaker, MessageSquare, Terminal, Copy, Check, ChevronRight, Code, Wand2, PenTool, Brain, ArrowLeft, X, LogOut, Settings, User } from 'lucide-react';
+import { Command, Share2, GitBranch, Star, DollarSign, Trophy, Beaker, MessageSquare, Terminal, Copy, Check, ChevronRight, Code, Wand2, PenTool, Brain, ArrowLeft, X, LogOut, Settings, User, Sparkles } from 'lucide-react';
 import { motion, LazyMotion, domAnimation, m, AnimatePresence } from 'framer-motion';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Float, MeshDistortMaterial, Environment, PerspectiveCamera, Torus, AdaptiveDpr, BakeShadows, Preload, Points, PointMaterial, Stars } from '@react-three/drei';
@@ -12,6 +12,7 @@ import SettingsPage from './components/Settings'; // Renamed from Settings to Se
 import Prompts from './components/Prompts';
 import { ThemeProvider } from './contexts/ThemeContext';
 import Scene from './models/Scene'; // Keep only this import, remove the named import
+import LivePrompt from './components/LivePrompt';
 
 // Create auth context
 export const AuthContext = createContext(null);
@@ -732,6 +733,14 @@ export const Navigation = () => {
                   </motion.button>
                   <motion.button
                     whileHover={{ x: 4 }}
+                    onClick={(e) => handleButtonClick(e, () => handleNavigation('/live-prompt'))}
+                    className="w-full text-left px-6 py-4 text-lg text-violet-200 hover:bg-violet-800/50 rounded-lg transition-colors flex items-center space-x-4" // Updated padding and text size
+                  >
+                    <Sparkles className="w-6 h-6" /> {/* Increased icon size */}
+                    <span>Live Prompt Testing</span>
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ x: 4 }}
                     onClick={(e) => handleButtonClick(e, () => handleNavigation('/settings'))}
                     className="w-full text-left px-6 py-4 text-lg text-violet-200 hover:bg-violet-800/50 rounded-lg transition-colors flex items-center space-x-4" // Updated padding and text size
                   >
@@ -1126,6 +1135,7 @@ const App = () => {
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/settings" element={<SettingsPage />} /> {/* Updated to use SettingsPage */}
+                <Route path="/live-prompt" element={<LivePrompt />} />
                 {/* Add catch-all route */}
                 <Route path="*" element={<MainContent />} />
               </Routes>
