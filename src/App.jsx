@@ -2,7 +2,7 @@ import React, { useEffect, useState, createContext, useContext, useRef, lazy, Su
 import { Command, Share2, GitBranch, Star, DollarSign, Trophy, Beaker, MessageSquare, Terminal, Copy, Check, ChevronRight, Code, Wand2, PenTool, Brain, ArrowLeft } from 'lucide-react';
 import { motion, LazyMotion, domAnimation, m, AnimatePresence } from 'framer-motion';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Float, MeshDistortMaterial, Environment, PerspectiveCamera, Torus, AdaptiveDpr, BakeShadows, Preload } from '@react-three/drei';
+import { OrbitControls, Float, MeshDistortMaterial, Environment, PerspectiveCamera, Torus, AdaptiveDpr, BakeShadows, Preload, Points, PointMaterial } from '@react-three/drei';
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import SignInPage from './components/SignIn'; // Update import name for clarity
 import SignUp from './components/SignUp'; // Update import name
@@ -729,7 +729,9 @@ const MainContent = () => {
           <Stars />
           
           {/* Noise texture */}
-          <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.02] mix-blend-overlay" />
+          <div className="absolute inset-0 opacity-[0.02] mix-blend-overlay">
+            <div className="w-full h-full bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.1)_0%,transparent_2px)] bg-[length:24px_24px]" />
+          </div>
           
           {/* Updated gradient orbs */}
           <div className="absolute inset-0">
@@ -1059,72 +1061,67 @@ const faqData = [
   }
 ];
 
-const FAQDonut = () => (
-  <group>
-    <Float
-      speed={1.5}
-      rotationIntensity={1.5}
-      floatIntensity={0.8}
-    >
-      <Torus args={[2, 0.3, 32, 100]} position={[0, 0, 0]}>
-        <meshPhysicalMaterial
-          color="#4c1d95"
-          emissive="#6d28d9"
-          emissiveIntensity={0.5}
-          roughness={0.2}
-          metalness={0.8}
-          transparent
-          opacity={0.9}
-          clearcoat={1}
-          clearcoatRoughness={0.1}
-        />
-      </Torus>
-    </Float>
-  </group>
-);
-
+// Update the FAQ component
 const FAQ = () => {
   const [openIndex, setOpenIndex] = useState(null);
 
   return (
-    <section className="relative py-12 overflow-hidden"> {/* Reduced padding */}
-      {/* 3D Background */}
-      <div className="absolute inset-0 z-0 opacity-60">
+    <section className="relative py-16 overflow-hidden min-h-screen">
+      {/* Background remains the same */}
+      <div className="absolute inset-0 z-0">
         <Canvas
-          camera={{
-            position: [0, 0, 5],
-            fov: 45
+          camera={{ position: [0, 0, 8], fov: 45 }}
+          dpr={[1, 2]}
+          gl={{ 
+            antialias: true,
+            alpha: true,
+            powerPreference: "high-performance"
           }}
         >
-          <ambientLight intensity={0.5} />
-          <pointLight position={[10, 10, 10]} />
+          <color attach="background" args={['#0a0a0f']} />
+          <ambientLight intensity={0.2} />
+          <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} />
+          <pointLight position={[-10, -10, -10]} intensity={0.5} />
+          
           <Suspense fallback={null}>
-            <Scene 
-              scale={[0.8, 0.8, 0.8]}
-              position={[0, -1, 0]}
-              rotation={[0, Math.PI / 4, 0]}
+            <Scene />
+            <OrbitControls 
+              enableZoom={false}
+              autoRotate
+              autoRotateSpeed={0.5}
+              maxPolarAngle={Math.PI / 2}
+              minPolarAngle={Math.PI / 2}
             />
-            <OrbitControls enableZoom={false} />
           </Suspense>
         </Canvas>
+        
+        <div className="absolute inset-0 bg-gradient-to-b from-violet-900/20 via-fuchsia-900/10 to-transparent opacity-50 mix-blend-overlay" />
+        <div className="absolute inset-0 bg-[conic-gradient(from_0deg_at_50%_50%,rgba(139,92,246,0.05)_0%,rgba(124,58,237,0.05)_50%,rgba(139,92,246,0.05)_100%)]" />
       </div>
-
+      
+      {/* Content section */}
       <div className="relative z-10 max-w-7xl mx-auto px-4">
+        {/* Header remains the same */}
         <m.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           viewport={{ once: true }}
-          className="text-center mb-8" // Reduced margin
+          className="text-center mb-12"
         >
-          <h2 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-violet-200 via-fuchsia-200 to-violet-200 bg-clip-text text-transparent mb-4"> {/* Reduced margin */}
+          <m.h2 
+            className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-violet-200 via-fuchsia-200 to-violet-200 bg-clip-text text-transparent mb-4"
+            whileHover={{ scale: 1.02 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
             FAQ's
-          </h2>
+          </m.h2>
           <p className="text-violet-300/70 text-lg max-w-2xl mx-auto">
             Everything you need to know about PromptVerse and how it works
           </p>
         </m.div>
 
+        {/* FAQ Items - Fixed structure */}
         <div className="max-w-3xl mx-auto space-y-4">
           {faqData.map((faq, index) => (
             <m.div
@@ -1136,20 +1133,26 @@ const FAQ = () => {
               className="relative group"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-fuchsia-600/20 rounded-xl blur-sm" />
-              <div className="relative backdrop-blur-xl bg-black/40 rounded-xl border border-violet-500/20">
+              <m.div
+                whileHover={{ scale: 1.01 }}
+                className="relative backdrop-blur-xl bg-black/40 rounded-xl border border-violet-500/20 overflow-hidden"
+              >
                 <button
                   onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                  className="w-full text-left px-6 py-4 flex items-center justify-between"
+                  className="w-full text-left px-6 py-4 flex items-center justify-between group"
                 >
-                  <span className="text-lg font-medium text-violet-200">{faq.question}</span>
-                  <motion.span
+                  <span className="text-lg font-medium text-violet-200 group-hover:text-violet-100">
+                    {faq.question}
+                  </span>
+                  <motion.div
                     animate={{ rotate: openIndex === index ? 180 : 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="text-violet-400"
+                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                    className="text-violet-400 group-hover:text-violet-300"
                   >
                     <ChevronRight className="w-5 h-5" />
-                  </motion.span>
+                  </motion.div>
                 </button>
+
                 <AnimatePresence>
                   {openIndex === index && (
                     <motion.div
@@ -1157,15 +1160,15 @@ const FAQ = () => {
                       animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.3 }}
-                      className="overflow-hidden"
+                      className="overflow-hidden bg-violet-900/10"
                     >
-                      <div className="px-6 pb-4 text-violet-300/70">
+                      <div className="px-6 py-4 text-violet-300/70 border-t border-violet-500/10">
                         {faq.answer}
                       </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </div>
+              </m.div>
             </m.div>
           ))}
         </div>
@@ -1174,11 +1177,13 @@ const FAQ = () => {
   );
 };
 
+// ...rest of the code...
+
 const FloatingElement = ({ position, color, scale }) => (
   <Float speed={2} rotationIntensity={2} floatIntensity={2}>
     <mesh position={position} scale={scale}>
       <torusGeometry args={[1, 0.3, 16, 32]} />
-      <meshDistortMaterial
+      <MeshDistortMaterial
         color={color}
         attach="material"
         distort={0.4}
