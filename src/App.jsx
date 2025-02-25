@@ -624,10 +624,10 @@ export const Navigation = () => {
             
             {/* Drawer with fixed positioning and transform */}
             <motion.div
-              initial={{ translateX: '100%' }}
-              animate={{ translateX: '0%' }}
-              exit={{ translateX: '100%' }}
-              style={{ position: 'fixed', right: 0, top: 0, bottom: 0, width: '24rem' }} // Increased width
+              initial={{ translateX: '100%' }}  // Start from right
+              animate={{ translateX: '0%' }}    // Move to center
+              exit={{ translateX: '100%' }}     // Exit to right
+              style={{ position: 'fixed', right: 0, top: 0, bottom: 0, width: '24rem' }}
               transition={{ 
                 type: "spring",
                 damping: 30,
