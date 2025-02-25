@@ -490,11 +490,14 @@ export const Navigation = () => {
     return () => document.removeEventListener('mousedown', handleDocumentClick);
   }, []);
 
-  // Update the handleNavigation function to be more direct
+  // Update the handleNavigation function to be more immediate
   const handleNavigation = (path) => {
-    navigate(path);
+    // Close menus first
     setIsMobileMenuOpen(false);
     setIsUserMenuOpen(false);
+    
+    // Navigate immediately
+    navigate(path);
   };
 
   // Separate handlers for different menus to avoid state conflicts
@@ -672,7 +675,10 @@ export const Navigation = () => {
                 <div className="space-y-3"> {/* Increased spacing between buttons */}
                   <motion.button
                     whileHover={{ x: 4 }}
-                    onClick={() => handleNavigation('/profile')}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleNavigation('/profile');
+                    }}
                     className="w-full text-left px-6 py-4 text-lg text-violet-200 hover:bg-violet-800/50 rounded-lg transition-colors flex items-center space-x-4" // Updated padding and text size
                   >
                     <User className="w-6 h-6" /> {/* Increased icon size */}
@@ -680,7 +686,10 @@ export const Navigation = () => {
                   </motion.button>
                   <motion.button
                     whileHover={{ x: 4 }}
-                    onClick={() => handleNavigation('/settings')}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleNavigation('/settings');
+                    }}
                     className="w-full text-left px-6 py-4 text-lg text-violet-200 hover:bg-violet-800/50 rounded-lg transition-colors flex items-center space-x-4" // Updated padding and text size
                   >
                     <Settings className="w-6 h-6" /> {/* Increased icon size */}
@@ -691,7 +700,10 @@ export const Navigation = () => {
                 <div className="border-t border-violet-500/20 pt-6"> {/* Increased padding */}
                   <motion.button
                     whileHover={{ x: 4 }}
-                    onClick={handleSignOut}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleSignOut();
+                    }}
                     className="w-full text-left px-6 py-4 text-lg text-red-400 hover:bg-violet-800/50 rounded-lg transition-colors flex items-center space-x-4" // Updated padding and text size
                   >
                     <LogOut className="w-6 h-6" /> {/* Increased icon size */}
