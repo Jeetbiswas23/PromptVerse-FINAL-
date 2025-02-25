@@ -1,4 +1,4 @@
-import React, { useEffect, useState, createContext, useContext, useRef, lazy, Suspense } from 'react';
+import React, { useEffect, useState, createContext, useContext, useRef, lazy, Suspense, useCallback } from 'react';
 import { Command, Share2, GitBranch, Star, DollarSign, Trophy, Beaker, MessageSquare, Terminal, Copy, Check, ChevronRight, Code, Wand2, PenTool, Brain, ArrowLeft, X, LogOut, Settings, User } from 'lucide-react';
 import { motion, LazyMotion, domAnimation, m, AnimatePresence } from 'framer-motion';
 import { Canvas } from '@react-three/fiber';
@@ -491,14 +491,14 @@ export const Navigation = () => {
   }, []);
 
   // Update the handleNavigation function to be more immediate
-  const handleNavigation = (path) => {
+  const handleNavigation = useCallback((path) => {
     // Close menus first
     setIsMobileMenuOpen(false);
     setIsUserMenuOpen(false);
     
     // Navigate immediately
     navigate(path);
-  };
+  }, [navigate]);
 
   // Separate handlers for different menus to avoid state conflicts
   const handleMobileMenu = (e) => {
@@ -513,6 +513,56 @@ export const Navigation = () => {
     setIsUserMenuOpen(prev => !prev);
   };
 
+  // Optimize menu click handlers
+  const handleButtonClick = useCallback((e, action) => {
+    e.preventDefault();
+    e.stopPropagation();
+    action();
+  }, []);
+
+  // Optimize navigation handler
+  const handleMenuAction = useCallback((path, action) => {
+    // Execute action first (like signing out)
+    if (action) {
+      action();
+    }
+    
+    // Close menus
+    setIsMobileMenuOpen(false);
+    setIsUserMenuOpen(false);
+    
+    // Navigate last
+    if (path) {
+      setTimeout(() => {
+        navigate(path);
+      }, 0);
+    }
+  }, [navigate]);
+
+  // Create separate navigation function specifically for menu items
+  const navigateAndClose = useCallback((path) => {
+    // First close the menu
+    setIsUserMenuOpen(false);
+    setIsMobileMenuOpen(false);
+    
+    // Then redirect in the next tick to ensure menu is closed
+    requestAnimationFrame(() => {
+      navigate(path);
+    });
+  }, [navigate]);
+
+  // Add user menu ref and effect
+  const menuTimeoutRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (menuTimeoutRef.current) {
+        clearTimeout(menuTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Modify drawer content JSX
   return (
     <div>
       <nav className="relative z-50 backdrop-blur-sm border-b border-white/5 sticky top-0">
@@ -627,7 +677,6 @@ export const Navigation = () => {
         </div>
       </nav>
 
-      {/* Separate User Menu Drawer */}
       <AnimatePresence mode="wait">
         {isUserMenuOpen && (
           <>
@@ -675,10 +724,7 @@ export const Navigation = () => {
                 <div className="space-y-3"> {/* Increased spacing between buttons */}
                   <motion.button
                     whileHover={{ x: 4 }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleNavigation('/profile');
-                    }}
+                    onClick={(e) => handleButtonClick(e, () => handleNavigation('/profile'))}
                     className="w-full text-left px-6 py-4 text-lg text-violet-200 hover:bg-violet-800/50 rounded-lg transition-colors flex items-center space-x-4" // Updated padding and text size
                   >
                     <User className="w-6 h-6" /> {/* Increased icon size */}
@@ -686,10 +732,7 @@ export const Navigation = () => {
                   </motion.button>
                   <motion.button
                     whileHover={{ x: 4 }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleNavigation('/settings');
-                    }}
+                    onClick={(e) => handleButtonClick(e, () => handleNavigation('/settings'))}
                     className="w-full text-left px-6 py-4 text-lg text-violet-200 hover:bg-violet-800/50 rounded-lg transition-colors flex items-center space-x-4" // Updated padding and text size
                   >
                     <Settings className="w-6 h-6" /> {/* Increased icon size */}
@@ -700,10 +743,7 @@ export const Navigation = () => {
                 <div className="border-t border-violet-500/20 pt-6"> {/* Increased padding */}
                   <motion.button
                     whileHover={{ x: 4 }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleSignOut();
-                    }}
+                    onClick={(e) => handleButtonClick(e, handleSignOut)}
                     className="w-full text-left px-6 py-4 text-lg text-red-400 hover:bg-violet-800/50 rounded-lg transition-colors flex items-center space-x-4" // Updated padding and text size
                   >
                     <LogOut className="w-6 h-6" /> {/* Increased icon size */}
