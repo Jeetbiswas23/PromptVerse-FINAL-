@@ -119,12 +119,12 @@ export default function LivePrompt() {
           </h1>
         </motion.div>
 
-        {/* Chat Container - directly after header */}
-        <div className="flex-1 flex flex-col min-h-[600px] bg-violet-900/10 rounded-xl border border-violet-500/20">
-          {/* Messages Area */}
+        {/* Chat Container - updated structure */}
+        <div className="flex-1 flex flex-col min-h-[600px] bg-violet-900/10 rounded-xl border border-violet-500/20 relative">
+          {/* Messages Area - made scrollable */}
           <div 
             ref={chatContainerRef}
-            className="flex-1 overflow-y-auto p-6 space-y-6"
+            className="flex-1 overflow-y-auto p-6 space-y-6 absolute inset-0 bottom-[80px]"
           >
             {messages.map((message, index) => (
               <motion.div
@@ -198,8 +198,8 @@ export default function LivePrompt() {
             )}
           </div>
 
-          {/* Input Area */}
-          <div className="p-4 border-t border-violet-500/20">
+          {/* Input Area - fixed at bottom */}
+          <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-violet-500/20 bg-[#0a0a0f]/80 backdrop-blur-sm">
             <form onSubmit={handleSubmit} className="flex gap-4">
               <textarea
                 value={prompt}
