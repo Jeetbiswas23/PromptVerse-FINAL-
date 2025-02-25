@@ -14,6 +14,7 @@ export default function LivePrompt() {
   const chatContainerRef = useRef(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const textareaRef = useRef(null);
 
   const promptTypes = [
     { id: 'chat', icon: MessageSquare, label: 'Chat Prompt' },
@@ -66,6 +67,11 @@ export default function LivePrompt() {
     setIsLoading(true);
     setPrompt('');
     
+    // Reset textarea height
+    if (textareaRef.current) {
+      textareaRef.current.style.height = '60px';  // Reset to minimum height
+    }
+    
     // Simulate API call with context-aware response
     setTimeout(() => {
       const aiResponse = { 
@@ -102,6 +108,14 @@ export default function LivePrompt() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const adjustTextareaHeight = () => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = `${textarea.scrollHeight}px`;
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] flex flex-col">
@@ -200,13 +214,16 @@ export default function LivePrompt() {
 
           {/* Input Area - fixed at bottom */}
           <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-violet-500/20 bg-[#0a0a0f]/80 backdrop-blur-sm">
-            <form onSubmit={handleSubmit} className="flex gap-4">
+            <form onSubmit={handleSubmit} className="flex gap-4 items-start">
               <textarea
+                ref={textareaRef}
                 value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
+                onChange={(e) => {
+                  setPrompt(e.target.value);
+                  adjustTextareaHeight();
+                }}
                 placeholder="Type your prompt here..."
-                className="flex-1 bg-black/40 rounded-xl border border-violet-500/30 p-4 text-violet-100 placeholder-violet-400/50 focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/30 text-lg min-h-[60px] max-h-32 resize-none"
-                rows="1"
+                className="flex-1 bg-black/40 rounded-xl border border-violet-500/30 p-4 text-violet-100 placeholder-violet-400/50 focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/30 text-lg min-h-[60px] max-h-[300px] resize-none overflow-y-auto"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -214,7 +231,7 @@ export default function LivePrompt() {
                   }
                 }}
               />
-              <div className="flex gap-2">
+              <div className="flex gap-2 h-[60px]">
                 <div className="relative" ref={dropdownRef}>
                   <motion.button
                     type="button"
