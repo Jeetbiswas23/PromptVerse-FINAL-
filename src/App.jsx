@@ -462,36 +462,52 @@ export const Navigation = () => {
   const navigate = useNavigate();
   const location = useLocation(); // Add this hook
   const { user, setUser } = useContext(AuthContext);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const dropdownRef = useRef(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const mobileMenuRef = useRef(null);
+  const userMenuRef = useRef(null);
 
   const handleSignOut = () => {
     setUser(null); // Clear user context first
-    setIsDropdownOpen(false); // Close dropdown
+    setIsUserMenuOpen(false); // Close dropdown
     localStorage.clear(); // Clear all localStorage
     navigate('/signin', { replace: true }); // Navigate to sign in
   };
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsDropdownOpen(false);
-      }
-    };
-
-    // Add event listener only when dropdown is open
-    if (isDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
+  const handleClickOutside = (event, ref, setIsOpen) => {
+    if (ref.current && !ref.current.contains(event.target)) {
+      setIsOpen(false);
     }
+  };
 
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+  useEffect(() => {
+    const handleDocumentClick = (event) => {
+      handleClickOutside(event, mobileMenuRef, setIsMobileMenuOpen);
+      handleClickOutside(event, userMenuRef, setIsUserMenuOpen);
     };
-  }, [isDropdownOpen]); // Add isDropdownOpen as dependency
 
+    document.addEventListener('mousedown', handleDocumentClick);
+    return () => document.removeEventListener('mousedown', handleDocumentClick);
+  }, []);
+
+  // Update the handleNavigation function to be more direct
   const handleNavigation = (path) => {
-    setIsDropdownOpen(false);
     navigate(path);
+    setIsMobileMenuOpen(false);
+    setIsUserMenuOpen(false);
+  };
+
+  // Separate handlers for different menus to avoid state conflicts
+  const handleMobileMenu = (e) => {
+    e.stopPropagation(); // Prevent event bubbling
+    setIsUserMenuOpen(false); // Close user menu first
+    setIsMobileMenuOpen(prev => !prev);
+  };
+
+  const handleUserMenu = (e) => {
+    e.stopPropagation(); // Prevent event bubbling
+    setIsMobileMenuOpen(false); // Close mobile menu first
+    setIsUserMenuOpen(prev => !prev);
   };
 
   return (
@@ -539,11 +555,11 @@ export const Navigation = () => {
             </div>
 
             {/* Mobile Menu */}
-            <div className="md:hidden">
+            <div className="md:hidden" ref={mobileMenuRef}>
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                onClick={handleMobileMenu}
                 className="p-2 text-violet-300 hover:text-violet-100"
               >
                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -551,29 +567,28 @@ export const Navigation = () => {
                 </svg>
               </motion.button>
 
-              {/* Mobile Menu Dropdown - Updated styles */}
               <AnimatePresence>
-                {isDropdownOpen && (
+                {isMobileMenuOpen && (
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="absolute right-0 mt-2 w-64 bg-violet-950/90 backdrop-blur-sm rounded-lg border border-violet-500/20 shadow-xl" // Increased width from w-48 to w-64
+                    className="absolute right-0 mt-2 w-64 bg-violet-950/90 backdrop-blur-sm rounded-lg border border-violet-500/20 shadow-xl"
                   >
-                    {/* Mobile menu items - Updated styles */}
-                    <div className="py-3"> {/* Increased padding */}
+                    <div className="py-3">
+                      {/* Mobile menu items */}
                       <button 
-                        className="w-full text-left px-6 py-3 text-base text-violet-200 hover:bg-violet-800/50 transition-all duration-300 flex items-center space-x-3" // Updated text size and padding
+                        className="w-full text-left px-6 py-3 text-base text-violet-200 hover:bg-violet-800/50 transition-all duration-300 flex items-center space-x-3"
                         onClick={() => handleNavigation('/blog')}
                       >
-                        <MessageSquare className="w-5 h-5" /> {/* Added icon */}
+                        <MessageSquare className="w-5 h-5" />
                         <span>Blog</span>
                       </button>
                       <button 
-                        className="w-full text-left px-6 py-3 text-base text-violet-200 hover:bg-violet-800/50 transition-all duration-300 flex items-center space-x-3" // Updated text size and padding
+                        className="w-full text-left px-6 py-3 text-base text-violet-200 hover:bg-violet-800/50 transition-all duration-300 flex items-center space-x-3"
                         onClick={() => handleNavigation('/prompts')}
                       >
-                        <Command className="w-5 h-5" /> {/* Added icon */}
+                        <Command className="w-5 h-5" />
                         <span>Prompts</span>
                       </button>
                     </div>
@@ -584,11 +599,11 @@ export const Navigation = () => {
 
             {/* User Menu */}
             {user ? (
-              <div className="relative" ref={dropdownRef}>
+              <div className="relative" ref={userMenuRef}>
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  onClick={handleUserMenu}
                   className="px-4 py-2 bg-white/5 rounded-lg hover:bg-white/10 transition-all duration-300 border border-white/10 flex items-center space-x-2"
                 >
                   <span>{user.name}</span>
@@ -610,15 +625,15 @@ export const Navigation = () => {
       </nav>
 
       {/* Separate User Menu Drawer */}
-      <AnimatePresence>
-        {isDropdownOpen && (
+      <AnimatePresence mode="wait">
+        {isUserMenuOpen && (
           <>
             {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setIsDropdownOpen(false)}
+              onClick={() => setIsUserMenuOpen(false)}
               className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
             />
             
@@ -647,7 +662,7 @@ export const Navigation = () => {
                   <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
-                    onClick={() => setIsDropdownOpen(false)}
+                    onClick={() => setIsUserMenuOpen(false)}
                     className="p-3 rounded-lg hover:bg-violet-800/50" // Increased padding
                   >
                     <X className="w-6 h-6 text-violet-400" /> {/* Increased icon size */}
