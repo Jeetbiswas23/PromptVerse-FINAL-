@@ -272,6 +272,18 @@ const Prompts = () => {
   const PromptModal = ({ prompt, onClose }) => {
     const [activeTab, setActiveTab] = useState('prompt'); // 'prompt' | 'examples' | 'variations'
     const [isSaved, setIsSaved] = useState(false);
+    const [copyStatus, setCopyStatus] = useState(''); // Add this state
+  
+    // Add this function for copy handling
+    const handleCopy = async (text, type = 'prompt') => {
+      try {
+        await navigator.clipboard.writeText(text);
+        setCopyStatus(`${type} copied!`);
+        setTimeout(() => setCopyStatus(''), 2000);
+      } catch (err) {
+        console.error('Failed to copy:', err);
+      }
+    };
   
     const tabs = [
       { id: 'prompt', label: 'Prompt' },
@@ -392,11 +404,16 @@ const Prompts = () => {
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      onClick={() => navigator.clipboard.writeText(prompt.prompt)}
-                      className="px-4 py-2 bg-violet-500/20 rounded-lg border border-violet-500/40"
+                      onClick={() => handleCopy(prompt.prompt)}
+                      className="px-4 py-2 bg-violet-500/20 rounded-lg border border-violet-500/40 text-white relative group"
                     >
                       <Copy className="w-4 h-4 inline mr-2" />
-                      Copy
+                      {copyStatus ? copyStatus : 'Copy'}
+                      {copyStatus && (
+                        <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-violet-500 text-white px-2 py-1 rounded text-xs">
+                          {copyStatus}
+                        </span>
+                      )}
                     </motion.button>
                   </div>
                   <pre className="text-violet-200 whitespace-pre-wrap">{prompt.prompt}</pre>
@@ -452,7 +469,14 @@ const Prompts = () => {
                   <div key={i} className="bg-black/30 rounded-lg p-4 border border-violet-500/20">
                     <div className="flex justify-between items-center mb-2">
                       <h4 className="text-violet-200 font-medium">Variation {i + 1}</h4>
-                      <Copy className="w-4 h-4 text-violet-400 cursor-pointer" />
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => handleCopy(prompt.prompt.split('[').join('(').split(']').join(')'), `variation ${i + 1}`)}
+                        className="hover:text-violet-300 transition-colors"
+                      >
+                        <Copy className="w-4 h-4 text-violet-400 cursor-pointer" />
+                      </motion.button>
                     </div>
                     <p className="text-violet-300/70">
                       {prompt.prompt.split('[').join('(').split(']').join(')')}
@@ -479,7 +503,7 @@ const Prompts = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-4 py-2 bg-violet-500/20 rounded-lg border border-violet-500/40"
+                className="px-4 py-2 bg-violet-500/20 rounded-lg border border-violet-500/40 text-white"
               >
                 <Download className="w-4 h-4 inline mr-2" />
                 Download
