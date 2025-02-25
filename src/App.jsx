@@ -1,5 +1,5 @@
 import React, { useEffect, useState, createContext, useContext, useRef, lazy, Suspense } from 'react';
-import { Command, Share2, GitBranch, Star, DollarSign, Trophy, Beaker, MessageSquare, Terminal, Copy, Check, ChevronRight, Code, Wand2, PenTool, Brain, ArrowLeft } from 'lucide-react';
+import { Command, Share2, GitBranch, Star, DollarSign, Trophy, Beaker, MessageSquare, Terminal, Copy, Check, ChevronRight, Code, Wand2, PenTool, Brain, ArrowLeft, X, LogOut, Settings, User } from 'lucide-react';
 import { motion, LazyMotion, domAnimation, m, AnimatePresence } from 'framer-motion';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Float, MeshDistortMaterial, Environment, PerspectiveCamera, Torus, AdaptiveDpr, BakeShadows, Preload, Points, PointMaterial, Stars } from '@react-three/drei';
@@ -8,7 +8,7 @@ import SignInPage from './components/SignIn'; // Update import name for clarity
 import SignUp from './components/SignUp'; // Update import name
 import ForgotPassword from './components/ForgotPassword';
 import Profile from './components/Profile';
-import Settings from './components/Settings';
+import SettingsPage from './components/Settings'; // Renamed from Settings to SettingsPage
 import Prompts from './components/Prompts';
 import { ThemeProvider } from './contexts/ThemeContext';
 import Scene from './models/Scene'; // Keep only this import, remove the named import
@@ -495,154 +495,200 @@ export const Navigation = () => {
   };
 
   return (
-    <nav className="relative z-50 backdrop-blur-sm border-b border-white/5 sticky top-0">
-      <div className="max-w-7xl mx-auto flex justify-between items-center p-4">
-        {/* Logo and Back Button */}
-        <div className="flex items-center space-x-4">
-          {location.pathname !== '/' && (
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => navigate('/')}
-              className="flex items-center space-x-2 text-violet-300 hover:text-violet-100 transition-colors"
-            >
-              <ArrowLeft className="w-6 h-6" />
-              <span>Back</span>
-            </motion.button>
-          )}
-          <span className="text-xl font-bold bg-gradient-to-r from-violet-200 to-fuchsia-200 bg-clip-text text-transparent">
-            PromptVerse
-          </span>
-        </div>
-
-        {/* Navigation Links */}
-        <div className="flex items-center space-x-4">
-          {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-6">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => navigate('/blog')}
-              className="px-4 py-2 text-violet-300 hover:text-violet-100 transition-colors"
-            >
-              Blog
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => navigate('/prompts')}
-              className="px-4 py-2 text-violet-300 hover:text-violet-100 transition-colors"
-            >
-              Prompts
-            </motion.button>
-          </div>
-
-          {/* Mobile Menu */}
-          <div className="md:hidden">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="p-2 text-violet-300 hover:text-violet-100"
-            >
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
-              </svg>
-            </motion.button>
-
-            <AnimatePresence>
-              {isDropdownOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="absolute right-0 mt-2 w-48 bg-violet-950/90 backdrop-blur-sm rounded-lg border border-violet-500/20 shadow-xl"
-                >
-                  {/* Mobile menu items */}
-                  <div className="py-1">
-                    <button 
-                      className="w-full text-left px-4 py-2 text-sm text-violet-200 hover:bg-violet-800/50"
-                      onClick={() => handleNavigation('/blog')}
-                    >
-                      Blog
-                    </button>
-                    <button 
-                      className="w-full text-left px-4 py-2 text-sm text-violet-200 hover:bg-violet-800/50"
-                      onClick={() => handleNavigation('/prompts')}
-                    >
-                      Prompts
-                    </button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          {/* User Menu */}
-          {user ? (
-            <div className="relative" ref={dropdownRef}>
+    <div>
+      <nav className="relative z-50 backdrop-blur-sm border-b border-white/5 sticky top-0">
+        <div className="max-w-7xl mx-auto flex justify-between items-center p-4">
+          {/* Logo and Back Button */}
+          <div className="flex items-center space-x-4">
+            {location.pathname !== '/' && (
               <motion.button
                 whileHover={{ scale: 1.05 }}
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="px-4 py-2 bg-white/5 rounded-lg hover:bg-white/10 transition-all duration-300 border border-white/10 flex items-center space-x-2"
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate('/')}
+                className="flex items-center space-x-2 text-violet-300 hover:text-violet-100 transition-colors"
               >
-                <span>{user.name}</span>
-                <motion.div
-                  animate={{ rotate: isDropdownOpen ? 180 : 0 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </motion.div>
+                <ArrowLeft className="w-6 h-6" />
+                <span>Back</span>
+              </motion.button>
+            )}
+            <span className="text-xl font-bold bg-gradient-to-r from-violet-200 to-fuchsia-200 bg-clip-text text-transparent">
+              PromptVerse
+            </span>
+          </div>
+
+          {/* Navigation Links */}
+          <div className="flex items-center space-x-4">
+            {/* Desktop Menu */}
+            <div className="hidden md:flex items-center space-x-6">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate('/blog')}
+                className="px-4 py-2 text-violet-300 hover:text-violet-100 transition-colors"
+              >
+                Blog
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate('/prompts')}
+                className="px-4 py-2 text-violet-300 hover:text-violet-100 transition-colors"
+              >
+                Prompts
+              </motion.button>
+            </div>
+
+            {/* Mobile Menu */}
+            <div className="md:hidden">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="p-2 text-violet-300 hover:text-violet-100"
+              >
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
+                </svg>
               </motion.button>
 
+              {/* Mobile Menu Dropdown - Updated styles */}
               <AnimatePresence>
                 {isDropdownOpen && (
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.2 }}
-                    className="absolute right-0 mt-2 w-48 bg-violet-950/90 backdrop-blur-sm rounded-lg border border-violet-500/20 shadow-xl"
+                    className="absolute right-0 mt-2 w-64 bg-violet-950/90 backdrop-blur-sm rounded-lg border border-violet-500/20 shadow-xl" // Increased width from w-48 to w-64
                   >
-                    <div className="py-1">
-                      {/* Menu items */}
+                    {/* Mobile menu items - Updated styles */}
+                    <div className="py-3"> {/* Increased padding */}
                       <button 
-                        className="w-full text-left px-4 py-2 text-sm text-violet-200 hover:bg-violet-800/50"
-                        onClick={() => handleNavigation('/profile')}
+                        className="w-full text-left px-6 py-3 text-base text-violet-200 hover:bg-violet-800/50 transition-all duration-300 flex items-center space-x-3" // Updated text size and padding
+                        onClick={() => handleNavigation('/blog')}
                       >
-                        Profile
+                        <MessageSquare className="w-5 h-5" /> {/* Added icon */}
+                        <span>Blog</span>
                       </button>
                       <button 
-                        className="w-full text-left px-4 py-2 text-sm text-violet-200 hover:bg-violet-800/50"
-                        onClick={() => handleNavigation('/settings')}
+                        className="w-full text-left px-6 py-3 text-base text-violet-200 hover:bg-violet-800/50 transition-all duration-300 flex items-center space-x-3" // Updated text size and padding
+                        onClick={() => handleNavigation('/prompts')}
                       >
-                        Settings
-                      </button>
-                      <div className="border-t border-violet-500/20" />
-                      <button 
-                        className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-violet-800/50"
-                        onClick={handleSignOut}
-                      >
-                        Sign Out
+                        <Command className="w-5 h-5" /> {/* Added icon */}
+                        <span>Prompts</span>
                       </button>
                     </div>
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
-          ) : (
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => navigate('/signin')}
-              className="px-4 sm:px-6 py-2 bg-white/5 rounded-lg hover:bg-white/10 transition-all duration-300 border border-white/10"
-            >
-              Sign In
-            </motion.button>
-          )}
+
+            {/* User Menu */}
+            {user ? (
+              <div className="relative" ref={dropdownRef}>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className="px-4 py-2 bg-white/5 rounded-lg hover:bg-white/10 transition-all duration-300 border border-white/10 flex items-center space-x-2"
+                >
+                  <span>{user.name}</span>
+                  <ChevronRight className="w-4 h-4" />
+                </motion.button>
+              </div>
+            ) : (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate('/signin')}
+                className="px-4 py-2 bg-violet-500/10 rounded-lg border border-violet-500/20 text-violet-300 text-sm hover:bg-violet-500/20"
+              >
+                Sign In
+              </motion.button>
+            )}
+          </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+
+      {/* Separate User Menu Drawer */}
+      <AnimatePresence>
+        {isDropdownOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsDropdownOpen(false)}
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+            />
+            
+            {/* Drawer with fixed positioning and transform */}
+            <motion.div
+              initial={{ translateX: '100%' }}
+              animate={{ translateX: '0%' }}
+              exit={{ translateX: '100%' }}
+              style={{ position: 'fixed', right: 0, top: 0, bottom: 0, width: '24rem' }} // Increased width
+              transition={{ 
+                type: "spring",
+                damping: 30,
+                stiffness: 300
+              }}
+              className="bg-violet-950/90 backdrop-blur-xl border-l border-violet-500/20 shadow-2xl z-50"
+            >
+              {/* Drawer Content - Updated padding and spacing */}
+              <div className="p-8 space-y-8"> {/* Increased padding and spacing */}
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h3 className="text-xl font-semibold text-violet-200"> {/* Increased text size */}
+                      {user?.name || 'User'}
+                    </h3>
+                    <p className="text-sm text-violet-400">Demo User</p>
+                  </div>
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => setIsDropdownOpen(false)}
+                    className="p-3 rounded-lg hover:bg-violet-800/50" // Increased padding
+                  >
+                    <X className="w-6 h-6 text-violet-400" /> {/* Increased icon size */}
+                  </motion.button>
+                </div>
+
+                <div className="space-y-3"> {/* Increased spacing between buttons */}
+                  <motion.button
+                    whileHover={{ x: 4 }}
+                    onClick={() => handleNavigation('/profile')}
+                    className="w-full text-left px-6 py-4 text-lg text-violet-200 hover:bg-violet-800/50 rounded-lg transition-colors flex items-center space-x-4" // Updated padding and text size
+                  >
+                    <User className="w-6 h-6" /> {/* Increased icon size */}
+                    <span>Profile</span>
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ x: 4 }}
+                    onClick={() => handleNavigation('/settings')}
+                    className="w-full text-left px-6 py-4 text-lg text-violet-200 hover:bg-violet-800/50 rounded-lg transition-colors flex items-center space-x-4" // Updated padding and text size
+                  >
+                    <Settings className="w-6 h-6" /> {/* Increased icon size */}
+                    <span>Settings</span>
+                  </motion.button>
+                </div>
+
+                <div className="border-t border-violet-500/20 pt-6"> {/* Increased padding */}
+                  <motion.button
+                    whileHover={{ x: 4 }}
+                    onClick={handleSignOut}
+                    className="w-full text-left px-6 py-4 text-lg text-red-400 hover:bg-violet-800/50 rounded-lg transition-colors flex items-center space-x-4" // Updated padding and text size
+                  >
+                    <LogOut className="w-6 h-6" /> {/* Increased icon size */}
+                    <span>Sign Out</span>
+                  </motion.button>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </div>
   );
 };
 
@@ -1012,7 +1058,7 @@ const App = () => {
                 <Route path="/signup" element={<SignUp />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/profile" element={<Profile />} />
-                <Route path="/settings" element={<Settings />} />
+                <Route path="/settings" element={<SettingsPage />} /> {/* Updated to use SettingsPage */}
                 {/* Add catch-all route */}
                 <Route path="*" element={<MainContent />} />
               </Routes>
@@ -1080,6 +1126,7 @@ const FAQ = () => {
         </div>
         {/* Rest of background elements */}
         <div className="absolute inset-0">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-violet-500/10 rounded-full blur-3xl animate-pulse" />
           <div className="absolute bottom-1/4 right-1/3 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
           <div className="absolute top-1/3 right-1/4 w-72 h-72 bg-fuchsia-500/10 rounded-full blur-3xl animate-pulse delay-2000" />
         </div>
@@ -1118,10 +1165,8 @@ const FAQ = () => {
               viewport={{ once: true }}
               className="relative group"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-fuchsia-600/20 rounded-xl blur-sm" />
-              <div
-                className="relative backdrop-blur-xl bg-black/40 rounded-xl border border-violet-500/20 overflow-hidden"
-              >
+              <m.div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-fuchsia-600/20 rounded-xl blur-sm" />
+              <m.div className="relative backdrop-blur-xl bg-black/40 rounded-xl border border-violet-500/20 overflow-hidden">
                 <button
                   onClick={() => setOpenIndex(openIndex === index ? null : index)}
                   className="w-full text-left px-6 py-4 flex items-center justify-between group"
@@ -1153,7 +1198,7 @@ const FAQ = () => {
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </div>
+              </m.div>
             </m.div>
           ))}
         </div>
