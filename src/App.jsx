@@ -11,6 +11,7 @@ import Profile from './components/Profile';
 import Settings from './components/Settings';
 import Prompts from './components/Prompts';
 import { ThemeProvider } from './contexts/ThemeContext';
+import Scene from './models/Scene'; // Keep only this import, remove the named import
 
 // Create auth context
 export const AuthContext = createContext(null);
@@ -1001,7 +1002,12 @@ const App = () => {
   }, []);
 
   return (
-    <BrowserRouter>
+    <BrowserRouter
+      future={{ 
+        v7_startTransition: true,
+        v7_relativeSplatPath: true
+      }}
+    >
       <AuthProvider>
         <ThemeProvider>
           <LazyMotion features={domAnimation}>
@@ -1015,6 +1021,8 @@ const App = () => {
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/settings" element={<Settings />} />
+                {/* Add catch-all route */}
+                <Route path="*" element={<MainContent />} />
               </Routes>
             </Suspense>
           </LazyMotion>
@@ -1079,28 +1087,22 @@ const FAQ = () => {
     <section className="relative py-12 overflow-hidden"> {/* Reduced padding */}
       {/* 3D Background */}
       <div className="absolute inset-0 z-0 opacity-60">
-        <Canvas dpr={[1, 2]} camera={{ position: [0, 0, 10], fov: 45 }}>
-          <color attach="background" args={['#0a0a0f']} />
-          
-          {/* Lighting setup */}
+        <Canvas
+          camera={{
+            position: [0, 0, 5],
+            fov: 45
+          }}
+        >
           <ambientLight intensity={0.5} />
-          <directionalLight position={[5, 5, 5]} intensity={1} color="#8b5cf6" />
-          <pointLight position={[-5, -5, -5]} intensity={0.5} color="#6d28d9" />
-          
-          {/* 3D Objects */}
-          <FAQDonut />
-          
-          {/* Controls */}
-          <OrbitControls
-            enableZoom={false}
-            enablePan={false}
-            enableRotate={true}
-            autoRotate
-            autoRotateSpeed={0.5}
-          />
-          
-          {/* Performance optimizations */}
-          <Preload all />
+          <pointLight position={[10, 10, 10]} />
+          <Suspense fallback={null}>
+            <Scene 
+              scale={[0.8, 0.8, 0.8]}
+              position={[0, -1, 0]}
+              rotation={[0, Math.PI / 4, 0]}
+            />
+            <OrbitControls enableZoom={false} />
+          </Suspense>
         </Canvas>
       </div>
 
