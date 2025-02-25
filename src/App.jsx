@@ -646,6 +646,8 @@ export const Navigation = () => {
 };
 
 const MainContent = () => {
+  const navigate = useNavigate(); // Add this line at the top of MainContent component
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -777,6 +779,7 @@ const MainContent = () => {
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
+                onClick={() => navigate('/prompts')} // Add this line
                 className="futuristic-button group relative my-8 px-14 py-4 overflow-hidden rounded-xl bg-violet-950/30 backdrop-blur-md"
               >
                 <div className="absolute inset-0 flex items-center justify-center">
