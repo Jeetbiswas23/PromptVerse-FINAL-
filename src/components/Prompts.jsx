@@ -3,26 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Filter, Star, Copy, Heart, Share2, MessageSquare, Tags, Command, Code, X, Layers, Calendar, User, Zap, Award, BookOpen, Share, Download, Flag, Bookmark } from 'lucide-react';
 import { Navigation } from '../App';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Float, MeshDistortMaterial, Stars } from '@react-three/drei';
+import { Stars } from '@react-three/drei';
 import { useNavigate } from 'react-router-dom';
-
-// Add FloatingElement component for background
-const FloatingElement = ({ position, color, scale }) => (
-  <Float speed={2} rotationIntensity={2} floatIntensity={2}>
-    <mesh position={position} scale={scale}>
-      <torusGeometry args={[1, 0.3, 16, 32]} />
-      <MeshDistortMaterial
-        color={color}
-        attach="material"
-        distort={0.4}
-        speed={2}
-        roughness={0.2}
-        metalness={0.8}
-      />
-    </mesh>
-  </Float>
-);
-
 
 // Add new component for dynamic background pattern
 const DynamicPattern = ({ type }) => {
@@ -59,82 +41,109 @@ const CyberDecoration = () => (
 );
 
 // Update the card component with new styling
-const PromptCard = ({ prompt, onClick }) => (
-  <motion.div
-    whileHover={{ y: -5, scale: 1.02 }}
-    className="group relative"
-    onClick={onClick}
-  >
-    {/* Animated border effect */}
-    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-violet-500 via-fuchsia-500 to-cyan-500 opacity-50 blur group-hover:opacity-100 transition-opacity duration-500" />
-    
-    <div className="relative bg-black/40 backdrop-blur-xl rounded-xl p-6 border border-violet-500/20">
-      {/* Cyber pattern background */}
-      <div className="absolute inset-0 opacity-5">
-        <CyberDecoration />
-      </div>
+const PromptCard = ({ prompt, onClick }) => {
+  const [copied, setCopied] = useState(false);
 
-      {/* Type badge with glow effect */}
-      <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-gradient-to-r from-violet-500/20 to-fuchsia-500/20 border border-violet-500/30 backdrop-blur-md">
-        <span className="text-xs font-medium text-violet-200 tracking-wider">
-          {prompt.type.toUpperCase()}
-        </span>
-        <div className="absolute inset-0 rounded-full bg-violet-500/20 blur-sm animate-pulse" />
-      </div>
+  const handleCopy = () => {
+    navigator.clipboard.writeText(prompt.prompt);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
-      {/* Content layout updates */}
-      <div className="space-y-4">
-        <h3 className="text-2xl font-bold">
-          <span className="bg-gradient-to-r from-violet-200 via-fuchsia-200 to-cyan-200 bg-clip-text text-transparent">
-            {prompt.title}
+  return (
+    <motion.div
+      whileHover={{ y: -5, scale: 1.02 }}
+      className="group relative"
+      onClick={onClick}
+    >
+      {/* Animated border effect */}
+      <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-violet-500 via-fuchsia-500 to-cyan-500 opacity-50 blur group-hover:opacity-100 transition-opacity duration-500" />
+      
+      <div className="relative bg-black/40 backdrop-blur-xl rounded-xl p-6 border border-violet-500/20">
+        {/* Cyber pattern background */}
+        <div className="absolute inset-0 opacity-5">
+          <CyberDecoration />
+        </div>
+
+        {/* Type badge with glow effect */}
+        <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-gradient-to-r from-violet-500/20 to-fuchsia-500/20 border border-violet-500/30 backdrop-blur-md">
+          <span className="text-xs font-medium text-violet-200 tracking-wider">
+            {prompt.type.toUpperCase()}
           </span>
-        </h3>
-        
-        {prompt.type === 'image' && (
-          <div className="relative rounded-lg overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-violet-500/30 via-fuchsia-500/30 to-transparent mix-blend-overlay" />
-            <img
-              src={prompt.image}
-              alt={prompt.title}
-              className="w-full h-48 object-cover transform group-hover:scale-110 transition-transform duration-700"
-            />
-          </div>
-        )}
+          <div className="absolute inset-0 rounded-full bg-violet-500/20 blur-sm animate-pulse" />
+        </div>
 
-        <p className="text-violet-300/70 line-clamp-2">
-          {prompt.description}
-        </p>
+        {/* Content layout updates */}
+        <div className="space-y-4">
+          <h3 className="text-2xl font-bold">
+            <span className="bg-gradient-to-r from-violet-200 via-fuchsia-200 to-cyan-200 bg-clip-text text-transparent">
+              {prompt.title}
+            </span>
+          </h3>
+          
+          {prompt.type === 'image' && (
+            <div className="relative rounded-lg overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-violet-500/30 via-fuchsia-500/30 to-transparent mix-blend-overlay" />
+              <img
+                src={prompt.image}
+                alt={prompt.title}
+                className="w-full h-48 object-cover transform group-hover:scale-110 transition-transform duration-700"
+              />
+            </div>
+          )}
 
-        {/* Stats with animated hover effects */}
-        <div className="flex items-center justify-between pt-4 border-t border-violet-500/10">
-          <div className="flex space-x-4">
-            <motion.button whileHover={{ scale: 1.1 }} className="flex items-center space-x-1">
-              <Heart className="w-4 h-4 text-pink-500" />
-              <span className="text-sm text-violet-300">{prompt.likes}</span>
-            </motion.button>
-            <span className="text-sm text-violet-400">{prompt.difficulty}</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Command className="w-4 h-4 text-violet-400" />
-            <span className="text-sm text-violet-300">{prompt.tokenCount}</span>
+          <p className="text-violet-300/70 line-clamp-2">
+            {prompt.description}
+          </p>
+
+          {/* Stats with animated hover effects */}
+          <div className="flex items-center justify-between pt-4 border-t border-violet-500/10">
+            <div className="flex space-x-4">
+              <motion.button whileHover={{ scale: 1.1 }} className="flex items-center space-x-1">
+                <Heart className="w-4 h-4 text-pink-500" />
+                <span className="text-sm text-violet-300">{prompt.likes}</span>
+              </motion.button>
+              <span className="text-sm text-violet-400">{prompt.difficulty}</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Command className="w-4 h-4 text-violet-400" />
+              <span className="text-sm text-violet-300">{prompt.tokenCount}</span>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Hover overlay with glassmorphism */}
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 rounded-xl flex items-center justify-center">
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          whileHover={{ scale: 1 }}
-          className="text-center"
+        {/* Hover overlay with glassmorphism */}
+        <div className="absolute inset-0 bg-black/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 rounded-xl flex items-center justify-center">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            whileHover={{ scale: 1 }}
+            className="text-center"
+          >
+            <Copy className="w-6 h-6 text-violet-200 mx-auto mb-2" />
+            <span className="text-sm text-violet-300">View Details</span>
+          </motion.div>
+        </div>
+
+        {/* Update copy button */}
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={handleCopy}
+          className="flex items-center space-x-2 text-violet-400 text-sm"
         >
-          <Copy className="w-6 h-6 text-violet-200 mx-auto mb-2" />
-          <span className="text-sm text-violet-300">View Details</span>
-        </motion.div>
+          {copied ? (
+            <span className="text-green-400">Copied!</span>
+          ) : (
+            <>
+              <Copy className="w-4 h-4" />
+              <span>Copy prompt</span>
+            </>
+          )}
+        </motion.button>
       </div>
-    </div>
-  </motion.div>
-);
+    </motion.div>
+  );
+};
 
 // Update the grid container with new layout
 const PromptGrid = ({ prompts, onPromptSelect }) => (
@@ -273,6 +282,7 @@ const Prompts = () => {
     const [activeTab, setActiveTab] = useState('prompt'); // 'prompt' | 'examples' | 'variations'
     const [isSaved, setIsSaved] = useState(false);
     const [copyStatus, setCopyStatus] = useState(''); // Add this state
+    const [copiedVariation, setCopiedVariation] = useState(null); // Add this state
   
     // Add this function for copy handling
     const handleCopy = async (text, type = 'prompt') => {
@@ -280,6 +290,17 @@ const Prompts = () => {
         await navigator.clipboard.writeText(text);
         setCopyStatus(`${type} copied!`);
         setTimeout(() => setCopyStatus(''), 2000);
+      } catch (err) {
+        console.error('Failed to copy:', err);
+      }
+    };
+
+    // Add new function for variation copy
+    const handleVariationCopy = async (text, index) => {
+      try {
+        await navigator.clipboard.writeText(text);
+        setCopiedVariation(index);
+        setTimeout(() => setCopiedVariation(null), 2000);
       } catch (err) {
         console.error('Failed to copy:', err);
       }
@@ -407,12 +428,13 @@ const Prompts = () => {
                       onClick={() => handleCopy(prompt.prompt)}
                       className="px-4 py-2 bg-violet-500/20 rounded-lg border border-violet-500/40 text-white relative group"
                     >
-                      <Copy className="w-4 h-4 inline mr-2" />
-                      {copyStatus ? copyStatus : 'Copy'}
-                      {copyStatus && (
-                        <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-violet-500 text-white px-2 py-1 rounded text-xs">
-                          {copyStatus}
-                        </span>
+                      {copyStatus ? (
+                        <span className="text-green-400">Copied!</span>
+                      ) : (
+                        <>
+                          <Copy className="w-4 h-4 inline mr-2" />
+                          Copy
+                        </>
                       )}
                     </motion.button>
                   </div>
@@ -472,10 +494,14 @@ const Prompts = () => {
                       <motion.button
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
-                        onClick={() => handleCopy(prompt.prompt.split('[').join('(').split(']').join(')'), `variation ${i + 1}`)}
+                        onClick={() => handleVariationCopy(prompt.prompt.split('[').join('(').split(']').join(')'), i)}
                         className="hover:text-violet-300 transition-colors"
                       >
-                        <Copy className="w-4 h-4 text-violet-400 cursor-pointer" />
+                        {copiedVariation === i ? (
+                          <span className="text-green-400">Copied!</span>
+                        ) : (
+                          <Copy className="w-4 h-4 text-violet-400 cursor-pointer" />
+                        )}
                       </motion.button>
                     </div>
                     <p className="text-violet-300/70">
@@ -539,10 +565,6 @@ const Prompts = () => {
             <Canvas camera={{ position: [0, 0, 10] }}>
               <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade />
               <ambientLight intensity={0.5} />
-              <FloatingElement position={[3, 2, -5]} color="#4c1d95" scale={1.5} />
-              <FloatingElement position={[-3, -2, -5]} color="#7c3aed" scale={1} />
-              <FloatingElement position={[0, -3, -3]} color="#8b5cf6" scale={0.8} />
-              <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={0.5} />
             </Canvas>
           </div>
 
