@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Send, Copy, Check, Terminal, MessageSquare, Image, Code, User } from 'lucide-react';
+import { Sparkles, Send, Copy, Trash2, Mic, Moon, Sun, Save, MessageSquare, Image, Code, User } from 'lucide-react';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { Navigation } from '../App';
 
 export default function LivePrompt() {
@@ -15,6 +17,9 @@ export default function LivePrompt() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const textareaRef = useRef(null);
+  const [theme, setTheme] = useState('dark');
+  const [isRecording, setIsRecording] = useState(false);
+  const [characterCount, setCharacterCount] = useState(0);
 
   const promptTypes = [
     { id: 'chat', icon: MessageSquare, label: 'Chat Prompt' },
@@ -153,8 +158,81 @@ export default function LivePrompt() {
     }
   };
 
+  // Add voice input handler
+  const handleVoiceInput = () => {
+    if (!('webkitSpeechRecognition' in window)) {
+      alert('Voice input is not supported in this browser');
+      return;
+    }
+
+    const recognition = new window.webkitSpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    recognition.onstart = () => setIsRecording(true);
+    recognition.onend = () => setIsRecording(false);
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      setPrompt(prev => prev + transcript);
+    };
+
+    recognition.start();
+  };
+
+  // Add save conversation handler
+  const handleSaveConversation = () => {
+    const conversation = {
+      messages,
+      timestamp: new Date().toISOString(),
+      type: promptType,
+      category: chatCategory
+    };
+    
+    const savedConversations = JSON.parse(localStorage.getItem('conversations') || '[]');
+    localStorage.setItem('conversations', JSON.stringify([...savedConversations, conversation]));
+  };
+
+  // Add message action handlers
+  const handleCopyMessage = (content) => {
+    navigator.clipboard.writeText(content);
+    // Show temporary success message
+  };
+
+  const handleDeleteMessage = (index) => {
+    setMessages(prev => prev.filter((_, i) => i !== index));
+  };
+
+  // Update textarea onChange handler
+  const handlePromptChange = (e) => {
+    const value = e.target.value;
+    setPrompt(value);
+    setCharacterCount(value.length);
+    adjustTextareaHeight();
+  };
+
+  // Add theme toggle handler
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+  };
+
+  // Update message rendering to include code highlighting and actions
+  const renderMessageContent = (content, category) => {
+    if (category === 'code') {
+      return (
+        <SyntaxHighlighter 
+          language="javascript" 
+          style={atomDark}
+          className="rounded-lg"
+        >
+          {content}
+        </SyntaxHighlighter>
+      );
+    }
+    return <p className="whitespace-pre-wrap">{content}</p>;
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0a0a1f] via-[#1a1a3f] to-[#0a0a2f] flex flex-col relative overflow-hidden">
+    <div className={`min-h-screen ${theme === 'dark' ? 'bg-gradient-to-b from-[#0a0a1f] via-[#1a1a3f] to-[#0a0a2f]' : 'bg-gradient-to-b from-violet-50 via-fuchsia-50 to-cyan-50'} flex flex-col relative overflow-hidden`}>
       {/* Add animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute w-[500px] h-[500px] -top-20 -right-20 bg-violet-500/10 rounded-full blur-3xl animate-pulse" />
@@ -175,6 +253,25 @@ export default function LivePrompt() {
           <div className="w-32 h-1 mx-auto bg-gradient-to-r from-violet-500 via-cyan-500 to-fuchsia-500 rounded-full blur-sm" />
         </motion.div>
 
+        <div className="absolute top-4 right-4 flex gap-2">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={toggleTheme}
+            className="p-2 rounded-full bg-black/20 backdrop-blur-sm border border-white/10"
+          >
+            {theme === 'dark' ? <Sun className="w-5 h-5 text-yellow-300" /> : <Moon className="w-5 h-5 text-violet-500" />}
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleSaveConversation}
+            className="p-2 rounded-full bg-black/20 backdrop-blur-sm border border-white/10"
+          >
+            <Save className="w-5 h-5 text-violet-300" />
+          </motion.button>
+        </div>
+
         <div className="flex-1 flex flex-col min-h-[600px] bg-black/30 backdrop-blur-2xl rounded-2xl border border-white/10 relative shadow-[0_0_50px_-12px] shadow-violet-500/20 before:absolute before:inset-0 before:rounded-2xl before:border before:border-violet-500/20 before:p-[1px] before:bg-gradient-to-b before:from-violet-500/20 before:to-transparent before:-z-10">
           {/* Messages area with updated styling */}
           <div 
@@ -192,49 +289,61 @@ export default function LivePrompt() {
                   layout
                   className={`flex ${message.type === 'system' ? 'justify-center' : message.type === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
-                  <div className={`flex ${
-                    message.type === 'system' 
-                      ? 'flex-col items-center'
-                      : message.type === 'user' 
-                      ? 'flex-row-reverse' 
-                      : 'flex-row'
-                  } items-start gap-3 ${
-                    message.type === 'system' ? 'max-w-md' : 'max-w-[80%]'
-                  }`}>
-                    {message.type !== 'system' && (
-                      <div className={`w-8 h-8 rounded-xl flex items-center justify-center backdrop-blur-sm ${
-                        message.type === 'user' 
-                          ? 'bg-violet-500/30 border border-violet-400/20' 
+                  <div className="group relative">
+                    <div className={`flex ${
+                      message.type === 'system' 
+                        ? 'flex-col items-center'
+                        : message.type === 'user' 
+                        ? 'flex-row-reverse' 
+                        : 'flex-row'
+                    } items-start gap-3 ${
+                      message.type === 'system' ? 'max-w-md' : 'max-w-[80%]'
+                    }`}>
+                      {message.type !== 'system' && (
+                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center backdrop-blur-sm ${
+                          message.type === 'user' 
+                            ? 'bg-violet-500/30 border border-violet-400/20' 
+                            : message.category === 'image'
+                            ? 'bg-emerald-500/30 border border-emerald-400/20'
+                            : message.category === 'code'
+                            ? 'bg-blue-500/30 border border-blue-400/20'
+                            : 'bg-fuchsia-500/30 border border-fuchsia-400/20'
+                        }`}>
+                          {message.type === 'user' ? (
+                            <User className="w-5 h-5 text-violet-300" />
+                          ) : message.category === 'image' ? (
+                            <Image className="w-5 h-5 text-emerald-300" />
+                          ) : message.category === 'code' ? (
+                            <Code className="w-5 h-5 text-blue-300" />
+                          ) : (
+                            <Sparkles className="w-5 h-5 text-fuchsia-300" />
+                          )}
+                        </div>
+                      )}
+                      <div className={`rounded-2xl p-4 backdrop-blur-sm shadow-lg ${
+                        message.type === 'system'
+                          ? 'bg-gray-900/40 text-gray-300 text-sm text-center border border-gray-700/30'
+                          : message.type === 'user'
+                          ? 'bg-violet-500/20 text-violet-100 border border-violet-500/30'
                           : message.category === 'image'
-                          ? 'bg-emerald-500/30 border border-emerald-400/20'
+                          ? 'bg-emerald-900/30 text-emerald-100 border border-emerald-500/30'
                           : message.category === 'code'
-                          ? 'bg-blue-500/30 border border-blue-400/20'
-                          : 'bg-fuchsia-500/30 border border-fuchsia-400/20'
+                          ? 'bg-blue-900/30 text-blue-100 border border-blue-500/30'
+                          : 'bg-black/30 text-fuchsia-100 border border-fuchsia-500/30'
                       }`}>
-                        {message.type === 'user' ? (
-                          <User className="w-5 h-5 text-violet-300" />
-                        ) : message.category === 'image' ? (
-                          <Image className="w-5 h-5 text-emerald-300" />
-                        ) : message.category === 'code' ? (
-                          <Code className="w-5 h-5 text-blue-300" />
-                        ) : (
-                          <Sparkles className="w-5 h-5 text-fuchsia-300" />
-                        )}
+                        {renderMessageContent(message.content, message.category)}
+                      </div>
+                    </div>
+                    {message.type !== 'system' && (
+                      <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onClick={() => handleCopyMessage(message.content)} className="p-1 rounded-lg bg-black/20 hover:bg-black/40 text-violet-300">
+                          <Copy className="w-4 h-4" />
+                        </button>
+                        <button onClick={() => handleDeleteMessage(index)} className="p-1 rounded-lg bg-black/20 hover:bg-black/40 text-rose-300">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </div>
                     )}
-                    <div className={`rounded-2xl p-4 backdrop-blur-sm shadow-lg ${
-                      message.type === 'system'
-                        ? 'bg-gray-900/40 text-gray-300 text-sm text-center border border-gray-700/30'
-                        : message.type === 'user'
-                        ? 'bg-violet-500/20 text-violet-100 border border-violet-500/30'
-                        : message.category === 'image'
-                        ? 'bg-emerald-900/30 text-emerald-100 border border-emerald-500/30'
-                        : message.category === 'code'
-                        ? 'bg-blue-900/30 text-blue-100 border border-blue-500/30'
-                        : 'bg-black/30 text-fuchsia-100 border border-fuchsia-500/30'
-                    }`}>
-                      <p className="whitespace-pre-wrap">{message.content}</p>
-                    </div>
                   </div>
                 </motion.div>
               ))}
@@ -280,22 +389,33 @@ export default function LivePrompt() {
             className="absolute bottom-0 left-0 right-0 border-t border-white/10 bg-black/60 backdrop-blur-2xl before:absolute before:inset-0 before:border-t before:border-violet-500/20 before:bg-gradient-to-t before:from-violet-500/5 before:to-transparent"
           >
             <form onSubmit={handleSubmit} className="flex gap-4 items-start p-4 relative z-10">
-              <textarea
-                ref={textareaRef}
-                value={prompt}
-                onChange={(e) => {
-                  setPrompt(e.target.value);
-                  adjustTextareaHeight();
-                }}
-                placeholder="Type your prompt here..."
-                className="flex-1 bg-black/40 rounded-xl border border-violet-500/30 p-4 text-violet-100 placeholder-violet-400/50 focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/30 focus:ring-offset-0 text-lg min-h-[60px] max-h-[300px] resize-none overflow-y-auto transition-all duration-200 hover:border-violet-500/40 hover:bg-black/50"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSubmit(e);
-                  }
-                }}
-              />
+              <div className="flex-1 relative">
+                <textarea
+                  ref={textareaRef}
+                  value={prompt}
+                  onChange={handlePromptChange}
+                  placeholder="Type your prompt here..."
+                  className="w-full bg-black/40 rounded-xl border border-violet-500/30 p-4 pr-24 text-violet-100 placeholder-violet-400/50 focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/30 text-lg min-h-[60px] max-h-[300px] resize-none"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSubmit(e);
+                    }
+                  }}
+                />
+                <div className="absolute bottom-2 right-2 flex items-center gap-2 text-violet-400/50 text-sm">
+                  <span>{characterCount}/1000</span>
+                  <motion.button
+                    type="button"
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={handleVoiceInput}
+                    className={`p-1 rounded-lg ${isRecording ? 'bg-rose-500/20 text-rose-300' : 'bg-violet-500/20 text-violet-300'}`}
+                  >
+                    <Mic className="w-4 h-4" />
+                  </motion.button>
+                </div>
+              </div>
               <div className="flex gap-2 h-[60px]">
                 <div className="relative" ref={dropdownRef}>
                   <motion.button
