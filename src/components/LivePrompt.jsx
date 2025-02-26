@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Send, Copy, Trash2, Mic, Moon, Sun, Save, MessageSquare, Image, Code, User } from 'lucide-react';
+import { Sparkles, Send, Copy, Trash2, Save, MessageSquare, Image, Code, User } from 'lucide-react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { Navigation } from '../App';
@@ -17,8 +17,6 @@ export default function LivePrompt() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const textareaRef = useRef(null);
-  const [theme, setTheme] = useState('dark');
-  const [isRecording, setIsRecording] = useState(false);
   const [characterCount, setCharacterCount] = useState(0);
 
   const promptTypes = [
@@ -158,25 +156,12 @@ export default function LivePrompt() {
     }
   };
 
-  // Add voice input handler
-  const handleVoiceInput = () => {
-    if (!('webkitSpeechRecognition' in window)) {
-      alert('Voice input is not supported in this browser');
-      return;
-    }
-
-    const recognition = new window.webkitSpeechRecognition();
-    recognition.continuous = false;
-    recognition.interimResults = false;
-
-    recognition.onstart = () => setIsRecording(true);
-    recognition.onend = () => setIsRecording(false);
-    recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript;
-      setPrompt(prev => prev + transcript);
-    };
-
-    recognition.start();
+  // Update textarea onChange handler
+  const handlePromptChange = (e) => {
+    const value = e.target.value;
+    setPrompt(value);
+    setCharacterCount(value.length);
+    adjustTextareaHeight();
   };
 
   // Add save conversation handler
@@ -202,19 +187,6 @@ export default function LivePrompt() {
     setMessages(prev => prev.filter((_, i) => i !== index));
   };
 
-  // Update textarea onChange handler
-  const handlePromptChange = (e) => {
-    const value = e.target.value;
-    setPrompt(value);
-    setCharacterCount(value.length);
-    adjustTextareaHeight();
-  };
-
-  // Add theme toggle handler
-  const toggleTheme = () => {
-    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
-  };
-
   // Update message rendering to include code highlighting and actions
   const renderMessageContent = (content, category) => {
     if (category === 'code') {
@@ -232,7 +204,7 @@ export default function LivePrompt() {
   };
 
   return (
-    <div className={`min-h-screen ${theme === 'dark' ? 'bg-gradient-to-b from-[#0a0a1f] via-[#1a1a3f] to-[#0a0a2f]' : 'bg-gradient-to-b from-violet-50 via-fuchsia-50 to-cyan-50'} flex flex-col relative overflow-hidden`}>
+    <div className="min-h-screen bg-gradient-to-b from-[#0a0a1f] via-[#1a1a3f] to-[#0a0a2f] flex flex-col relative overflow-hidden">
       {/* Add animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute w-[500px] h-[500px] -top-20 -right-20 bg-violet-500/10 rounded-full blur-3xl animate-pulse" />
@@ -253,15 +225,7 @@ export default function LivePrompt() {
           <div className="w-32 h-1 mx-auto bg-gradient-to-r from-violet-500 via-cyan-500 to-fuchsia-500 rounded-full blur-sm" />
         </motion.div>
 
-        <div className="absolute top-4 right-4 flex gap-2">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={toggleTheme}
-            className="p-2 rounded-full bg-black/20 backdrop-blur-sm border border-white/10"
-          >
-            {theme === 'dark' ? <Sun className="w-5 h-5 text-yellow-300" /> : <Moon className="w-5 h-5 text-violet-500" />}
-          </motion.button>
+        <div className="absolute top-4 right-4">
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -395,7 +359,7 @@ export default function LivePrompt() {
                   value={prompt}
                   onChange={handlePromptChange}
                   placeholder="Type your prompt here..."
-                  className="w-full bg-black/40 rounded-xl border border-violet-500/30 p-4 pr-24 text-violet-100 placeholder-violet-400/50 focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/30 text-lg min-h-[60px] max-h-[300px] resize-none"
+                  className="w-full bg-black/40 rounded-xl border border-violet-500/30 p-4 pr-16 text-violet-100 placeholder-violet-400/50 focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/30 text-lg min-h-[60px] max-h-[300px] resize-none"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
@@ -403,17 +367,8 @@ export default function LivePrompt() {
                     }
                   }}
                 />
-                <div className="absolute bottom-2 right-2 flex items-center gap-2 text-violet-400/50 text-sm">
+                <div className="absolute bottom-2 right-2 text-violet-400/50 text-sm">
                   <span>{characterCount}/1000</span>
-                  <motion.button
-                    type="button"
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={handleVoiceInput}
-                    className={`p-1 rounded-lg ${isRecording ? 'bg-rose-500/20 text-rose-300' : 'bg-violet-500/20 text-violet-300'}`}
-                  >
-                    <Mic className="w-4 h-4" />
-                  </motion.button>
                 </div>
               </div>
               <div className="flex gap-2 h-[60px]">
