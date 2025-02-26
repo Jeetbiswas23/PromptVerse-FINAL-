@@ -3,7 +3,7 @@ import { Command, Share2, GitBranch, Star, DollarSign, Trophy, Beaker, MessageSq
 import { motion, LazyMotion, domAnimation, m, AnimatePresence } from 'framer-motion';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Float, MeshDistortMaterial, Environment, PerspectiveCamera, Torus, AdaptiveDpr, BakeShadows, Preload, Points, PointMaterial, Stars } from '@react-three/drei';
-import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import SignInPage from './components/SignIn'; // Update import name for clarity
 import SignUp from './components/SignUp'; // Update import name
 import ForgotPassword from './components/ForgotPassword';
@@ -1098,54 +1098,22 @@ const LoadingScreen = () => (
   </div>
 );
 
-const App = () => {
-  useEffect(() => {
-    // Prevent default scroll restoration
-    if ('scrollRestoration' in window.history) {
-      window.history.scrollRestoration = 'manual';
-    }
-
-    // Scroll to top on page load
-    window.scrollTo(0, 0);
-
-    return () => {
-      if ('scrollRestoration' in window.history) {
-        window.history.scrollRestoration = 'auto';
-      }
-    };
-  }, []);
-
+function App() {
   return (
-    <BrowserRouter
-      future={{ 
-        v7_startTransition: true,
-        v7_relativeSplatPath: true
-      }}
-    >
-      <AuthProvider>
-        <ThemeProvider>
-          <LazyMotion features={domAnimation}>
-            <ScrollToTop />
-            <Suspense fallback={<LoadingScreen />}>
-              <Routes>
-                <Route path="/" element={<MainContent />} />
-                <Route path="/prompts" element={<Prompts />} />
-                <Route path="/signin" element={<SignInPage />} />
-                <Route path="/signup" element={<SignUp />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/settings" element={<SettingsPage />} /> {/* Updated to use SettingsPage */}
-                <Route path="/live-prompt" element={<LivePrompt />} />
-                {/* Add catch-all route */}
-                <Route path="*" element={<MainContent />} />
-              </Routes>
-            </Suspense>
-          </LazyMotion>
-        </ThemeProvider>
-      </AuthProvider>
-    </BrowserRouter>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<MainContent />} />  {/* Add MainContent as home route */}
+          <Route path="/live-prompt" element={<LivePrompt />} />  {/* Add LivePrompt route */}
+          <Route path="/login" element={<SignInPage />} />
+          <Route path="/signin" element={<SignInPage />} /> {/* Add both signin variants */}
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/settings" element={<SettingsPage />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
-};
+}
 
 // Add FAQ data before the FAQ component
 const faqData = [

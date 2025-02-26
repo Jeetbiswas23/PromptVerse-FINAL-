@@ -4,8 +4,10 @@ import { Sparkles, Send, Copy, Trash2, Save, MessageSquare, Image, Code, User } 
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { Navigation } from '../App';
+import { useNavigate } from 'react-router-dom';
 
 export default function LivePrompt() {
+  const navigate = useNavigate();
   const [prompt, setPrompt] = useState('');
   const [response, setResponse] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -56,6 +58,14 @@ export default function LivePrompt() {
       content: getContextMessage()
     }]);
   }, [promptType, chatCategory]);
+
+  // Add route protection
+  useEffect(() => {
+    const user = localStorage.getItem('user');
+    if (!user) {
+      navigate('/login');
+    }
+  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
