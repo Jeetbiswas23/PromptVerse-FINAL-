@@ -24,7 +24,7 @@ export default function LivePrompt() {
   const promptTypes = [
     { id: 'chat', icon: MessageSquare, label: 'Chat Prompt' },
     { id: 'image', icon: Image, label: 'Image Prompt' },
-    { id: 'code', icon: Code, label: 'Programming Prompt' },
+    { id: 'code', icon: Code, label: 'Programming Prompt' }, 
   ];
 
   const chatCategories = [
