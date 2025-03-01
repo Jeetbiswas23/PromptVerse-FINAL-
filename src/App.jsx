@@ -1103,12 +1103,13 @@ function App() {
     <AuthProvider>
       <Router>
         <Routes>
-          <Route path="/" element={<MainContent />} />  {/* Add MainContent as home route */}
-          <Route path="/live-prompt" element={<LivePrompt />} />  {/* Add LivePrompt route */}
+          <Route path="/" element={<MainContent />} />
+          <Route path="/live-prompt" element={<LivePrompt />} />
           <Route path="/login" element={<SignInPage />} />
-          <Route path="/signin" element={<SignInPage />} /> {/* Add both signin variants */}
+          <Route path="/signin" element={<SignInPage />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/prompts" element={<Prompts />} /> {/* Add this line */}
         </Routes>
       </Router>
     </AuthProvider>
