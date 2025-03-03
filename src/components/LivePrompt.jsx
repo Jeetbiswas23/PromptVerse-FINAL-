@@ -24,6 +24,7 @@ export default function LivePrompt() {
   const [conversations, setConversations] = useState([]);
   const [showSidebar, setShowSidebar] = useState(true);
   const [currentConversationId, setCurrentConversationId] = useState(null);
+  const [activeDropdown, setActiveDropdown] = useState(null);
 
   const promptTypes = [
     { id: 'chat', icon: MessageSquare, label: 'Chat Prompt' },
@@ -77,6 +78,15 @@ export default function LivePrompt() {
     setConversations(savedConversations);
   }, []);
 
+  // Add helper function to create title from prompt
+  const createTitleFromPrompt = (prompt) => {
+    return prompt
+      .split(/\s+/)
+      .slice(0, 7)
+      .join(' ')
+      .trim() + (prompt.split(/\s+/).length > 7 ? '...' : '');
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!prompt.trim()) return;
@@ -87,6 +97,23 @@ export default function LivePrompt() {
       category: promptType === 'chat' ? chatCategory : promptType
     };
     setMessages(prev => [...prev, newMessage]);
+    
+    // Create new chat if this is the first message
+    if (messages.length === 1) { // Only system message exists
+      const conversation = {
+        id: Date.now(),
+        title: createTitleFromPrompt(prompt),
+        messages: [...messages, newMessage],
+        timestamp: new Date().toISOString(),
+        type: promptType,
+        category: chatCategory
+      };
+      
+      setConversations(prev => [conversation, ...prev]);
+      setCurrentConversationId(conversation.id);
+      localStorage.setItem('conversations', JSON.stringify([conversation, ...conversations]));
+    }
+
     setIsLoading(true);
     setPrompt('');
     
@@ -216,11 +243,16 @@ export default function LivePrompt() {
 
   // Add handler for creating new chat
   const handleNewChat = () => {
-    setMessages([{
+    const systemMessage = {
       type: 'system',
-      content: systemMessages.chat[chatCategory]
-    }]);
+      content: promptType === 'chat' 
+        ? systemMessages.chat[chatCategory]
+        : systemMessages[promptType]
+    };
+    
+    setMessages([systemMessage]);
     setCurrentConversationId(null);
+    setPrompt('');
   };
 
   // Add handler for loading conversation
@@ -234,13 +266,51 @@ export default function LivePrompt() {
   // Add formatted date helper
   const formatDate = (timestamp) => {
     const date = new Date(timestamp);
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(date);
+    const now = new Date();
+    const diff = now - date;
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    
+    if (days === 0) {
+      return `Today at ${date.toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit'
+      })}`;
+    } else if (days === 1) {
+      return 'Yesterday';
+    } else if (days < 7) {
+      return `${days} days ago`;
+    } else {
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+      });
+    }
   };
+
+  // Add delete conversation handler
+  const handleDeleteConversation = (convId, e) => {
+    e.stopPropagation();
+    const updatedConversations = conversations.filter(conv => conv.id !== convId);
+    setConversations(updatedConversations);
+    localStorage.setItem('conversations', JSON.stringify(updatedConversations));
+    if (currentConversationId === convId) {
+      handleNewChat();
+    }
+    setActiveDropdown(null);
+  };
+
+  // Add click outside handler for action dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (activeDropdown && !event.target.closest('.action-dropdown')) {
+        setActiveDropdown(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [activeDropdown]);
 
   // Update message rendering to include code highlighting and actions
   const renderMessageContent = (message) => {
@@ -359,36 +429,46 @@ export default function LivePrompt() {
                       <h3 className="text-sm font-medium text-white truncate">
                         {conv.title}
                       </h3>
-                      <span className="text-xs text-gray-400 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Calendar className="w-3 h-3" />
+                    </div>
+                    <div className="flex items-center justify-between mt-1">
+                      <p className="text-xs text-gray-400 truncate flex-1">
+                        {conv.messages[conv.messages.length - 1]?.content.slice(0, 40) || 'No messages'}...
+                      </p>
+                      <span className="text-xs text-gray-500 whitespace-nowrap ml-2">
                         {formatDate(conv.timestamp)}
                       </span>
                     </div>
-                    <p className="text-xs text-gray-400 truncate mt-1">
-                      {conv.messages[conv.messages.length - 1]?.content.slice(0, 50) || 'No messages'}...
-                    </p>
                   </div>
 
-                  {/* Action Buttons */}
-                  <div className="absolute right-2 top-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        // Add delete conversation handler
-                      }}
-                      className="p-1 rounded hover:bg-white/10 text-rose-400"
-                    >
-                      <Trash className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        // Add more options handler
-                      }}
-                      className="p-1 rounded hover:bg-white/10 text-gray-400"
-                    >
-                      <MoreVertical className="w-4 h-4" />
-                    </button>
+                  {/* Updated Action Buttons */}
+                  <div className="absolute right-2 top-2 flex items-center">
+                    <div className="relative action-dropdown">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveDropdown(activeDropdown === conv.id ? null : conv.id);
+                        }}
+                        className="p-1 rounded-lg hover:bg-white/10 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <MoreVertical className="w-4 h-4" />
+                      </button>
+                      
+                      {activeDropdown === conv.id && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.95 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          className="absolute right-0 top-full mt-1 w-36 py-1 bg-black/90 backdrop-blur-xl border border-white/10 rounded-lg shadow-lg z-50"
+                        >
+                          <button
+                            onClick={(e) => handleDeleteConversation(conv.id, e)}
+                            className="w-full px-3 py-2 text-sm text-rose-400 hover:bg-white/10 flex items-center gap-2"
+                          >
+                            <Trash className="w-4 h-4" />
+                            Delete Chat
+                          </button>
+                        </motion.div>
+                      )}
+                    </div>
                   </div>
                 </button>
               </motion.div>
