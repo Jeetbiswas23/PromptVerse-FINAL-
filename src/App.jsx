@@ -461,133 +461,58 @@ const PromptScreen = () => {
 // Update Navigation component
 export const Navigation = () => {
   const navigate = useNavigate();
-  const location = useLocation(); // Add this hook
+  const location = useLocation();
   const { user, setUser } = useContext(AuthContext);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const mobileMenuRef = useRef(null);
-  const userMenuRef = useRef(null);
   const drawerRef = useRef(null);
+  const userMenuRef = useRef(null);
+  const mobileMenuRef = useRef(null); // Add this line
 
-  const handleSignOut = () => {
-    setUser(null); // Clear user context first
-    setIsUserMenuOpen(false); // Close dropdown
-    localStorage.clear(); // Clear all localStorage
-    navigate('/signin', { replace: true }); // Navigate to sign in
-  };
-
-  const handleClickOutside = (event, ref, setIsOpen) => {
-    if (ref.current && !ref.current.contains(event.target)) {
-      setIsOpen(false);
-    }
-  };
-
-  useEffect(() => {
-    const handleDocumentClick = (event) => {
-      handleClickOutside(event, mobileMenuRef, setIsMobileMenuOpen);
-      handleClickOutside(event, userMenuRef, setIsUserMenuOpen);
-    };
-
-    document.addEventListener('mousedown', handleDocumentClick);
-    return () => document.removeEventListener('mousedown', handleDocumentClick);
-  }, []);
-
-  // Update the handleNavigation function to be more immediate
-  const handleNavigation = useCallback((path) => {
-    // Close menus first
-    setIsMobileMenuOpen(false);
-    setIsUserMenuOpen(false);
-    
-    // Navigate immediately
+  // Single handleDrawerNavigation function
+  const handleDrawerNavigation = useCallback((path) => {
     navigate(path);
   }, [navigate]);
-
-  // Separate handlers for different menus to avoid state conflicts
-  const handleMobileMenu = (e) => {
-    e.stopPropagation(); // Prevent event bubbling
-    setIsUserMenuOpen(false); // Close user menu first
-    setIsMobileMenuOpen(prev => !prev);
-  };
-
-  const handleUserMenu = (e) => {
-    e.stopPropagation(); // Prevent event bubbling
-    setIsMobileMenuOpen(false); // Close mobile menu first
-    setIsUserMenuOpen(prev => !prev);
-  };
-
-  // Optimize menu click handlers
-  const handleButtonClick = useCallback((e, action) => {
-    e.preventDefault();
-    e.stopPropagation();
-    action();
-  }, []);
-
-  // Optimize navigation handler
-  const handleMenuAction = useCallback((path, action) => {
-    // Execute action first (like signing out)
-    if (action) {
-      action();
-    }
-    
-    // Close menus
-    setIsMobileMenuOpen(false);
+  // Single handleSignOut function
+  const handleSignOut = useCallback(() => {
+    setUser(null);
+    localStorage.clear();
     setIsUserMenuOpen(false);
-    
-    // Navigate last
-    if (path) {
-      setTimeout(() => {
-        navigate(path);
-      }, 0);
-    }
-  }, [navigate]);
+    navigate('/signin', { replace: true });
+  }, [setUser, navigate]);
 
-  // Create separate navigation function specifically for menu items
-  const navigateAndClose = useCallback((path) => {
-    // First close the menu
-    setIsUserMenuOpen(false);
-    setIsMobileMenuOpen(false);
-    
-    // Then redirect in the next tick to ensure menu is closed
-    requestAnimationFrame(() => {
-      navigate(path);
-    });
-  }, [navigate]);
-
-  // Add user menu ref and effect
-  const menuTimeoutRef = useRef(null);
-
-  useEffect(() => {
-    return () => {
-      if (menuTimeoutRef.current) {
-        clearTimeout(menuTimeoutRef.current);
-      }
-    };
-  }, []);
-
-  // Add drawer click outside handler
+  // Click outside handling
   useEffect(() => {
     const handleClickOutside = (e) => {
-      // Check if the click is outside both the button and the drawer
       const isClickOutsideButton = userMenuRef.current && !userMenuRef.current.contains(e.target);
       const isClickOutsideDrawer = drawerRef.current && !drawerRef.current.contains(e.target);
       
-      // Only close if clicking outside both elements and menu is open
       if (isUserMenuOpen && isClickOutsideButton && isClickOutsideDrawer) {
         setIsUserMenuOpen(false);
       }
     };
 
-    // Only add listener if menu is open
     if (isUserMenuOpen) {
       document.addEventListener('mousedown', handleClickOutside);
     }
 
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isUserMenuOpen]);
 
-  // Modify drawer content JSX
+  // Mobile menu toggle
+  const handleMobileMenu = (e) => {
+    e.stopPropagation();
+    setIsUserMenuOpen(false);
+    setIsMobileMenuOpen(prev => !prev);
+  };
+
+  // User menu toggle
+  const handleUserMenu = (e) => {
+    e.stopPropagation();
+    setIsMobileMenuOpen(false);
+    setIsUserMenuOpen(prev => !prev);
+  };
+
   return (
     <div>
       <nav className="relative z-50 backdrop-blur-sm border-b border-white/5 sticky top-0">
@@ -702,7 +627,7 @@ export const Navigation = () => {
         </div>
       </nav>
 
-      <AnimatePresence mode="wait">
+      <AnimatePresence>
         {isUserMenuOpen && (
           <>
             {/* Backdrop */}
@@ -710,77 +635,66 @@ export const Navigation = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setIsUserMenuOpen(false)}
+              transition={{ duration: 0.2 }}
+              onClick={(e) => {
+                // Only close if clicking directly on the backdrop
+                if (e.target === e.currentTarget) {
+                  setIsUserMenuOpen(false);
+                }
+              }}
               className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
             />
             
-            {/* Drawer with fixed positioning and transform */}
+            {/* Drawer */}
             <motion.div
               ref={drawerRef}
-              initial={{ translateX: '100%' }}  // Start from right
-              animate={{ translateX: '0%' }}    // Move to center
-              exit={{ translateX: '100%' }}     // Exit to right
-              style={{ position: 'fixed', right: 0, top: 0, bottom: 0, width: '24rem' }}
-              transition={{ 
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{
                 type: "spring",
                 damping: 30,
                 stiffness: 300
               }}
-              className="bg-violet-950/90 backdrop-blur-xl border-l border-violet-500/20 shadow-2xl z-50"
+              className="fixed right-0 top-0 h-full w-80 bg-violet-950/90 backdrop-blur-xl border-l border-violet-500/20 shadow-2xl z-50"
             >
-              {/* Drawer Content - Updated padding and spacing */}
-              <div className="p-8 space-y-8"> {/* Increased padding and spacing */}
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h3 className="text-xl font-semibold text-violet-200"> {/* Increased text size */}
-                      {user?.name || 'User'}
-                    </h3>
-                    <p className="text-sm text-violet-400">Demo User</p>
-                  </div>
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => setIsUserMenuOpen(false)}
-                    className="p-3 rounded-lg hover:bg-violet-800/50" // Increased padding
-                  >
-                    <X className="w-6 h-6 text-violet-400" /> {/* Increased icon size */}
-                  </motion.button>
-                </div>
+              <div className="p-8 space-y-8">
+                {/* ...drawer header... */}
 
-                <div className="space-y-3"> {/* Increased spacing between buttons */}
+                <div className="space-y-3">
                   <motion.button
                     whileHover={{ x: 4 }}
-                    onClick={() => handleMenuNavigation('/profile')}
-                    className="w-full text-left px-6 py-4 text-lg text-violet-200 hover:bg-violet-800/50 rounded-lg transition-colors flex items-center space-x-4" // Updated padding and text size
+                    onClick={() => handleDrawerNavigation('/profile')}
+                    className="w-full text-left px-6 py-4 text-lg text-violet-200 hover:bg-violet-800/50 rounded-lg transition-colors flex items-center space-x-4"
                   >
-                    <User className="w-6 h-6" /> {/* Increased icon size */}
+                    <User className="w-6 h-6" />
                     <span>Profile</span>
                   </motion.button>
                   <motion.button
                     whileHover={{ x: 4 }}
-                    onClick={() => handleMenuNavigation('/live-prompt')}
-                    className="w-full text-left px-6 py-4 text-lg text-violet-200 hover:bg-violet-800/50 rounded-lg transition-colors flex items-center space-x-4" // Updated padding and text size
+                    onClick={() => handleDrawerNavigation('/live-prompt')}
+                    className="w-full text-left px-6 py-4 text-lg text-violet-200 hover:bg-violet-800/50 rounded-lg transition-colors flex items-center space-x-4"
                   >
-                    <Sparkles className="w-6 h-6" /> {/* Increased icon size */}
+                    <Sparkles className="w-6 h-6" />
                     <span>Live Prompt Testing</span>
                   </motion.button>
                   <motion.button
                     whileHover={{ x: 4 }}
-                    onClick={() => handleMenuNavigation('/settings')}
-                    className="w-full text-left px-6 py-4 text-lg text-violet-200 hover:bg-violet-800/50 rounded-lg transition-colors flex items-center space-x-4" // Updated padding and text size
+                    onClick={() => handleDrawerNavigation('/settings')}
+                    className="w-full text-left px-6 py-4 text-lg text-violet-200 hover:bg-violet-800/50 rounded-lg transition-colors flex items-center space-x-4"
                   >
-                    <Settings className="w-6 h-6" /> {/* Increased icon size */}
+                    <Settings className="w-6 h-6" />
                     <span>Settings</span>
                   </motion.button>
                 </div>
 
-                <div className="border-t border-violet-500/20 pt-6"> {/* Increased padding */}
+                <div className="border-t border-violet-500/20 pt-6">
                   <motion.button
                     whileHover={{ x: 4 }}
                     onClick={handleSignOut}
-                    className="w-full text-left px-6 py-4 text-lg text-red-400 hover:bg-violet-800/50 rounded-lg transition-colors flex items-center space-x-4" // Updated padding and text size
+                    className="w-full text-left px-6 py-4 text-lg text-red-400 hover:bg-violet-800/50 rounded-lg transition-colors flex items-center space-x-4"
                   >
-                    <LogOut className="w-6 h-6" /> {/* Increased icon size */}
+                    <LogOut className="w-6 h-6" />
                     <span>Sign Out</span>
                   </motion.button>
                 </div>
