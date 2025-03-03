@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Send, Copy, Trash2, Save, MessageSquare, Image, Code, User, Plus, MessagesSquare, MoreVertical, Trash, Calendar } from 'lucide-react';
+import { Sparkles, Send, Copy, Trash2, Save, MessageSquare, Image, Code, User, Plus, MessagesSquare, MoreVertical, Trash, Calendar, ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { Navigation } from '../App';
@@ -477,19 +477,27 @@ export default function LivePrompt() {
         </div>
       </motion.div>
 
-      {/* Updated Toggle Sidebar Button */}
-      <motion.button
-        onClick={() => setShowSidebar(prev => !prev)}
-        animate={{
-          left: showSidebar ? "336px" : "16px",
-          rotate: showSidebar ? 180 : 0
-        }}
-        className="fixed top-4 z-20 p-2 rounded-lg bg-black/40 hover:bg-black/60 backdrop-blur-sm border border-white/10 transition-colors"
-      >
-        <MessageSquare className="w-5 h-5 text-violet-300" />
-      </motion.button>
+      {/* Toggle Button Container */}
+      <div className="fixed top-4 z-20">
+        <motion.button
+          onClick={() => setShowSidebar(prev => !prev)}
+          animate={{
+            left: showSidebar ? "336px" : "16px",
+          }}
+          className="flex items-center gap-2 p-2 rounded-lg bg-black/40 hover:bg-black/60 backdrop-blur-sm border border-white/10 transition-colors"
+        >
+          {showSidebar ? (
+            <ChevronRight className="w-5 h-5 text-violet-300" />
+          ) : (
+            <>
+              <ChevronRight className="w-5 h-5 text-violet-300" />
+              <span className="text-violet-300">History</span>
+            </>
+          )}
+        </motion.button>
+      </div>
 
-      {/* Main Content */}
+      {/* Main Content Container */}
       <div className="flex-1 flex flex-col">
         {/* Add animated background elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -497,7 +505,20 @@ export default function LivePrompt() {
           <div className="absolute w-[500px] h-[500px] -bottom-40 -left-20 bg-cyan-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
         </div>
 
-        <Navigation />
+        <div className="flex items-center gap-4 p-4 border-b border-white/5">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => navigate('/')}
+            className="p-2 rounded-lg hover:bg-white/5 transition-colors flex items-center gap-2 text-white/70 hover:text-white"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span>Back</span>
+          </motion.button>
+          <span className="text-xl font-bold bg-gradient-to-r from-violet-200 to-fuchsia-200 bg-clip-text text-transparent">
+            PromptVerse
+          </span>
+        </div>
         
         <div className="flex-1 max-w-7xl mx-auto px-4 py-12 w-full flex flex-col relative z-10">
           <motion.div
@@ -511,9 +532,9 @@ export default function LivePrompt() {
             <div className="w-32 h-1 mx-auto bg-gradient-to-r from-violet-500 via-cyan-500 to-fuchsia-500 rounded-full blur-sm" />
           </motion.div>
 
+          {/* Save button */}
           <div className="absolute top-4 right-4">
             <motion.button
-              whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={handleSaveConversation}
               className="p-2 rounded-full bg-black/20 backdrop-blur-sm border border-white/10"

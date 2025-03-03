@@ -459,7 +459,7 @@ const PromptScreen = () => {
 };
 
 // Update Navigation component
-export const Navigation = () => {
+export const Navigation = ({ className }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, setUser } = useContext(AuthContext);
@@ -515,21 +515,10 @@ export const Navigation = () => {
 
   return (
     <div>
-      <nav className="relative z-50 backdrop-blur-sm border-b border-white/5 sticky top-0">
+      <nav className={`relative z-50 backdrop-blur-sm border-b border-white/5 sticky top-0 ${className || ''}`}>
         <div className="max-w-7xl mx-auto flex justify-between items-center p-4">
-          {/* Logo and Back Button */}
-          <div className="flex items-center space-x-4">
-            {location.pathname !== '/' && (
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => navigate('/')}
-                className="flex items-center space-x-2 text-violet-300 hover:text-violet-100 transition-colors"
-              >
-                <ArrowLeft className="w-6 h-6" />
-                <span>Back</span>
-              </motion.button>
-            )}
+          {/* Logo */}
+          <div className="flex items-center">
             <span className="text-xl font-bold bg-gradient-to-r from-violet-200 to-fuchsia-200 bg-clip-text text-transparent">
               PromptVerse
             </span>
@@ -609,7 +598,7 @@ export const Navigation = () => {
                   onClick={handleUserMenu}
                   className="px-4 py-2 bg-white/5 rounded-lg hover:bg-white/10 transition-all duration-300 border border-white/10 flex items-center space-x-2"
                 >
-                  <span>{user.name}</span>
+                  <span className="text-white">{user.name}</span> {/* Updated text color to white */}
                   <ChevronRight className="w-4 h-4" />
                 </motion.button>
               </div>
@@ -1198,11 +1187,9 @@ const FloatingElement = ({ position, color, scale }) => (
   <Float speed={2} rotationIntensity={2} floatIntensity={2}>
     <mesh position={position} scale={scale}>
       <torusGeometry args={[1, 0.3, 16, 32]} />
-      <meshDistortMaterial
+      <meshStandardMaterial
         color={color}
         attach="material"
-        distort={0.4}
-        speed={2}
         roughness={0.2}
         metalness={0.8}
       />
