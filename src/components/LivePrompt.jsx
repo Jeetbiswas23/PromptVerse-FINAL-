@@ -5,6 +5,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { Navigation } from '../App';
 import { useNavigate } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown';
 
 export default function LivePrompt() {
   const navigate = useNavigate();
@@ -198,20 +199,63 @@ export default function LivePrompt() {
   };
 
   // Update message rendering to include code highlighting and actions
-  const renderMessageContent = (content, category) => {
-    if (category === 'code') {
+  const renderMessageContent = (message) => {
+    if (message.type === 'system') {
       return (
-        <SyntaxHighlighter 
-          language="javascript" 
-          style={atomDark}
-          className="rounded-lg"
-        >
-          {content}
-        </SyntaxHighlighter>
+        <p className="text-center text-sm text-gray-400">
+          {message.content}
+        </p>
       );
     }
-    return <p className="whitespace-pre-wrap">{content}</p>;
+
+    return (
+      <ReactMarkdown
+        components={{
+          code: ({node, inline, className, children, ...props}) => {
+            const match = /language-(\w+)/.exec(className || '');
+            return !inline && match ? (
+              <SyntaxHighlighter
+                language={match[1]}
+                style={atomDark}
+                PreTag="div"
+                className="rounded-md my-2"
+                {...props}
+              >
+                {String(children).replace(/\n$/, '')}
+              </SyntaxHighlighter>
+            ) : (
+              <code className="bg-black/30 rounded px-1" {...props}>
+                {children}
+              </code>
+            );
+          },
+          p: ({children}) => <p className="mb-4 last:mb-0">{children}</p>
+        }}
+      >
+        {message.content}
+      </ReactMarkdown>
+    );
   };
+
+  const messageContainerClass = (message) => `
+    group relative flex ${
+      message.type === 'system' 
+        ? 'justify-center' 
+        : message.type === 'user' 
+          ? 'justify-end' // Changed to end for user messages
+          : 'justify-start' // Changed to start for AI messages
+    } px-4 py-6 hover:bg-black/10 transition-colors
+  `;
+
+  const messageContentClass = (message) => `
+    max-w-2xl flex items-start gap-6 ${
+      message.type === 'system' 
+        ? 'justify-center' 
+        : message.type === 'user'
+          ? 'flex-row-reverse' // Reverse flex direction for user messages
+          : 'flex-row'
+    }
+  `;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0a0a1f] via-[#1a1a3f] to-[#0a0a2f] flex flex-col relative overflow-hidden">
@@ -261,52 +305,42 @@ export default function LivePrompt() {
                   animate="animate"
                   exit="exit"
                   layout
-                  className={`flex ${message.type === 'system' ? 'justify-center' : message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+                  className={messageContainerClass(message)}
                 >
-                  <div className="group relative">
-                    <div className={`flex ${
-                      message.type === 'system' 
-                        ? 'flex-col items-center'
-                        : message.type === 'user' 
-                        ? 'flex-row-reverse' 
-                        : 'flex-row'
-                    } items-start gap-3 ${
-                      message.type === 'system' ? 'max-w-md' : 'max-w-[80%]'
-                    }`}>
-                      {message.type !== 'system' && (
-                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center backdrop-blur-sm ${
-                          message.type === 'user' 
-                            ? 'bg-violet-500/30 border border-violet-400/20' 
-                            : message.category === 'image'
-                            ? 'bg-emerald-500/30 border border-emerald-400/20'
-                            : message.category === 'code'
-                            ? 'bg-blue-500/30 border border-blue-400/20'
-                            : 'bg-fuchsia-500/30 border border-fuchsia-400/20'
-                        }`}>
-                          {message.type === 'user' ? (
-                            <User className="w-5 h-5 text-violet-300" />
-                          ) : message.category === 'image' ? (
-                            <Image className="w-5 h-5 text-emerald-300" />
-                          ) : message.category === 'code' ? (
-                            <Code className="w-5 h-5 text-blue-300" />
-                          ) : (
-                            <Sparkles className="w-5 h-5 text-fuchsia-300" />
-                          )}
-                        </div>
-                      )}
-                      <div className={`rounded-2xl p-4 backdrop-blur-sm shadow-lg ${
-                        message.type === 'system'
-                          ? 'bg-gray-900/40 text-gray-300 text-sm text-center border border-gray-700/30'
-                          : message.type === 'user'
-                          ? 'bg-violet-500/20 text-violet-100 border border-violet-500/30'
+                  <div className={messageContentClass(message)}>
+                    {message.type !== 'system' && (
+                      <div className={`w-8 h-8 rounded-xl flex items-center justify-center backdrop-blur-sm ${
+                        message.type === 'user' 
+                          ? 'bg-violet-500/30 border border-violet-400/20' 
                           : message.category === 'image'
-                          ? 'bg-emerald-900/30 text-emerald-100 border border-emerald-500/30'
+                          ? 'bg-emerald-500/30 border border-emerald-400/20'
                           : message.category === 'code'
-                          ? 'bg-blue-900/30 text-blue-100 border border-blue-500/30'
-                          : 'bg-black/30 text-fuchsia-100 border border-fuchsia-500/30'
+                          ? 'bg-blue-500/30 border border-blue-400/20'
+                          : 'bg-fuchsia-500/30 border border-fuchsia-400/20'
                       }`}>
-                        {renderMessageContent(message.content, message.category)}
+                        {message.type === 'user' ? (
+                          <User className="w-5 h-5 text-violet-300" />
+                        ) : message.category === 'image' ? (
+                          <Image className="w-5 h-5 text-emerald-300" />
+                        ) : message.category === 'code' ? (
+                          <Code className="w-5 h-5 text-blue-300" />
+                        ) : (
+                          <Sparkles className="w-5 h-5 text-fuchsia-300" />
+                        )}
                       </div>
+                    )}
+                    <div className={`rounded-2xl p-4 backdrop-blur-sm shadow-lg ${
+                      message.type === 'system'
+                        ? 'bg-gray-900/40 text-gray-300 text-sm text-center border border-gray-700/30'
+                        : message.type === 'user'
+                        ? 'bg-violet-500/20 text-violet-100 border border-violet-500/30'
+                        : message.category === 'image'
+                        ? 'bg-emerald-900/30 text-emerald-100 border border-emerald-500/30'
+                        : message.category === 'code'
+                        ? 'bg-blue-900/30 text-blue-100 border border-blue-500/30'
+                        : 'bg-black/30 text-fuchsia-100 border border-fuchsia-500/30'
+                    }`}>
+                      {renderMessageContent(message)}
                     </div>
                     {message.type !== 'system' && (
                       <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -327,28 +361,30 @@ export default function LivePrompt() {
                   variants={loadingVariants}
                   initial="initial"
                   animate="animate"
-                  className="flex items-center gap-3"
+                  className={messageContainerClass({type: 'ai'})}
                 >
-                  <motion.div 
-                    animate={{ 
-                      scale: [1, 1.2, 1],
-                      opacity: [0.5, 1, 0.5]
-                    }}
-                    transition={{
-                      duration: 1.5,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                    className="flex gap-3"
-                  >
-                    {[...Array(3)].map((_, i) => (
-                      <div 
-                        key={i} 
-                        className="w-2 h-2 rounded-full bg-gradient-to-r from-violet-400 to-fuchsia-400"
-                        style={{ animationDelay: `${i * 0.15}s` }}
+                  <div className={messageContentClass({type: 'ai'})}>
+                    <div className="w-8 h-8 rounded-sm bg-emerald-600/80 flex items-center justify-center">
+                      <Sparkles className="w-5 h-5" />
+                    </div>
+                    <div className="flex gap-1">
+                      <motion.span
+                        animate={{ opacity: [0.3, 1, 0.3] }}
+                        transition={{ duration: 1.5, repeat: Infinity }}
+                        className="w-2 h-2 rounded-full bg-emerald-500"
                       />
-                    ))}
-                  </motion.div>
+                      <motion.span
+                        animate={{ opacity: [0.3, 1, 0.3] }}
+                        transition={{ duration: 1.5, repeat: Infinity }}
+                        className="w-2 h-2 rounded-full bg-emerald-500"
+                      />
+                      <motion.span
+                        animate={{ opacity: [0.3, 1, 0.3] }}
+                        transition={{ duration: 1.5, repeat: Infinity }}
+                        className="w-2 h-2 rounded-full bg-emerald-500"
+                      />
+                    </div>
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
