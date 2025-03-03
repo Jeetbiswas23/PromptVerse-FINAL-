@@ -467,6 +467,7 @@ export const Navigation = () => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const mobileMenuRef = useRef(null);
   const userMenuRef = useRef(null);
+  const drawerRef = useRef(null);
 
   const handleSignOut = () => {
     setUser(null); // Clear user context first
@@ -562,6 +563,29 @@ export const Navigation = () => {
       }
     };
   }, []);
+
+  // Add drawer click outside handler
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      // Check if the click is outside both the button and the drawer
+      const isClickOutsideButton = userMenuRef.current && !userMenuRef.current.contains(e.target);
+      const isClickOutsideDrawer = drawerRef.current && !drawerRef.current.contains(e.target);
+      
+      // Only close if clicking outside both elements and menu is open
+      if (isUserMenuOpen && isClickOutsideButton && isClickOutsideDrawer) {
+        setIsUserMenuOpen(false);
+      }
+    };
+
+    // Only add listener if menu is open
+    if (isUserMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isUserMenuOpen]);
 
   // Modify drawer content JSX
   return (
@@ -692,6 +716,7 @@ export const Navigation = () => {
             
             {/* Drawer with fixed positioning and transform */}
             <motion.div
+              ref={drawerRef}
               initial={{ translateX: '100%' }}  // Start from right
               animate={{ translateX: '0%' }}    // Move to center
               exit={{ translateX: '100%' }}     // Exit to right
@@ -725,7 +750,7 @@ export const Navigation = () => {
                 <div className="space-y-3"> {/* Increased spacing between buttons */}
                   <motion.button
                     whileHover={{ x: 4 }}
-                    onClick={(e) => handleButtonClick(e, () => handleNavigation('/profile'))}
+                    onClick={() => handleMenuNavigation('/profile')}
                     className="w-full text-left px-6 py-4 text-lg text-violet-200 hover:bg-violet-800/50 rounded-lg transition-colors flex items-center space-x-4" // Updated padding and text size
                   >
                     <User className="w-6 h-6" /> {/* Increased icon size */}
@@ -733,7 +758,7 @@ export const Navigation = () => {
                   </motion.button>
                   <motion.button
                     whileHover={{ x: 4 }}
-                    onClick={(e) => handleButtonClick(e, () => handleNavigation('/live-prompt'))}
+                    onClick={() => handleMenuNavigation('/live-prompt')}
                     className="w-full text-left px-6 py-4 text-lg text-violet-200 hover:bg-violet-800/50 rounded-lg transition-colors flex items-center space-x-4" // Updated padding and text size
                   >
                     <Sparkles className="w-6 h-6" /> {/* Increased icon size */}
@@ -741,7 +766,7 @@ export const Navigation = () => {
                   </motion.button>
                   <motion.button
                     whileHover={{ x: 4 }}
-                    onClick={(e) => handleButtonClick(e, () => handleNavigation('/settings'))}
+                    onClick={() => handleMenuNavigation('/settings')}
                     className="w-full text-left px-6 py-4 text-lg text-violet-200 hover:bg-violet-800/50 rounded-lg transition-colors flex items-center space-x-4" // Updated padding and text size
                   >
                     <Settings className="w-6 h-6" /> {/* Increased icon size */}
@@ -752,7 +777,7 @@ export const Navigation = () => {
                 <div className="border-t border-violet-500/20 pt-6"> {/* Increased padding */}
                   <motion.button
                     whileHover={{ x: 4 }}
-                    onClick={(e) => handleButtonClick(e, handleSignOut)}
+                    onClick={handleSignOut}
                     className="w-full text-left px-6 py-4 text-lg text-red-400 hover:bg-violet-800/50 rounded-lg transition-colors flex items-center space-x-4" // Updated padding and text size
                   >
                     <LogOut className="w-6 h-6" /> {/* Increased icon size */}
