@@ -25,6 +25,7 @@ export default function LivePrompt() {
   const [showSidebar, setShowSidebar] = useState(true);
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const [activeDropdown, setActiveDropdown] = useState(null);
+  
 
   const promptTypes = [
     { id: 'chat', icon: MessageSquare, label: 'Chat Prompt' },
