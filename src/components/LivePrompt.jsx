@@ -344,19 +344,30 @@ export default function LivePrompt() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [activeDropdown]);
 
-  // Add resize handler
+  // Update resize handler with smooth animation and prevent text selection
   useEffect(() => {
     const handleMouseMove = (e) => {
       if (!isResizing) return;
       
-      const newWidth = e.clientX;
-      if (newWidth > 180 && newWidth < 480) {
+      e.preventDefault();
+      document.body.style.userSelect = 'none';
+      
+      // Add smooth animation with RAF and easing
+      const targetWidth = Math.min(Math.max(180, e.clientX), 480);
+      const ease = 0.1; // Lower value = smoother animation
+      
+      requestAnimationFrame(() => {
+        const currentWidth = sidebarWidth;
+        const diff = targetWidth - currentWidth;
+        const newWidth = currentWidth + diff * ease;
+        
         setSidebarWidth(newWidth);
-      }
+      });
     };
 
     const handleMouseUp = () => {
       setIsResizing(false);
+      document.body.style.userSelect = '';
     };
 
     if (isResizing) {
@@ -367,8 +378,9 @@ export default function LivePrompt() {
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.userSelect = '';
     };
-  }, [isResizing]);
+  }, [isResizing, sidebarWidth]);
 
   // Update message rendering to include code highlighting and actions
   const renderMessageContent = (message) => {
@@ -431,25 +443,42 @@ export default function LivePrompt() {
 
   return (
     <div className="min-h-screen bg-[#121212] flex">
-      {/* Resizable Sidebar */}
-      <motion.div 
+      <motion.div // Sidebar
         ref={sidebarRef}
         initial={false}
-        animate={{ 
-          width: showSidebar ? sidebarWidth : 0 
+        animate={{ width: showSidebar ? sidebarWidth : 0 }}
+        transition={{ 
+          duration: 0.3, 
+          ease: [0.25, 0.1, 0.25, 1], // Custom bezier curve
+          dampingRatio: 1
         }}
         className="h-screen bg-[#1a1a1a] border-r border-[#2a2a2a] overflow-hidden relative flex"
       >
         <div className="flex-1 flex flex-col h-full">
-          {/* Sidebar Header */}
+          {/* Updated Sidebar Header with dynamic width */}
           <div className="p-4 border-b border-[#2a2a2a] bg-[#181818]">
-            <button
-              onClick={handleNewChat}
-              className="w-full p-3 flex items-center justify-center gap-2 rounded-xl bg-[#6C63FF]/10 hover:bg-[#6C63FF]/20 border border-[#6C63FF]/20 transition-all duration-200 group"
+            <motion.div
+              animate={{ 
+                width: showSidebar ? Math.max(sidebarWidth - 32, 180) : 0 
+              }}
+              transition={{ 
+                duration: 0.3,
+                ease: [0.25, 0.1, 0.25, 1],
+                dampingRatio: 1
+              }}
             >
-              <Plus className="w-5 h-5 text-[#6C63FF] group-hover:scale-110 transition-transform" />
-              <span className="text-[#EAEAEA] font-medium">New Chat</span>
-            </button>
+              <motion.button
+                onClick={handleNewChat}
+                className="w-full p-3 flex items-center justify-center gap-2 rounded-xl bg-[#6C63FF]/10 hover:bg-[#6C63FF]/20 border border-[#6C63FF]/20 transition-all duration-200 group"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Plus className="w-5 h-5 text-[#6C63FF] group-hover:scale-110 transition-transform" />
+                <span className="text-[#EAEAEA] font-medium whitespace-nowrap overflow-hidden text-ellipsis">
+                  New Chat
+                </span>
+              </motion.button>
+            </motion.div>
           </div>
 
           {/* Update conversation list styling */}
@@ -539,9 +568,14 @@ export default function LivePrompt() {
         
         {/* Resize Handle */}
         <div
-          className="w-1 h-full cursor-ew-resize hover:bg-[#6C63FF]/20 absolute right-0 top-0"
-          onMouseDown={() => setIsResizing(true)}
-        />
+          className="w-1 h-full cursor-ew-resize hover:bg-[#6C63FF]/20 absolute right-0 top-0 group"
+          onMouseDown={(e) => {
+            e.preventDefault();
+            setIsResizing(true);
+          }}
+        >
+          <div className="absolute inset-y-0 right-0 w-4 translate-x-1/2" />
+        </div>
       </motion.div>
 
       {/* Toggle Button Container */}
@@ -550,6 +584,10 @@ export default function LivePrompt() {
           onClick={() => setShowSidebar(prev => !prev)}
           animate={{
             left: showSidebar ? `${sidebarWidth + 16}px` : "16px",
+          }}
+          transition={{
+            duration: 0.3,
+            ease: [0.25, 0.1, 0.25, 1]
           }}
           className="flex items-center gap-2 p-2 rounded-lg bg-black/40 hover:bg-black/60 backdrop-blur-sm border border-white/10 transition-colors"
         >
