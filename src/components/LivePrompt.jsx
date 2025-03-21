@@ -443,16 +443,13 @@ export default function LivePrompt() {
 
   return (
     <div className="min-h-screen bg-[#121212] flex">
-      <motion.div // Sidebar
+      {/* Fixed Sidebar */}
+      <motion.div
         ref={sidebarRef}
         initial={false}
         animate={{ width: showSidebar ? sidebarWidth : 0 }}
-        transition={{ 
-          duration: 0.3, 
-          ease: [0.25, 0.1, 0.25, 1], // Custom bezier curve
-          dampingRatio: 1
-        }}
-        className="h-screen bg-[#1a1a1a] border-r border-[#2a2a2a] overflow-hidden relative flex"
+        transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+        className="fixed left-0 top-0 h-screen bg-[#1a1a1a] border-r border-[#2a2a2a] overflow-hidden z-50"
       >
         <div className="flex-1 flex flex-col h-full">
           {/* Updated Sidebar Header with dynamic width */}
@@ -578,8 +575,241 @@ export default function LivePrompt() {
         </div>
       </motion.div>
 
-      {/* Toggle Button Container */}
-      <div className="fixed top-4 z-20">
+      {/* Main Content with Sidebar Offset */}
+      <div 
+        className="flex-1 flex flex-col"
+        style={{ marginLeft: showSidebar ? `${sidebarWidth}px` : '0' }}
+      >
+        <div className="max-w-[1200px] mx-auto w-full relative">
+          {/* Fixed Header */}
+          <div className="fixed top-0 left-[inherit] right-0 max-w-[1200px] w-full z-40 bg-[#181818]">
+            <div className="flex items-center h-14 px-4 border-b border-[#2a2a2a] bg-[#181818] sticky top-0 z-30">
+              <div className="flex-1 flex items-center gap-4">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => navigate('/')}
+                  className="p-2 rounded-lg hover:bg-[#6C63FF]/10 transition-colors"
+                >
+                  <ArrowLeft className="w-5 h-5 text-[#EAEAEA]" />
+                </motion.button>
+                
+                <div className="flex items-center gap-3">
+                  <span className="text-lg font-bold bg-gradient-to-r from-[#6C63FF] to-[#FF6B6B] bg-clip-text text-transparent">
+                    PromptVerse
+                  </span>
+                  <div className="h-4 w-px bg-[#2a2a2a]" />
+                  <span className="text-sm font-medium text-[#EAEAEA]/70">
+                    Live Prompt Testing
+                  </span>
+                </div>
+              </div>
+
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={handleSaveConversation}
+                className="p-2 rounded-lg bg-[#6C63FF]/10 hover:bg-[#6C63FF]/20 border border-[#6C63FF]/20 text-[#6C63FF]"
+              >
+                <Save className="w-5 h-5" />
+              </motion.button>
+            </div>
+          </div>
+
+          {/* Messages Container */}
+          <div className="flex-1 flex flex-col" style={{ paddingTop: "3.5rem", paddingBottom: "80px" }}>
+            {/* Scrollable Messages */}
+            <div 
+              ref={chatContainerRef}
+              className="flex-1 overflow-y-auto px-4 py-6 space-y-6"
+            >
+              <AnimatePresence mode="popLayout">
+                {messages.map((message, index) => (
+                  <motion.div
+                    key={index}
+                    variants={messageVariants}
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                    layout
+                    className={messageContainerClass(message)}
+                  >
+                    <div className={messageContentClass(message)}>
+                      {message.type !== 'system' && (
+                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center backdrop-blur-sm ${
+                          message.type === 'user' 
+                            ? 'bg-[#6C63FF]/20 border border-[#6C63FF]/30' 
+                            : message.category === 'image'
+                            ? 'bg-[#FF6B6B]/20 border border-[#FF6B6B]/30'
+                            : message.category === 'code'
+                            ? 'bg-[#4ADE80]/20 border border-[#4ADE80]/30'
+                            : 'bg-[#FF6B6B]/20 border border-[#FF6B6B]/30'
+                        }`}>
+                          {message.type === 'user' ? (
+                            <User className="w-5 h-5 text-violet-300" />
+                          ) : message.category === 'image' ? (
+                            <Image className="w-5 h-5 text-emerald-300" />
+                          ) : message.category === 'code' ? (
+                            <Code className="w-5 h-5 text-blue-300" />
+                          ) : (
+                            <Sparkles className="w-5 h-5 text-fuchsia-300" />
+                          )}
+                        </div>
+                      )}
+                      <div className={`rounded-lg p-4 ${
+                        message.type === 'system'
+                          ? 'bg-[#181818] text-[#EAEAEA]/70 text-sm text-center border border-[#2a2a2a]'
+                          : message.type === 'user'
+                          ? 'bg-[#6C63FF]/10 text-[#EAEAEA] border border-[#6C63FF]/20'
+                          : 'bg-[#181818] text-[#EAEAEA] border border-[#2a2a2a]'
+                      }`}>
+                        {renderMessageContent(message)}
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+                
+                {isLoading && (
+                  <motion.div
+                    variants={loadingVariants}
+                    initial="initial"
+                    animate="animate"
+                    className={messageContainerClass({type: 'ai'})}
+                  >
+                    <div className={messageContentClass({type: 'ai'})}>
+                      <div className="w-8 h-8 rounded-sm bg-emerald-600/80 flex items-center justify-center">
+                        <Sparkles className="w-5 h-5" />
+                      </div>
+                      <div className="flex gap-1">
+                        <motion.span
+                          animate={{ opacity: [0.3, 1, 0.3] }}
+                          transition={{ duration: 1.5, repeat: Infinity }}
+                          className="w-2 h-2 rounded-full bg-emerald-500"
+                        />
+                        <motion.span
+                          animate={{ opacity: [0.3, 1, 0.3] }}
+                          transition={{ duration: 1.5, repeat: Infinity }}
+                          className="w-2 h-2 rounded-full bg-emerald-500"
+                        />
+                        <motion.span
+                          animate={{ opacity: [0.3, 1, 0.3] }}
+                          transition={{ duration: 1.5, repeat: Infinity }}
+                          className="w-2 h-2 rounded-full bg-emerald-500"
+                        />
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Fixed Input Area */}
+            <div className="fixed bottom-0 left-[inherit] right-0 max-w-[1200px] w-full border-t border-[#2a2a2a] bg-[#181818] z-40">
+              <div className="max-w-3xl mx-auto p-4">
+                <form onSubmit={handleSubmit} className="flex gap-3">
+                  <div className="flex-1 relative">
+                    <textarea
+                      ref={textareaRef}
+                      value={prompt}
+                      onChange={handlePromptChange}
+                      placeholder="Type your prompt here..."
+                      className="w-full bg-[#1a1a1a] rounded-lg border border-[#2a2a2a] p-3 pr-12 text-[#EAEAEA] placeholder-[#EAEAEA]/40 focus:border-[#6C63FF]/50 focus:ring-2 focus:ring-[#6C63FF]/20 text-base min-h-[52px] max-h-[200px] resize-none"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          handleSubmit(e);
+                        }
+                      }}
+                    />
+                    <div className="absolute bottom-2 right-2 text-[#EAEAEA]/30 text-xs">
+                      {characterCount}/1000
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="relative" ref={dropdownRef}>
+                      <motion.button
+                        type="button"
+                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="px-3 h-[52px] bg-[#6C63FF]/10 hover:bg-[#6C63FF]/20 rounded-lg border border-[#6C63FF]/30 text-[#EAEAEA] flex items-center gap-2"
+                      >
+                        <MessageSquare className="w-5 h-5" />
+                        <span className="hidden sm:inline text-sm">{promptType}</span>
+                      </motion.button>
+
+                      {isDropdownOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="absolute bottom-full mb-2 right-0 w-48 bg-[#181818] rounded-xl border border-[#2a2a2a] overflow-hidden backdrop-blur-xl"
+                        >
+                          {promptTypes.map(({ id, icon: Icon, label }) => (
+                            <button
+                              key={id}
+                              type="button"
+                              onClick={() => {
+                                setPromptType(id);
+                                if (id !== 'chat') {
+                                  setIsDropdownOpen(false);
+                                }
+                              }}
+                              className={`w-full px-4 py-2 flex items-center gap-2 ${
+                                promptType === id
+                                  ? 'bg-[#6C63FF]/20 text-[#EAEAEA]'
+                                  : 'text-[#EAEAEA]/70 hover:bg-[#6C63FF]/10'
+                              }`}
+                            >
+                              <Icon className="w-4 h-4" />
+                              <span>{label}</span>
+                            </button>
+                          ))}
+                          
+                          {promptType === 'chat' && (
+                            <>
+                              <div className="w-full h-px bg-violet-500/20 my-1" />
+                              {chatCategories.map(({ id, label }) => (
+                                <button
+                                  key={id}
+                                  type="button"
+                                  onClick={() => {
+                                    setChatCategory(id);
+                                    setIsDropdownOpen(false);
+                                  }}
+                                  className={`w-full px-4 py-2 flex items-center gap-2 ${
+                                    chatCategory === id
+                                      ? 'bg-[#6C63FF]/20 text-[#EAEAEA]'
+                                      : 'text-[#EAEAEA]/70 hover:bg-[#6C63FF]/10'
+                                  }`}
+                                >
+                                  <span className="w-4" />
+                                  <span>{label}</span>
+                                </button>
+                              ))}
+                            </>
+                          )}
+                        </motion.div>
+                      )}
+                    </div>
+
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      type="submit"
+                      disabled={isLoading}
+                      className="w-[52px] h-[52px] bg-[#6C63FF] hover:bg-[#6C63FF]/90 rounded-lg flex items-center justify-center"
+                    >
+                      <Send className="w-5 h-5 text-white" />
+                    </motion.button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Toggle Button */}
+      <div className="fixed top-4 z-50">
         <motion.button
           onClick={() => setShowSidebar(prev => !prev)}
           animate={{
@@ -600,234 +830,6 @@ export default function LivePrompt() {
             </>
           )}
         </motion.button>
-      </div>
-
-      {/* Main Content Container */}
-      <div className="flex-1 flex flex-col max-w-[1200px] mx-auto w-full relative">
-        {/* Fixed Header */}
-        <div className="fixed top-0 left-[inherit] right-0 max-w-[1200px] w-full z-30">
-          <div className="flex items-center h-14 px-4 border-b border-[#2a2a2a] bg-[#181818] sticky top-0 z-30">
-            <div className="flex-1 flex items-center gap-4">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => navigate('/')}
-                className="p-2 rounded-lg hover:bg-[#6C63FF]/10 transition-colors"
-              >
-                <ArrowLeft className="w-5 h-5 text-[#EAEAEA]" />
-              </motion.button>
-              
-              <div className="flex items-center gap-3">
-                <span className="text-lg font-bold bg-gradient-to-r from-[#6C63FF] to-[#FF6B6B] bg-clip-text text-transparent">
-                  PromptVerse
-                </span>
-                <div className="h-4 w-px bg-[#2a2a2a]" />
-                <span className="text-sm font-medium text-[#EAEAEA]/70">
-                  Live Prompt Testing
-                </span>
-              </div>
-            </div>
-
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              onClick={handleSaveConversation}
-              className="p-2 rounded-lg bg-[#6C63FF]/10 hover:bg-[#6C63FF]/20 border border-[#6C63FF]/20 text-[#6C63FF]"
-            >
-              <Save className="w-5 h-5" />
-            </motion.button>
-          </div>
-        </div>
-
-        {/* Messages Container with Fixed Input */}
-        <div className="flex-1 flex flex-col" style={{ paddingTop: "3.5rem", paddingBottom: "80px" }}>
-          {/* Scrollable Messages */}
-          <div 
-            ref={chatContainerRef}
-            className="flex-1 overflow-y-auto px-4 py-6 space-y-6"
-          >
-            <AnimatePresence mode="popLayout">
-              {messages.map((message, index) => (
-                <motion.div
-                  key={index}
-                  variants={messageVariants}
-                  initial="initial"
-                  animate="animate"
-                  exit="exit"
-                  layout
-                  className={messageContainerClass(message)}
-                >
-                  <div className={messageContentClass(message)}>
-                    {message.type !== 'system' && (
-                      <div className={`w-8 h-8 rounded-xl flex items-center justify-center backdrop-blur-sm ${
-                        message.type === 'user' 
-                          ? 'bg-[#6C63FF]/20 border border-[#6C63FF]/30' 
-                          : message.category === 'image'
-                          ? 'bg-[#FF6B6B]/20 border border-[#FF6B6B]/30'
-                          : message.category === 'code'
-                          ? 'bg-[#4ADE80]/20 border border-[#4ADE80]/30'
-                          : 'bg-[#FF6B6B]/20 border border-[#FF6B6B]/30'
-                      }`}>
-                        {message.type === 'user' ? (
-                          <User className="w-5 h-5 text-violet-300" />
-                        ) : message.category === 'image' ? (
-                          <Image className="w-5 h-5 text-emerald-300" />
-                        ) : message.category === 'code' ? (
-                          <Code className="w-5 h-5 text-blue-300" />
-                        ) : (
-                          <Sparkles className="w-5 h-5 text-fuchsia-300" />
-                        )}
-                      </div>
-                    )}
-                    <div className={`rounded-lg p-4 ${
-                      message.type === 'system'
-                        ? 'bg-[#181818] text-[#EAEAEA]/70 text-sm text-center border border-[#2a2a2a]'
-                        : message.type === 'user'
-                        ? 'bg-[#6C63FF]/10 text-[#EAEAEA] border border-[#6C63FF]/20'
-                        : 'bg-[#181818] text-[#EAEAEA] border border-[#2a2a2a]'
-                    }`}>
-                      {renderMessageContent(message)}
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-              
-              {isLoading && (
-                <motion.div
-                  variants={loadingVariants}
-                  initial="initial"
-                  animate="animate"
-                  className={messageContainerClass({type: 'ai'})}
-                >
-                  <div className={messageContentClass({type: 'ai'})}>
-                    <div className="w-8 h-8 rounded-sm bg-emerald-600/80 flex items-center justify-center">
-                      <Sparkles className="w-5 h-5" />
-                    </div>
-                    <div className="flex gap-1">
-                      <motion.span
-                        animate={{ opacity: [0.3, 1, 0.3] }}
-                        transition={{ duration: 1.5, repeat: Infinity }}
-                        className="w-2 h-2 rounded-full bg-emerald-500"
-                      />
-                      <motion.span
-                        animate={{ opacity: [0.3, 1, 0.3] }}
-                        transition={{ duration: 1.5, repeat: Infinity }}
-                        className="w-2 h-2 rounded-full bg-emerald-500"
-                      />
-                      <motion.span
-                        animate={{ opacity: [0.3, 1, 0.3] }}
-                        transition={{ duration: 1.5, repeat: Infinity }}
-                        className="w-2 h-2 rounded-full bg-emerald-500"
-                      />
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          {/* Fixed Input Area */}
-          <div className="fixed bottom-0 left-[inherit] right-0 max-w-[1200px] w-full border-t border-[#2a2a2a] bg-[#181818]">
-            <div className="max-w-3xl mx-auto p-4">
-              <form onSubmit={handleSubmit} className="flex gap-3">
-                <div className="flex-1 relative">
-                  <textarea
-                    ref={textareaRef}
-                    value={prompt}
-                    onChange={handlePromptChange}
-                    placeholder="Type your prompt here..."
-                    className="w-full bg-[#1a1a1a] rounded-lg border border-[#2a2a2a] p-3 pr-12 text-[#EAEAEA] placeholder-[#EAEAEA]/40 focus:border-[#6C63FF]/50 focus:ring-2 focus:ring-[#6C63FF]/20 text-base min-h-[52px] max-h-[200px] resize-none"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        handleSubmit(e);
-                      }
-                    }}
-                  />
-                  <div className="absolute bottom-2 right-2 text-[#EAEAEA]/30 text-xs">
-                    {characterCount}/1000
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <div className="relative" ref={dropdownRef}>
-                    <motion.button
-                      type="button"
-                      onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="px-3 h-[52px] bg-[#6C63FF]/10 hover:bg-[#6C63FF]/20 rounded-lg border border-[#6C63FF]/30 text-[#EAEAEA] flex items-center gap-2"
-                    >
-                      <MessageSquare className="w-5 h-5" />
-                      <span className="hidden sm:inline text-sm">{promptType}</span>
-                    </motion.button>
-
-                    {isDropdownOpen && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="absolute bottom-full mb-2 right-0 w-48 bg-[#181818] rounded-xl border border-[#2a2a2a] overflow-hidden backdrop-blur-xl"
-                      >
-                        {promptTypes.map(({ id, icon: Icon, label }) => (
-                          <button
-                            key={id}
-                            type="button"
-                            onClick={() => {
-                              setPromptType(id);
-                              if (id !== 'chat') {
-                                setIsDropdownOpen(false);
-                              }
-                            }}
-                            className={`w-full px-4 py-2 flex items-center gap-2 ${
-                              promptType === id
-                                ? 'bg-[#6C63FF]/20 text-[#EAEAEA]'
-                                : 'text-[#EAEAEA]/70 hover:bg-[#6C63FF]/10'
-                            }`}
-                          >
-                            <Icon className="w-4 h-4" />
-                            <span>{label}</span>
-                          </button>
-                        ))}
-                        
-                        {promptType === 'chat' && (
-                          <>
-                            <div className="w-full h-px bg-violet-500/20 my-1" />
-                            {chatCategories.map(({ id, label }) => (
-                              <button
-                                key={id}
-                                type="button"
-                                onClick={() => {
-                                  setChatCategory(id);
-                                  setIsDropdownOpen(false);
-                                }}
-                                className={`w-full px-4 py-2 flex items-center gap-2 ${
-                                  chatCategory === id
-                                    ? 'bg-[#6C63FF]/20 text-[#EAEAEA]'
-                                    : 'text-[#EAEAEA]/70 hover:bg-[#6C63FF]/10'
-                                }`}
-                              >
-                                <span className="w-4" />
-                                <span>{label}</span>
-                              </button>
-                            ))}
-                          </>
-                        )}
-                      </motion.div>
-                    )}
-                  </div>
-
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    type="submit"
-                    disabled={isLoading}
-                    className="w-[52px] h-[52px] bg-[#6C63FF] hover:bg-[#6C63FF]/90 rounded-lg flex items-center justify-center"
-                  >
-                    <Send className="w-5 h-5 text-white" />
-                  </motion.button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
