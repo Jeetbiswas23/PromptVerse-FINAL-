@@ -388,11 +388,11 @@ export default function LivePrompt() {
         : message.type === 'user' 
           ? 'justify-end' // Changed to end for user messages
           : 'justify-start' // Changed to start for AI messages
-    } px-4 py-6 hover:bg-black/10 transition-colors
+    } px-4 py-3
   `;
 
   const messageContentClass = (message) => `
-    max-w-2xl flex items-start gap-6 ${
+    max-w-2xl flex items-start gap-4 ${
       message.type === 'system' 
         ? 'justify-center' 
         : message.type === 'user'
@@ -402,26 +402,26 @@ export default function LivePrompt() {
   `;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0a0a1f] via-[#1a1a3f] to-[#0a0a2f] flex">
-      {/* Updated Chat History Sidebar */}
+    <div className="min-h-screen bg-[#121212] flex">
+      {/* Sidebar */}
       <motion.div 
         initial={false}
         animate={{ width: showSidebar ? 320 : 0 }}
-        className="h-screen bg-black/40 backdrop-blur-2xl border-r border-white/10 overflow-hidden relative"
+        className="h-screen bg-[#1a1a1a] border-r border-[#2a2a2a] overflow-hidden relative"
       >
         <div className="flex flex-col h-full">
           {/* Sidebar Header */}
-          <div className="p-4 border-b border-white/10 bg-black/20">
+          <div className="p-4 border-b border-[#2a2a2a] bg-[#181818]">
             <button
               onClick={handleNewChat}
-              className="w-full p-3 flex items-center justify-center gap-2 rounded-xl bg-violet-500/20 hover:bg-violet-500/30 border border-violet-500/30 transition-all duration-200 group"
+              className="w-full p-3 flex items-center justify-center gap-2 rounded-xl bg-[#6C63FF]/10 hover:bg-[#6C63FF]/20 border border-[#6C63FF]/20 transition-all duration-200 group"
             >
-              <Plus className="w-5 h-5 text-violet-300 group-hover:scale-110 transition-transform" />
-              <span className="text-violet-100 font-medium">New Chat</span>
+              <Plus className="w-5 h-5 text-[#6C63FF] group-hover:scale-110 transition-transform" />
+              <span className="text-[#EAEAEA] font-medium">New Chat</span>
             </button>
           </div>
 
-          {/* Conversations List */}
+          {/* Update conversation list styling */}
           <div className="flex-1 overflow-y-auto py-2 space-y-1">
             {conversations.map((conv) => (
               <motion.div
@@ -529,13 +529,7 @@ export default function LivePrompt() {
 
       {/* Main Content Container */}
       <div className="flex-1 flex flex-col">
-        {/* Add animated background elements */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute w-[500px] h-[500px] -top-20 -right-20 bg-violet-500/10 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute w-[500px] h-[500px] -bottom-40 -left-20 bg-cyan-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
-        </div>
-
-        <div className="flex items-center gap-4 p-4 border-b border-white/5">
+        <div className="flex items-center gap-4 p-4 border-b border-gray-800/50 bg-gray-900/50 backdrop-blur-sm">
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -545,7 +539,7 @@ export default function LivePrompt() {
             <ArrowLeft className="w-5 h-5" />
             <span>Back</span>
           </motion.button>
-          <span className="text-xl font-bold bg-gradient-to-r from-violet-200 to-fuchsia-200 bg-clip-text text-transparent">
+          <span className="text-xl font-bold bg-gradient-to-r from-[#6C63FF] to-[#FF6B6B] bg-clip-text text-transparent">
             PromptVerse
           </span>
         </div>
@@ -556,10 +550,10 @@ export default function LivePrompt() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center mb-8"
           >
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-violet-400 via-cyan-300 to-fuchsia-400 bg-clip-text text-transparent mb-4 tracking-tight">
+            <h1 className="text-5xl font-bold text-[#EAEAEA] mb-4 tracking-tight">
               Live Prompt Testing
             </h1>
-            <div className="w-32 h-1 mx-auto bg-gradient-to-r from-violet-500 via-cyan-500 to-fuchsia-500 rounded-full blur-sm" />
+            <div className="w-32 h-1 mx-auto bg-neutral-900 rounded-full" />
           </motion.div>
 
           {/* Save button */}
@@ -567,13 +561,13 @@ export default function LivePrompt() {
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={handleSaveConversation}
-              className="p-2 rounded-full bg-black/20 backdrop-blur-sm border border-white/10"
+              className="p-2 rounded-full bg-neutral-900 backdrop-blur-sm border border-neutral-800"
             >
-              <Save className="w-5 h-5 text-violet-300" />
+              <Save className="w-5 h-5 text-white" />
             </motion.button>
           </div>
 
-          <div className="flex-1 flex flex-col min-h-[600px] bg-black/30 backdrop-blur-2xl rounded-2xl border border-white/10 relative shadow-[0_0_50px_-12px] shadow-violet-500/20 before:absolute before:inset-0 before:rounded-2xl before:border before:border-violet-500/20 before:p-[1px] before:bg-gradient-to-b before:from-violet-500/20 before:to-transparent before:-z-10">
+          <div className="flex-1 flex flex-col min-h-[600px] bg-gradient-to-b from-gray-900/50 via-gray-900/30 to-gray-900/50 rounded-2xl border border-gray-800/50 relative backdrop-blur-md">
             {/* Messages area with updated styling */}
             <div 
               ref={chatContainerRef}
@@ -594,12 +588,12 @@ export default function LivePrompt() {
                       {message.type !== 'system' && (
                         <div className={`w-8 h-8 rounded-xl flex items-center justify-center backdrop-blur-sm ${
                           message.type === 'user' 
-                            ? 'bg-violet-500/30 border border-violet-400/20' 
+                            ? 'bg-[#6C63FF]/20 border border-[#6C63FF]/30' 
                             : message.category === 'image'
-                            ? 'bg-emerald-500/30 border border-emerald-400/20'
+                            ? 'bg-[#FF6B6B]/20 border border-[#FF6B6B]/30'
                             : message.category === 'code'
-                            ? 'bg-blue-500/30 border border-blue-400/20'
-                            : 'bg-fuchsia-500/30 border border-fuchsia-400/20'
+                            ? 'bg-[#4ADE80]/20 border border-[#4ADE80]/30'
+                            : 'bg-[#FF6B6B]/20 border border-[#FF6B6B]/30'
                         }`}>
                           {message.type === 'user' ? (
                             <User className="w-5 h-5 text-violet-300" />
@@ -612,25 +606,21 @@ export default function LivePrompt() {
                           )}
                         </div>
                       )}
-                      <div className={`rounded-2xl p-4 backdrop-blur-sm shadow-lg ${
+                      <div className={`rounded-lg p-4 ${
                         message.type === 'system'
-                          ? 'bg-gray-900/40 text-gray-300 text-sm text-center border border-gray-700/30'
+                          ? 'bg-[#181818] text-[#EAEAEA]/70 text-sm text-center border border-[#2a2a2a]'
                           : message.type === 'user'
-                          ? 'bg-violet-500/20 text-violet-100 border border-violet-500/30'
-                          : message.category === 'image'
-                          ? 'bg-emerald-900/30 text-emerald-100 border border-emerald-500/30'
-                          : message.category === 'code'
-                          ? 'bg-blue-900/30 text-blue-100 border border-blue-500/30'
-                          : 'bg-black/30 text-fuchsia-100 border border-fuchsia-500/30'
+                          ? 'bg-[#6C63FF]/10 text-[#EAEAEA] border border-[#6C63FF]/20'
+                          : 'bg-[#181818] text-[#EAEAEA] border border-[#2a2a2a]'
                       }`}>
                         {renderMessageContent(message)}
                       </div>
                       {message.type !== 'system' && (
                         <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button onClick={() => handleCopyMessage(message.content)} className="p-1 rounded-lg bg-black/20 hover:bg-black/40 text-violet-300">
+                          <button onClick={() => handleCopyMessage(message.content)} className="p-1 rounded-lg bg-[#181818] hover:bg-[#2a2a2a] text-[#4ADE80]">
                             <Copy className="w-4 h-4" />
                           </button>
-                          <button onClick={() => handleDeleteMessage(index)} className="p-1 rounded-lg bg-black/20 hover:bg-black/40 text-rose-300">
+                          <button onClick={() => handleDeleteMessage(index)} className="p-1 rounded-lg bg-[#181818] hover:bg-[#2a2a2a] text-[#FF6B6B]">
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
@@ -679,7 +669,7 @@ export default function LivePrompt() {
                 height: textareaRef.current ? Math.min(textareaRef.current.scrollHeight + 32, 300) : 80
               }}
               transition={{ duration: 0.2 }}
-              className="absolute bottom-0 left-0 right-0 border-t border-white/10 bg-black/60 backdrop-blur-2xl before:absolute before:inset-0 before:border-t before:border-violet-500/20 before:bg-gradient-to-t before:from-violet-500/5 before:to-transparent"
+              className="absolute bottom-0 left-0 right-0 border-t border-[#2a2a2a] bg-[#181818] backdrop-blur-md"
             >
               <form onSubmit={handleSubmit} className="flex gap-4 items-start p-4 relative z-10">
                 <div className="flex-1 relative">
@@ -688,7 +678,7 @@ export default function LivePrompt() {
                     value={prompt}
                     onChange={handlePromptChange}
                     placeholder="Type your prompt here..."
-                    className="w-full bg-black/40 rounded-xl border border-violet-500/30 p-4 pr-16 text-violet-100 placeholder-violet-400/50 focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/30 text-lg min-h-[60px] max-h-[300px] resize-none"
+                    className="w-full bg-[#1a1a1a] rounded-lg border border-[#2a2a2a] p-4 pr-16 text-[#EAEAEA] placeholder-[#EAEAEA]/40 focus:border-[#6C63FF]/50 focus:ring-2 focus:ring-[#6C63FF]/20 text-lg min-h-[60px] max-h-[300px] resize-none"
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();
@@ -707,7 +697,7 @@ export default function LivePrompt() {
                       onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="h-full px-4 bg-violet-500/20 hover:bg-violet-500/30 rounded-xl border border-violet-500/40 text-violet-200 flex items-center justify-center gap-2 transition-colors duration-200 group relative overflow-hidden"
+                      className="h-full px-4 bg-[#6C63FF]/10 hover:bg-[#6C63FF]/20 rounded-lg border border-[#6C63FF]/30 text-[#EAEAEA] flex items-center justify-center gap-2 transition-colors duration-200"
                     >
                       <div className="absolute inset-0 bg-gradient-to-r from-violet-500/10 to-fuchsia-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       {promptType === 'chat' ? (
@@ -726,7 +716,7 @@ export default function LivePrompt() {
                       <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="absolute bottom-full mb-2 right-0 w-48 bg-black/90 rounded-xl border border-violet-500/20 overflow-hidden backdrop-blur-xl"
+                        className="absolute bottom-full mb-2 right-0 w-48 bg-[#181818] rounded-xl border border-[#2a2a2a] overflow-hidden backdrop-blur-xl"
                       >
                         {promptTypes.map(({ id, icon: Icon, label }) => (
                           <button
@@ -738,8 +728,8 @@ export default function LivePrompt() {
                             }}
                             className={`w-full px-4 py-2 flex items-center gap-2 ${
                               promptType === id
-                                ? 'bg-violet-500/20 text-violet-200'
-                                : 'text-violet-300 hover:bg-violet-500/10'
+                                ? 'bg-[#6C63FF]/20 text-[#EAEAEA]'
+                                : 'text-[#EAEAEA]/70 hover:bg-[#6C63FF]/10'
                             }`}
                           >
                             <Icon className="w-4 h-4" />
@@ -760,8 +750,8 @@ export default function LivePrompt() {
                                 }}
                                 className={`w-full px-4 py-2 flex items-center gap-2 ${
                                   chatCategory === id
-                                    ? 'bg-violet-500/20 text-violet-200'
-                                    : 'text-violet-300 hover:bg-violet-500/10'
+                                    ? 'bg-[#6C63FF]/20 text-[#EAEAEA]'
+                                    : 'text-[#EAEAEA]/70 hover:bg-[#6C63FF]/10'
                                 }`}
                               >
                                 <span className="w-4" />
@@ -779,9 +769,8 @@ export default function LivePrompt() {
                     whileTap={{ scale: 0.98 }}
                     type="submit"
                     disabled={isLoading}
-                    className="px-6 bg-violet-500/20 hover:bg-violet-500/30 rounded-xl border border-violet-400/20 text-violet-200 flex items-center justify-center transition-all duration-200 backdrop-blur-sm relative group overflow-hidden"
+                    className="px-6 bg-[#6C63FF] hover:bg-[#6C63FF]/90 rounded-lg border-none text-white flex items-center justify-center transition-all duration-200"
                   >
-                    <div className="absolute inset-0 bg-gradient-to-r from-violet-500/10 to-fuchsia-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     <Send className="w-5 h-5 relative z-10" />
                   </motion.button>
                 </div>
