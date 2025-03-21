@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import axios from 'axios';
 
-// Add this TypeWriter component at the top level of the file
+// Update the TypeWriter component
 const TypeWriter = ({ content, onComplete }) => {
   const [displayedContent, setDisplayedContent] = useState('');
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -18,7 +18,16 @@ const TypeWriter = ({ content, onComplete }) => {
       const timeout = setTimeout(() => {
         setDisplayedContent(prev => prev + content[currentIndex]);
         setCurrentIndex(currentIndex + 1);
-      }, 10); // Changed from 20 to 10 for faster typing speed
+        
+        // Scroll to bottom smoothly
+        const messageContainer = document.querySelector('.message-scroll-container');
+        if (messageContainer) {
+          messageContainer.scrollTo({
+            top: messageContainer.scrollHeight,
+            behavior: 'smooth'
+          });
+        }
+      }, 10);
 
       return () => clearTimeout(timeout);
     } else if (onComplete) {
@@ -770,7 +779,7 @@ export default function LivePrompt() {
             {/* Scrollable Messages */}
             <div 
               ref={chatContainerRef}
-              className="flex-1 overflow-y-auto px-4 py-6 space-y-6"
+              className="flex-1 overflow-y-auto px-4 py-6 space-y-6 message-scroll-container scroll-smooth"
             >
               <AnimatePresence mode="popLayout">
                 {messages.map((message, index) => (
