@@ -53,7 +53,7 @@ export default function LivePrompt() {
     code: "You are a programming assistant helping with code and technical questions."
   };
 
-  // Initialize chat with context message
+  // Remove or modify the initial system message useEffect that's overwriting messages
   useEffect(() => {
     const getContextMessage = () => {
       if (promptType === 'chat') {
@@ -62,10 +62,13 @@ export default function LivePrompt() {
       return systemMessages[promptType];
     };
 
-    setMessages([{
-      type: 'system',
-      content: getContextMessage()
-    }]);
+    // Only set initial system message if there are no messages
+    if (messages.length === 0) {
+      setMessages([{
+        type: 'system',
+        content: getContextMessage()
+      }]);
+    }
   }, [promptType, chatCategory]);
 
   // Add route protection
@@ -76,7 +79,7 @@ export default function LivePrompt() {
     }
   }, [navigate]);
 
-  // Update useEffect to load conversations and current chat
+  // Update the load conversations effect
   useEffect(() => {
     const savedConversations = JSON.parse(localStorage.getItem('conversations') || '[]');
     const lastConversationId = localStorage.getItem('currentConversationId');
@@ -86,11 +89,17 @@ export default function LivePrompt() {
     if (lastConversationId) {
       const currentConv = savedConversations.find(conv => conv.id.toString() === lastConversationId);
       if (currentConv) {
-        setMessages(currentConv.messages);
+        setMessages(currentConv.messages || []);
         setPromptType(currentConv.type);
         setChatCategory(currentConv.category);
         setCurrentConversationId(currentConv.id);
       }
+    } else {
+      // Only set system message if no conversation is loaded
+      setMessages([{
+        type: 'system',
+        content: systemMessages.chat.casual
+      }]);
     }
   }, []);
 
@@ -115,24 +124,38 @@ export default function LivePrompt() {
       content: prompt,
       category: promptType === 'chat' ? chatCategory : promptType
     };
+
+    const updatedMessages = [...messages, newMessage];
+    setMessages(updatedMessages);
     
-    // Create new chat if no current conversation
+    // Create or update conversation immediately
+    let currentConv;
     if (!currentConversationId) {
-      const newConversation = {
+      currentConv = {
         id: Date.now(),
         title: createTitleFromPrompt(prompt),
-        messages: [...messages, newMessage],
+        messages: updatedMessages,
         timestamp: new Date().toISOString(),
-        type: promptType, 
+        type: promptType,
         category: chatCategory
       };
       
-      setConversations(prev => [newConversation, ...prev]);
-      setCurrentConversationId(newConversation.id);
-      localStorage.setItem('conversations', JSON.stringify([newConversation, ...conversations]));
+      setCurrentConversationId(currentConv.id);
+      localStorage.setItem('currentConversationId', currentConv.id.toString());
+      const newConversations = [currentConv, ...conversations];
+      setConversations(newConversations);
+      localStorage.setItem('conversations', JSON.stringify(newConversations));
+    } else {
+      currentConv = conversations.find(c => c.id === currentConversationId);
+      const updatedConversations = conversations.map(conv => 
+        conv.id === currentConversationId 
+          ? { ...conv, messages: updatedMessages, timestamp: new Date().toISOString() }
+          : conv
+      );
+      setConversations(updatedConversations);
+      localStorage.setItem('conversations', JSON.stringify(updatedConversations));
     }
 
-    setMessages(prev => [...prev, newMessage]);
     setPrompt('');
     setIsLoading(true);
     
@@ -158,20 +181,18 @@ export default function LivePrompt() {
         category: promptType === 'chat' ? chatCategory : promptType
       };
       
-      // Update conversation in storage after AI response
-      const updatedMessages = [...messages, newMessage, aiResponse];
-      setMessages(updatedMessages);
+      // Update messages and conversation after AI response
+      const allMessages = [...updatedMessages, aiResponse];
+      setMessages(allMessages);
       
-      if (currentConversationId) {
-        const updatedConversations = conversations.map(conv => 
-          conv.id === currentConversationId 
-            ? { ...conv, messages: updatedMessages, timestamp: new Date().toISOString() }
-            : conv
-        );
-        setConversations(updatedConversations);
-        localStorage.setItem('conversations', JSON.stringify(updatedConversations));
-      }
-      setResponse(aiResponse.content);
+      const finalConversations = conversations.map(conv => 
+        conv.id === (currentConv.id || currentConversationId)
+          ? { ...conv, messages: allMessages, timestamp: new Date().toISOString() }
+          : conv
+      );
+      setConversations(finalConversations);
+      localStorage.setItem('conversations', JSON.stringify(finalConversations));
+      
     } catch (error) {
       console.error('Error calling Gemini API:', error);
       const errorMessage = { 
@@ -294,6 +315,21 @@ export default function LivePrompt() {
 
   // Update handleNewChat
   const handleNewChat = () => {
+    // Save current conversation if it exists and has messages
+    if (currentConversationId && messages.length > 1) {
+      const currentConv = conversations.find(c => c.id === currentConversationId);
+      if (currentConv) {
+        const updatedConversations = conversations.map(conv => 
+          conv.id === currentConversationId 
+            ? { ...conv, messages, timestamp: new Date().toISOString() }
+            : conv
+        );
+        setConversations(updatedConversations);
+        localStorage.setItem('conversations', JSON.stringify(updatedConversations));
+      }
+    }
+
+    // Reset state for new chat
     const systemMessage = {
       type: 'system',
       content: promptType === 'chat' 
@@ -304,14 +340,49 @@ export default function LivePrompt() {
     setMessages([systemMessage]);
     setCurrentConversationId(null);
     setPrompt('');
+    setResponse('');
     localStorage.removeItem('currentConversationId');
+
+    // Save current conversation before creating new one
+    if (messages.length > 1) {  // Only save if there are actual messages
+      const conversation = {
+        id: currentConversationId || Date.now(),
+        title: messages[1]?.content.slice(0, 30) || 'New Chat',
+        messages,
+        timestamp: new Date().toISOString(),
+        type: promptType,
+        category: chatCategory
+      };
+      
+      const updatedConversations = currentConversationId 
+        ? conversations.map(conv => conv.id === currentConversationId ? conversation : conv)
+        : [conversation, ...conversations];
+      
+      setConversations(updatedConversations);
+      localStorage.setItem('conversations', JSON.stringify(updatedConversations));
+    }
   };
 
-  // Update handleLoadConversation
   const handleLoadConversation = (conversation) => {
+    if (!conversation || !conversation.messages) return;
+    
+    // Save current conversation before switching if it has messages
+    if (currentConversationId && messages.length > 1) {
+      const currentConv = conversations.find(c => c.id === currentConversationId);
+      if (currentConv) {
+        const updatedConversations = conversations.map(conv => 
+          conv.id === currentConversationId 
+            ? { ...conv, messages, timestamp: new Date().toISOString() }
+            : conv
+        );
+        setConversations(updatedConversations);
+        localStorage.setItem('conversations', JSON.stringify(updatedConversations));
+      }
+    }
+    
     setMessages(conversation.messages);
-    setPromptType(conversation.type);
-    setChatCategory(conversation.category);
+    setPromptType(conversation.type || 'chat');
+    setChatCategory(conversation.category || 'casual');
     setCurrentConversationId(conversation.id);
     localStorage.setItem('currentConversationId', conversation.id.toString());
   };
@@ -745,6 +816,7 @@ export default function LivePrompt() {
                       {characterCount}/1000
                     </div>
                   </div>
+                  
                   <div className="flex gap-2">
                     <div className="relative" ref={dropdownRef}>
                       <motion.button
