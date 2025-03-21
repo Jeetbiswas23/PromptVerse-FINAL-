@@ -609,16 +609,6 @@ export default function LivePrompt() {
                     }`}>
                       {renderMessageContent(message)}
                     </div>
-                    {message.type !== 'system' && (
-                      <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={() => handleCopyMessage(message.content)} className="p-1 rounded-lg bg-[#181818] hover:bg-[#2a2a2a] text-[#4ADE80]">
-                          <Copy className="w-4 h-4" />
-                        </button>
-                        <button onClick={() => handleDeleteMessage(index)} className="p-1 rounded-lg bg-[#181818] hover:bg-[#2a2a2a] text-[#FF6B6B]">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    )}
                   </div>
                 </motion.div>
               ))}
