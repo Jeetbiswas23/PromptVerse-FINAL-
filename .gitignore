@@ -43,3 +43,6 @@ src/config/
 .env
 .env.*
 !.env.example
+.env.local
+.env.development
+.env.production

@@ -6,6 +6,7 @@ import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { Navigation } from '../App';
 import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
+import axios from 'axios';
 
 export default function LivePrompt() {
   const navigate = useNavigate();
@@ -88,6 +89,9 @@ export default function LivePrompt() {
       .trim() + (prompt.split(/\s+/).length > 7 ? '...' : '');
   };
 
+  const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+  const GEMINI_API_URL = import.meta.env.VITE_GEMINI_API_URL;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!prompt.trim()) return;
@@ -106,7 +110,7 @@ export default function LivePrompt() {
         title: createTitleFromPrompt(prompt),
         messages: [...messages, newMessage],
         timestamp: new Date().toISOString(),
-        type: promptType,
+        type: promptType, 
         category: chatCategory
       };
       
@@ -123,17 +127,42 @@ export default function LivePrompt() {
       textareaRef.current.style.height = '60px';  // Reset to minimum height
     }
     
-    // Simulate API call with context-aware response
-    setTimeout(() => {
+    try {
+      const response = await axios({
+        method: 'post',
+        url: `${GEMINI_API_URL}?key=${GEMINI_API_KEY}`,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        data: {
+          contents: [{
+            parts: [{
+              text: prompt
+            }]
+          }]
+        }
+      });
+
       const aiResponse = { 
         type: 'ai', 
-        content: `[${promptType.toUpperCase()}${promptType === 'chat' ? ` - ${chatCategory}` : ''}] Response: ${newMessage.content}`,
+        content: response.data.candidates[0].content.parts[0].text,
         category: promptType === 'chat' ? chatCategory : promptType
       };
+      
       setMessages(prev => [...prev, aiResponse]);
       setResponse(aiResponse.content);
+    } catch (error) {
+      console.error('Error calling Gemini API:', error);
+      const errorMessage = { 
+        type: 'ai', 
+        content: 'Sorry, there was an error processing your request. Please try again later.',
+        category: promptType === 'chat' ? chatCategory : promptType
+      };
+      setMessages(prev => [...prev, errorMessage]);
+      setResponse(errorMessage.content);
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   useEffect(() => {
@@ -401,9 +430,9 @@ export default function LivePrompt() {
                 animate={{ opacity: 1, x: 0 }}
                 className="px-2"
               >
-                <button
+                <div // Changed from button to div
                   onClick={() => handleLoadConversation(conv)}
-                  className={`w-full p-3 text-left rounded-lg flex items-start gap-3 hover:bg-white/5 transition-colors group relative ${
+                  className={`w-full p-3 text-left rounded-lg flex items-start gap-3 hover:bg-white/5 transition-colors group relative cursor-pointer ${
                     currentConversationId === conv.id ? 'bg-white/10' : ''
                   }`}
                 >
@@ -444,15 +473,15 @@ export default function LivePrompt() {
                   {/* Updated Action Buttons */}
                   <div className="absolute right-2 top-2 flex items-center">
                     <div className="relative action-dropdown">
-                      <button
+                      <div // Changed from button to div
                         onClick={(e) => {
                           e.stopPropagation();
                           setActiveDropdown(activeDropdown === conv.id ? null : conv.id);
                         }}
-                        className="p-1 rounded-lg hover:bg-white/10 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="p-1 rounded-lg hover:bg-white/10 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
                       >
                         <MoreVertical className="w-4 h-4" />
-                      </button>
+                      </div>
                       
                       {activeDropdown === conv.id && (
                         <motion.div
@@ -460,18 +489,18 @@ export default function LivePrompt() {
                           animate={{ opacity: 1, scale: 1 }}
                           className="absolute right-0 top-full mt-1 w-36 py-1 bg-black/90 backdrop-blur-xl border border-white/10 rounded-lg shadow-lg z-50"
                         >
-                          <button
+                          <div // Changed from button to div
                             onClick={(e) => handleDeleteConversation(conv.id, e)}
-                            className="w-full px-3 py-2 text-sm text-rose-400 hover:bg-white/10 flex items-center gap-2"
+                            className="w-full px-3 py-2 text-sm text-rose-400 hover:bg-white/10 flex items-center gap-2 cursor-pointer"
                           >
                             <Trash className="w-4 h-4" />
                             Delete Chat
-                          </button>
+                          </div>
                         </motion.div>
                       )}
                     </div>
                   </div>
-                </button>
+                </div>
               </motion.div>
             ))}
           </div>
