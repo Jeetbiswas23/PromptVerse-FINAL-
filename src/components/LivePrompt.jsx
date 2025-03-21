@@ -603,41 +603,44 @@ export default function LivePrompt() {
       </div>
 
       {/* Main Content Container */}
-      <div className="flex-1 flex flex-col max-w-[1200px] mx-auto w-full">
-        {/* Updated Header */}
-        <div className="flex items-center h-14 px-4 border-b border-[#2a2a2a] bg-[#181818] sticky top-0 z-30">
-          <div className="flex-1 flex items-center gap-4">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => navigate('/')}
-              className="p-2 rounded-lg hover:bg-[#6C63FF]/10 transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5 text-[#EAEAEA]" />
-            </motion.button>
-            
-            <div className="flex items-center gap-3">
-              <span className="text-lg font-bold bg-gradient-to-r from-[#6C63FF] to-[#FF6B6B] bg-clip-text text-transparent">
-                PromptVerse
-              </span>
-              <div className="h-4 w-px bg-[#2a2a2a]" />
-              <span className="text-sm font-medium text-[#EAEAEA]/70">
-                Live Prompt Testing
-              </span>
+      <div className="flex-1 flex flex-col max-w-[1200px] mx-auto w-full relative">
+        {/* Fixed Header */}
+        <div className="fixed top-0 left-[inherit] right-0 max-w-[1200px] w-full z-30">
+          <div className="flex items-center h-14 px-4 border-b border-[#2a2a2a] bg-[#181818] sticky top-0 z-30">
+            <div className="flex-1 flex items-center gap-4">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate('/')}
+                className="p-2 rounded-lg hover:bg-[#6C63FF]/10 transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5 text-[#EAEAEA]" />
+              </motion.button>
+              
+              <div className="flex items-center gap-3">
+                <span className="text-lg font-bold bg-gradient-to-r from-[#6C63FF] to-[#FF6B6B] bg-clip-text text-transparent">
+                  PromptVerse
+                </span>
+                <div className="h-4 w-px bg-[#2a2a2a]" />
+                <span className="text-sm font-medium text-[#EAEAEA]/70">
+                  Live Prompt Testing
+                </span>
+              </div>
             </div>
-          </div>
 
-          <motion.button
-            whileTap={{ scale: 0.95 }}
-            onClick={handleSaveConversation}
-            className="p-2 rounded-lg bg-[#6C63FF]/10 hover:bg-[#6C63FF]/20 border border-[#6C63FF]/20 text-[#6C63FF]"
-          >
-            <Save className="w-5 h-5" />
-          </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={handleSaveConversation}
+              className="p-2 rounded-lg bg-[#6C63FF]/10 hover:bg-[#6C63FF]/20 border border-[#6C63FF]/20 text-[#6C63FF]"
+            >
+              <Save className="w-5 h-5" />
+            </motion.button>
+          </div>
         </div>
-        
-        <div className="flex-1 flex flex-col relative overflow-hidden">
-          {/* Chat Container with adjusted padding */}
+
+        {/* Messages Container with Fixed Input */}
+        <div className="flex-1 flex flex-col" style={{ paddingTop: "3.5rem", paddingBottom: "80px" }}>
+          {/* Scrollable Messages */}
           <div 
             ref={chatContainerRef}
             className="flex-1 overflow-y-auto px-4 py-6 space-y-6"
@@ -722,7 +725,8 @@ export default function LivePrompt() {
             </AnimatePresence>
           </div>
 
-          <div className="border-t border-[#2a2a2a] bg-[#181818]">
+          {/* Fixed Input Area */}
+          <div className="fixed bottom-0 left-[inherit] right-0 max-w-[1200px] w-full border-t border-[#2a2a2a] bg-[#181818]">
             <div className="max-w-3xl mx-auto p-4">
               <form onSubmit={handleSubmit} className="flex gap-3">
                 <div className="flex-1 relative">
