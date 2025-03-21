@@ -8,6 +8,53 @@ import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import axios from 'axios';
 
+// Add this TypeWriter component at the top level of the file
+const TypeWriter = ({ content, onComplete }) => {
+  const [displayedContent, setDisplayedContent] = useState('');
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    if (currentIndex < content.length) {
+      const timeout = setTimeout(() => {
+        setDisplayedContent(prev => prev + content[currentIndex]);
+        setCurrentIndex(currentIndex + 1);
+      }, 20); // Adjust speed here (lower = faster)
+
+      return () => clearTimeout(timeout);
+    } else if (onComplete) {
+      onComplete();
+    }
+  }, [currentIndex, content]);
+
+  return (
+    <ReactMarkdown
+      components={{
+        code: ({node, inline, className, children, ...props}) => {
+          const match = /language-(\w+)/.exec(className || '');
+          return !inline && match ? (
+            <SyntaxHighlighter
+              language={match[1]}
+              style={atomDark}
+              PreTag="div"
+              className="rounded-md my-2"
+              {...props}
+            >
+              {String(children).replace(/\n$/, '')}
+            </SyntaxHighlighter>
+          ) : (
+            <code className="bg-black/30 rounded px-1" {...props}>
+              {children}
+            </code>
+          );
+        },
+        p: ({children}) => <p className="mb-4 last:mb-0">{children}</p>
+      }}
+    >
+      {displayedContent}
+    </ReactMarkdown>
+  );
+};
+
 export default function LivePrompt() {
   const navigate = useNavigate();
   const [prompt, setPrompt] = useState('');
@@ -481,6 +528,17 @@ export default function LivePrompt() {
         <p className="text-center text-sm text-gray-400">
           {message.content}
         </p>
+      );
+    }
+
+    if (message.type === 'ai') {
+      return (
+        <TypeWriter 
+          content={message.content}
+          onComplete={() => {
+            // Optional: Add any callback when typing is complete
+          }}
+        />
       );
     }
 
