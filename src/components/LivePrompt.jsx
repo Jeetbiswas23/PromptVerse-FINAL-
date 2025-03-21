@@ -103,11 +103,10 @@ export default function LivePrompt() {
       content: prompt,
       category: promptType === 'chat' ? chatCategory : promptType
     };
-    setMessages(prev => [...prev, newMessage]);
     
-    // Create new chat if this is the first message
-    if (messages.length === 1) { // Only system message exists
-      const conversation = {
+    // Create new chat if no current conversation
+    if (!currentConversationId) {
+      const newConversation = {
         id: Date.now(),
         title: createTitleFromPrompt(prompt),
         messages: [...messages, newMessage],
@@ -116,18 +115,14 @@ export default function LivePrompt() {
         category: chatCategory
       };
       
-      setConversations(prev => [conversation, ...prev]);
-      setCurrentConversationId(conversation.id);
-      localStorage.setItem('conversations', JSON.stringify([conversation, ...conversations]));
+      setConversations(prev => [newConversation, ...prev]);
+      setCurrentConversationId(newConversation.id);
+      localStorage.setItem('conversations', JSON.stringify([newConversation, ...conversations]));
     }
 
-    setIsLoading(true);
+    setMessages(prev => [...prev, newMessage]);
     setPrompt('');
-    
-    // Reset textarea height
-    if (textareaRef.current) {
-      textareaRef.current.style.height = '60px';  // Reset to minimum height
-    }
+    setIsLoading(true);
     
     try {
       const response = await axios({
@@ -151,7 +146,19 @@ export default function LivePrompt() {
         category: promptType === 'chat' ? chatCategory : promptType
       };
       
-      setMessages(prev => [...prev, aiResponse]);
+      // Update conversation in storage after AI response
+      const updatedMessages = [...messages, newMessage, aiResponse];
+      setMessages(updatedMessages);
+      
+      if (currentConversationId) {
+        const updatedConversations = conversations.map(conv => 
+          conv.id === currentConversationId 
+            ? { ...conv, messages: updatedMessages, timestamp: new Date().toISOString() }
+            : conv
+        );
+        setConversations(updatedConversations);
+        localStorage.setItem('conversations', JSON.stringify(updatedConversations));
+      }
       setResponse(aiResponse.content);
     } catch (error) {
       console.error('Error calling Gemini API:', error);
