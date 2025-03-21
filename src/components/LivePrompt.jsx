@@ -76,10 +76,22 @@ export default function LivePrompt() {
     }
   }, [navigate]);
 
-  // Add new useEffect to load conversations
+  // Update useEffect to load conversations and current chat
   useEffect(() => {
     const savedConversations = JSON.parse(localStorage.getItem('conversations') || '[]');
+    const lastConversationId = localStorage.getItem('currentConversationId');
+    
     setConversations(savedConversations);
+    
+    if (lastConversationId) {
+      const currentConv = savedConversations.find(conv => conv.id.toString() === lastConversationId);
+      if (currentConv) {
+        setMessages(currentConv.messages);
+        setPromptType(currentConv.type);
+        setChatCategory(currentConv.category);
+        setCurrentConversationId(currentConv.id);
+      }
+    }
   }, []);
 
   // Add helper function to create title from prompt
@@ -280,7 +292,7 @@ export default function LivePrompt() {
     setMessages(prev => prev.filter((_, i) => i !== index));
   };
 
-  // Add handler for creating new chat
+  // Update handleNewChat
   const handleNewChat = () => {
     const systemMessage = {
       type: 'system',
@@ -292,14 +304,16 @@ export default function LivePrompt() {
     setMessages([systemMessage]);
     setCurrentConversationId(null);
     setPrompt('');
+    localStorage.removeItem('currentConversationId');
   };
 
-  // Add handler for loading conversation
+  // Update handleLoadConversation
   const handleLoadConversation = (conversation) => {
     setMessages(conversation.messages);
     setPromptType(conversation.type);
     setChatCategory(conversation.category);
     setCurrentConversationId(conversation.id);
+    localStorage.setItem('currentConversationId', conversation.id.toString());
   };
 
   // Add formatted date helper
