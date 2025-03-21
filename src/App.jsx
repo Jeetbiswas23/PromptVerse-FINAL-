@@ -13,6 +13,7 @@ import Prompts from './components/Prompts';
 import { ThemeProvider } from './contexts/ThemeContext';
 import Scene from './models/Scene'; // Keep only this import, remove the named import
 import LivePrompt from './components/LivePrompt';
+import VersionControl from './components/VersionControl'; // Add this import at the top with other imports
 
 // Create auth context
 export const AuthContext = createContext(null);
@@ -677,6 +678,15 @@ export const Navigation = ({ className }) => {
                     <Sparkles className="w-6 h-6" />
                     <span>Live Prompt Testing</span>
                   </motion.button>
+                  {/* Add Version Control Button */}
+                  <motion.button
+                    whileHover={{ x: 4 }}
+                    onClick={() => handleDrawerNavigation('/version-control')}
+                    className="w-full text-left px-6 py-4 text-lg text-violet-200 hover:bg-violet-800/50 rounded-lg transition-colors flex items-center space-x-4"
+                  >
+                    <GitBranch className="w-6 h-6" />
+                    <span>Version Control</span>
+                  </motion.button>
                   <motion.button
                     whileHover={{ x: 4 }}
                     onClick={() => handleDrawerNavigation('/settings')}
@@ -1044,7 +1054,8 @@ function App() {
           <Route path="/signin" element={<SignInPage />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/settings" element={<SettingsPage />} />
-          <Route path="/prompts" element={<Prompts />} /> {/* Add this line */}
+          <Route path="/prompts" element={<Prompts />} />
+          <Route path="/version-control" element={<VersionControl />} /> {/* Add this new route */}
         </Routes>
       </Router>
     </AuthProvider>
