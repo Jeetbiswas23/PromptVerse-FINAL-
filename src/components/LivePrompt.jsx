@@ -26,7 +26,9 @@ export default function LivePrompt() {
   const [showSidebar, setShowSidebar] = useState(true);
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const [activeDropdown, setActiveDropdown] = useState(null);
-  
+  const [sidebarWidth, setSidebarWidth] = useState(280);
+  const [isResizing, setIsResizing] = useState(false);
+  const sidebarRef = useRef(null);
 
   const promptTypes = [
     { id: 'chat', icon: MessageSquare, label: 'Chat Prompt' },
@@ -342,6 +344,32 @@ export default function LivePrompt() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [activeDropdown]);
 
+  // Add resize handler
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (!isResizing) return;
+      
+      const newWidth = e.clientX;
+      if (newWidth > 180 && newWidth < 480) {
+        setSidebarWidth(newWidth);
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+    };
+
+    if (isResizing) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isResizing]);
+
   // Update message rendering to include code highlighting and actions
   const renderMessageContent = (message) => {
     if (message.type === 'system') {
@@ -403,13 +431,16 @@ export default function LivePrompt() {
 
   return (
     <div className="min-h-screen bg-[#121212] flex">
-      {/* Sidebar */}
+      {/* Resizable Sidebar */}
       <motion.div 
+        ref={sidebarRef}
         initial={false}
-        animate={{ width: showSidebar ? 280 : 0 }}
-        className="h-screen bg-[#1a1a1a] border-r border-[#2a2a2a] overflow-hidden relative"
+        animate={{ 
+          width: showSidebar ? sidebarWidth : 0 
+        }}
+        className="h-screen bg-[#1a1a1a] border-r border-[#2a2a2a] overflow-hidden relative flex"
       >
-        <div className="flex flex-col h-full">
+        <div className="flex-1 flex flex-col h-full">
           {/* Sidebar Header */}
           <div className="p-4 border-b border-[#2a2a2a] bg-[#181818]">
             <button
@@ -505,6 +536,12 @@ export default function LivePrompt() {
             ))}
           </div>
         </div>
+        
+        {/* Resize Handle */}
+        <div
+          className="w-1 h-full cursor-ew-resize hover:bg-[#6C63FF]/20 absolute right-0 top-0"
+          onMouseDown={() => setIsResizing(true)}
+        />
       </motion.div>
 
       {/* Toggle Button Container */}
@@ -512,7 +549,7 @@ export default function LivePrompt() {
         <motion.button
           onClick={() => setShowSidebar(prev => !prev)}
           animate={{
-            left: showSidebar ? "336px" : "16px",
+            left: showSidebar ? `${sidebarWidth + 16}px` : "16px",
           }}
           className="flex items-center gap-2 p-2 rounded-lg bg-black/40 hover:bg-black/60 backdrop-blur-sm border border-white/10 transition-colors"
         >
