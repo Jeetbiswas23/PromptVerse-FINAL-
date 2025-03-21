@@ -97,6 +97,16 @@ const StarField = () => {
   );
 };
 
+// First, add color constants at the top of the file
+const THEME = {
+  primary: '#6C63FF',    // Vibrant Indigo
+  secondary: '#FF6B6B',  // Bold Coral
+  accent: '#4ADE80',     // Neon Green
+  background: '#121212', // Dark Mode
+  text: '#EAEAEA'        // Light Gray
+};
+
+// Update the MeshDistortMaterial colors in 3D components
 const AnimatedSphere = () => {
   return (
     <Float
@@ -107,8 +117,8 @@ const AnimatedSphere = () => {
       <mesh scale={2}>
         <sphereGeometry args={[1, 32, 32]} />
         <MeshDistortMaterial
-          color="#8b5cf6"
-          emissive="#8b5cf6"
+          color={THEME.primary}
+          emissive={THEME.primary}
           emissiveIntensity={0.8}
           attach="material"
           distort={0.6}
@@ -316,7 +326,7 @@ const PromptScreen = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setShowSettings(!showSettings)}
-                className="px-4 py-2 bg-violet-500/10 rounded-lg border border-violet-500/20 text-violet-300 text-sm hover:bg-violet-500/20"
+                className="px-4 py-2 bg-[#6C63FF]/10 rounded-lg border border-[#4ADE80]/20 text-[#EAEAEA] text-sm hover:bg-[#6C63FF]/20"
               >
                 Model Settings
               </motion.button>
@@ -515,11 +525,11 @@ export const Navigation = ({ className }) => {
 
   return (
     <div>
-      <nav className={`relative z-50 backdrop-blur-sm border-b border-white/5 sticky top-0 ${className || ''}`}>
+      <nav className={`relative z-50 backdrop-blur-sm border-b border-[#6C63FF]/10 sticky top-0 ${className || ''}`}>
         <div className="max-w-7xl mx-auto flex justify-between items-center p-4">
           {/* Logo */}
           <div className="flex items-center">
-            <span className="text-xl font-bold bg-gradient-to-r from-violet-200 to-fuchsia-200 bg-clip-text text-transparent">
+            <span className="text-xl font-bold bg-gradient-to-r from-white via-white/90 to-white bg-clip-text text-transparent">
               PromptVerse
             </span>
           </div>
@@ -565,7 +575,7 @@ export const Navigation = ({ className }) => {
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="absolute right-0 mt-2 w-64 bg-violet-950/90 backdrop-blur-sm rounded-lg border border-violet-500/20 shadow-xl"
+                    className="absolute right-0 mt-2 w-64 bg-[#121212]/90 backdrop-blur-sm rounded-lg border border-[#6C63FF]/20 shadow-xl"
                   >
                     <div className="py-3">
                       {/* Mobile menu items */}
@@ -607,7 +617,7 @@ export const Navigation = ({ className }) => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => navigate('/signin')}
-                className="px-4 py-2 bg-violet-500/10 rounded-lg border border-violet-500/20 text-violet-300 text-sm hover:bg-violet-500/20"
+                className="px-4 py-2 bg-[#6C63FF]/10 rounded-lg border border-[#4ADE80]/20 text-[#EAEAEA] text-sm hover:bg-[#6C63FF]/20"
               >
                 Sign In
               </motion.button>
@@ -769,11 +779,11 @@ const MainContent = () => {
       <m.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="min-h-screen bg-[#0a0a0f] text-white overflow-hidden"
+        className="min-h-screen bg-[#121212] text-[#EAEAEA] overflow-hidden"
       >
         {/* Background layers */}
         <div className="fixed inset-0 z-0">
-          <div className="absolute inset-0 bg-gradient-to-tr from-black via-violet-900/20 to-[#0f1625] opacity-90" />
+          <div className="absolute inset-0 bg-gradient-to-tr from-black via-[#6C63FF]/20 to-[#121212] opacity-90" />
           <StarField />
           <div className="absolute inset-0 opacity-[0.02] mix-blend-overlay">
             <div className="w-full h-full bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.1)_0%,transparent_2px)] bg-[length:24px_24px]" />
@@ -799,7 +809,7 @@ const MainContent = () => {
               <motion.h1
                 whileHover={{ scale: 1.05 }}
                 transition={{ type: "spring", stiffness: 300 }}
-                className="text-5xl sm:text-8xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-violet-200 via-fuchsia-200 to-violet-200 bg-clip-text text-transparent cursor-default animate-shine"
+                className="text-5xl sm:text-8xl font-bold mb-4 sm:mb-6 text-white cursor-default"
               >
                 PromptVerse
               </motion.h1>
@@ -820,12 +830,12 @@ const MainContent = () => {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => navigate('/prompts')} // Add this line
-                className="futuristic-button group relative my-8 px-14 py-4 overflow-hidden rounded-xl bg-violet-950/30 backdrop-blur-md"
+                className="futuristic-button group relative my-8 px-14 py-4 overflow-hidden rounded-xl bg-[#6C63FF]/30 backdrop-blur-md"
               >
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-1/2 h-[1px] bg-gradient-to-r from-transparent via-violet-400 to-transparent opacity-50" />
+                  <div className="w-1/2 h-[1px] bg-gradient-to-r from-transparent via-[#4ADE80] to-transparent opacity-50" />
                 </div>
-                <div className="absolute inset-[1px] rounded-xl bg-gradient-to-b from-violet-950/50 to-violet-900/50 backdrop-blur-sm" />
+                <div className="absolute inset-[1px] rounded-xl bg-gradient-to-b from-[#6C63FF]/50 to-[#6C63FF]/50 backdrop-blur-sm" />
                 <div className="absolute inset-0 rounded-xl border border-violet-500/20 group-hover:border-violet-400/40 transition-colors duration-500" />
                 <div className="relative flex items-center space-x-2">
                   <span className="font-bold text-lg bg-gradient-to-r from-violet-200 via-white to-violet-200 bg-clip-text text-transparent group-hover:text-white transition-all duration-300">
@@ -962,18 +972,18 @@ const MainContent = () => {
                     }
                   }}
                   whileHover={{ y: -8, transition: { type: "spring", stiffness: 300 } }}
-                  className="feature-card group p-6 bg-violet-900/10 rounded-xl border border-violet-500/10 hover:bg-violet-800/20 backdrop-blur-sm"
+                  className="feature-card group p-6 bg-[#6C63FF]/10 rounded-xl border border-[#4ADE80]/10 hover:bg-[#6C63FF]/20 backdrop-blur-sm"
                 >
                   <motion.span
                     whileHover={{ scale: 1.1 }}
-                    className="text-violet-300 mb-4 block"
+                    className="text-[#4ADE80] mb-4 block"
                   >
                     {feature.icon}
                   </motion.span>
-                  <h3 className="text-lg font-semibold mb-2 text-violet-100">
+                  <h3 className="text-lg font-semibold mb-2 text-[#EAEAEA]">
                     {feature.title}
                   </h3>
-                  <p className="text-violet-300/70 text-sm">
+                  <p className="text-[#EAEAEA]/70 text-sm">
                     {feature.description}
                   </p>
                 </m.div>
@@ -985,9 +995,9 @@ const MainContent = () => {
         {/* Add FAQ section before footer */}
         <FAQ />
         
-        <footer className="relative z-10 border-t border-violet-500/10 mt-16"> {/* Reduced margin-top */}
+        <footer className="relative z-10 border-t border-[#6C63FF]/10 mt-16"> {/* Reduced margin-top */}
           <div className="max-w-7xl mx-auto px-4 py-8">
-            <div className="text-center text-violet-300/50 text-sm">
+            <div className="text-center text-[#EAEAEA]/50 text-sm">
               © {new Date().getFullYear()} PromptVerse. All rights reserved.
             </div>
           </div>
@@ -1090,7 +1100,7 @@ const FAQ = () => {
   const [openIndex, setOpenIndex] = useState(null);
 
   return (
-    <section className="relative py-16 overflow-hidden min-h-screen">
+    <section className="relative py-16 overflow-hidden min-h-screen bg-[#121212]">
       {/* Background */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-gradient-to-tr from-black via-violet-900/20 to-[#0f1625] opacity-90" />
@@ -1118,13 +1128,13 @@ const FAQ = () => {
           className="text-center mb-12"
         >
           <m.h2 
-            className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-violet-200 via-fuchsia-200 to-violet-200 bg-clip-text text-transparent mb-4"
+            className="text-4xl md:text-6xl font-bold text-white mb-4"
             whileHover={{ scale: 1.02 }}
             transition={{ type: "spring", stiffness: 300 }}
           >
             FAQ's
           </m.h2>
-          <p className="text-violet-300/70 text-lg max-w-2xl mx-auto">
+          <p className="text-[#EAEAEA]/70 text-lg max-w-2xl mx-auto">
             Everything you need to know about PromptVerse and how it works
           </p>
         </m.div>
