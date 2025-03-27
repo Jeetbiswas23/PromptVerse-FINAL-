@@ -18,6 +18,7 @@ export const Stars = React.memo(() => {
     })), []
   );
 
+  
   return (
     <div className="stars-container animate-float">
       {starsData.map((star, i) => (
