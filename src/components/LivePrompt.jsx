@@ -168,8 +168,12 @@ export default function LivePrompt() {
       .trim() + (prompt.split(/\s+/).length > 7 ? '...' : '');
   };
 
-  const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-  const GEMINI_API_URL = import.meta.env.VITE_GEMINI_API_URL;
+  const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
+  const GEMINI_API_URL = import.meta.env.VITE_GEMINI_API_URL || '';
+
+  if (!GEMINI_API_KEY || !GEMINI_API_URL) {
+    console.error('Missing GEMINI_API_KEY or GEMINI_API_URL environment variables.');
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -218,31 +222,43 @@ export default function LivePrompt() {
     try {
       const response = await axios({
         method: 'post',
-        url: `${GEMINI_API_URL}?key=${GEMINI_API_KEY}`,
+        url: GEMINI_API_URL,
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+        },
+        params: {
+          key: GEMINI_API_KEY
         },
         data: {
           contents: [{
             parts: [{
               text: prompt
             }]
-          }]
+          }],
+          generationConfig: {
+            temperature: 0.7,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 1024,
+          }
         }
       });
 
-      const aiResponse = { 
-        type: 'ai', 
-        content: response.data.candidates[0].content.parts[0].text,
+      console.log('Gemini API response:', response.data);
+
+      // Fixed: Added missing semicolon and properly structured the object
+      const aiResponse = {
+        type: 'ai',
+        content: response.data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response generated',
         category: promptType === 'chat' ? chatCategory : promptType
       };
       
-      // Update messages and conversation after AI response
       const allMessages = [...updatedMessages, aiResponse];
       setMessages(allMessages);
       
+      // Update conversations
       const finalConversations = conversations.map(conv => 
-        conv.id === (currentConv.id || currentConversationId)
+        conv.id === (currentConv?.id || currentConversationId)
           ? { ...conv, messages: allMessages, timestamp: new Date().toISOString() }
           : conv
       );
@@ -250,10 +266,15 @@ export default function LivePrompt() {
       localStorage.setItem('conversations', JSON.stringify(finalConversations));
       
     } catch (error) {
-      console.error('Error calling Gemini API:', error);
+      console.error('Error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+      
       const errorMessage = { 
         type: 'ai', 
-        content: 'Sorry, there was an error processing your request. Please try again later.',
+        content: `Error: ${error.response?.data?.error?.message || 'An error occurred while processing your request'}`,
         category: promptType === 'chat' ? chatCategory : promptType
       };
       setMessages(prev => [...prev, errorMessage]);
